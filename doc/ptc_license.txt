@@ -1,0 +1,45 @@
+Academic Software License Agreement for the PTC Solver
+
+The PTC Solver is a program written by Dr. Christophe Meudec, Ireland. 
+A license for the PTC Solver
+program is granted, provided that you make the following commitments: 
+
+    1. The PTC Solver shall not be used for commercial purposes.  
+    
+    2. In using this software, I will respect the interests of the author. 
+
+    3. I will acknowledge the use of the solver in any scientific publication of 
+results based in part on the use of this program. 
+
+    4. I will not alter or suppress any copyright message included in the 
+release. 
+
+    5. I will report evidence of program bugs, and fixes, if known, to the 
+author. 
+
+Redistribution are
+permitted provided that the following conditions are met: 
+
+    All advertising materials mentioning features or use of this software must
+    acknowledge the use of the PTC Solver or its components. 
+
+    The name of the author may not be used to endorse or promote products 
+derived
+    from this software without specific prior written permission. 
+
+    Redistributions of source code must retain the above copyright notice, this 
+list of
+    conditions, and the following disclaimer. 
+
+DISCLAIMER 
+
+THIS SOFTWARE IS PROVIDED ''AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
+NO EVENT SHALL Christophe Meudec BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
