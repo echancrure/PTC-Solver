@@ -1,6 +1,6 @@
 \documentclass{article}
 \usepackage{graphics}
-\input{latex-hack}
+%\input{latex-hack}
 %%% begin thesis format
 \pagestyle{plain}
 \setlength{\oddsidemargin}{-1cm}
@@ -40,8 +40,9 @@ solver adds constraints to its own internal constraint store for evaluation. A
 satisfiable set on constraints can be sampled and the solver generates actual
 values which reduces the system of constraints to true.
 
-To use the PTC Solver to its full potential a knowledge of
-the Prolog programming language is necessary.
+To use the PTC Solver to its full potential a knowledge of the Prolog programming language is necessary.
+
+The PT Solver is open source at at \texttt{https://github.com/echancrure/PTC-Solver}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Referencing}
@@ -60,7 +61,7 @@ Therefore
 it will not work unless you install the latest version of ECLiPSe on your
 machine. ECLiPSe is free for non-commercial purposes and can be downloaded once
 the license agreement has been signed from
-\texttt{http://www.icparc.ic.ac.uk/eclipse/}.
+\texttt{http://eclipseclp.org/}.
 ECLiPSe is available on the Windows and Unix platforms.
 
 The Zip file containing the PTC Solver you downloaded should be extracted in your
@@ -138,7 +139,7 @@ precision it is recommended that you use rationals in your application.
 The subsection \textit{Useful for Embedding} describes predicate useful for the
 manipulation of rational numbers.
 
-The ptc\_solver\_\_rational\_to\_decimal predicate is also provided to convert a
+The \texttt{ptc\_solver\_\_rational\_to\_decimal} predicate is also provided to convert a
 rational number into a double precision decimal point
 number.
 
@@ -157,20 +158,27 @@ ptc\_solver\_\_set\_flag(or\_constraint\_behaviour, Value)
 predicate where Value is one of the following ('pure' is the default value):
 
 \begin{itemize}
-\item 'pure', here the 'or' constraint behaves as a true constraint. In other
-words as much as possible is deduced from the constraint and it
+\item 'pure', in this case the 'or' constraint behaves as a true constraint. In other
+words, as much as possible is deduced from the constraint and it
 remains latent in the system until more information can be deduced
 automatically.
 
-\item 'choice', here the 'or' constraint is broken down and its components
+\item 'choice', in this case the 'or' constraint is broken down and its components
 submitted to the system one by one during backtracking. The extra
 induced backtracking on failure must be tackled appropriately at a
 higher level. Thus on backtracking the 'or' constraint returns
 different ways in which it can be satisfied. Formally the
 constraint 'A or B' can be satisfied by 'A and not(B)', 'A and B'
 and 'not(A) and B'.
-
 \end{itemize}
+
+%%%
+\subsection{Non-Linear Constraints}
+Non linear constraints can be handled by the PTC Solver. However, unlike linear constraints, non-linear constraints typically do not get resolved immediately:
+ i.e. adding non-linear constraints delays the satisfiability check of the set of constraints posted so far. Typically, the satisfiability or otherwise of non-linear constraints
+ is only resolved at the labeling stage. 
+ 
+In particular, note that inequalities are non-linear constraints: if you post \texttt{<>} constraints the satisfiability problem is usually delayed until the labeling step.   
 
 %%%
 \subsection{Randomness}
@@ -924,7 +932,7 @@ are a few recommendations:
 once to the appropriate labeling predicate. This allows the predicate to select
 the most promising variables first.
 \item The labeling predicate implements some randomness, therefore different runs
-can yield vastly different runtimes. Sometime labeling can get lucky are return
+can yield vastly different runtimes. Sometime labeling can get lucky and return
 quickly. Sometime labeling will be bogged down.
 \item Labeling of integer variable is exhaustive i.e. all integer values in the
 constrained range will be tried. If there is no solution to the current store of
@@ -1127,9 +1135,9 @@ reporting predicate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bibliographystyle{plain}
+%\bibliographystyle{plain}
 % \nocite{*}
-\bibliography{abrev,clp,wcet,thesis}
+%\bibliography{abrev,clp,wcet,thesis}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
