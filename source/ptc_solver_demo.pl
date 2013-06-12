@@ -21,6 +21,13 @@
 :- import ptc_solver__set_flag/2 from ptc_solver.
 :- import ptc_solver__is_rational/1, ptc_solver__rational_to_decimal/2 from ptc_solver.
 
+simpleExample([X]) :-
+        ptc_solver__clean_up,
+        ptc_solver__default_declarations,
+        ptc_solver__variable([X], Integer),
+        ptc_solver__sdl((X > 2 and X-1 <= 42) or (X <= 2 and X+1 <= 42)),
+        ptc_solver__label_integers([X]).
+
 eileenlarge210205([I, R]) :-
         ptc_solver__clean_up,
         ptc_solver__default_declarations,
