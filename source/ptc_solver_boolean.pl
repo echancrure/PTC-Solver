@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 19/12/00
-% Eclipse 5.2 program
+% Eclipse 6.0 program
 % ptc_solver_boolean.pl
 % Boolean constraints
 % part of the solver module
@@ -27,7 +27,7 @@
 %                                                                A and  B and ~C
 %                                                                A and  B and  C
 %                                                               ~A and  B and  C
-%          ] 
+%          ]
 % we give here both constraints controlled by an asserted fact
 
 s_or(A, B) :-
@@ -55,7 +55,7 @@ s_or_else(A, B) :-
          V = choice ->
                 s_or_else_choice(A, B)
         ).
-        
+
 %%%%%%%%%%%%%%%%%%%%%%%  CHOICE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %truly random!
 s_or_choice(A, B) :-
@@ -75,7 +75,7 @@ s_or_choice(A, B) :-
 	                sdl(and(not(A), B), _, _)
                  ;
 	                sdl(and(A, B), _, _)
-	        )        
+	        )
         ;
          N6 = 2 ->
                 (       sdl(and(not(A), B), _, _)
@@ -98,7 +98,7 @@ s_or_choice(A, B) :-
                  ;
                         sdl(and(not(A), B), _, _)
 	         ;
-	                sdl(and(A, not(B)), _, _)	                
+	                sdl(and(A, not(B)), _, _)
 	        )
         ;
          N6 = 5 ->
@@ -106,7 +106,7 @@ s_or_choice(A, B) :-
                  ;
                         sdl(and(A, not(B)), _, _)
 	         ;
-	                sdl(and(not(A), B), _, _)             
+	                sdl(and(not(A), B), _, _)
 	        )
         ).
 
@@ -128,7 +128,7 @@ s_or_else_choice(A, B) :-
         ).
 
 %%%%%%%%%%%%%%%%%%%%%%%  PURE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-s_or_pure(A, B) :- 
+s_or_pure(A, B) :-
         known(A, KCA),
         (KCA == no ->
                 (known(B, KCB),
@@ -137,7 +137,7 @@ s_or_pure(A, B) :-
                          get_atomics(VarsA, AtomicsA),
                          term_variables(dummy(B), VarsB),
                          get_atomics(VarsB, AtomicsB),
-                         make_suspension(s_or(A, B), 4, Susp),  %priority has been lowered from 3 to 4 (David's diary 29/06/04) to be lower than the clpfd constraints before the fail within success/2 
+                         make_suspension(s_or(A, B), 4, Susp),  %priority has been lowered from 3 to 4 (David's diary 29/06/04) to be lower than the clpfd constraints before the fail within success/2
 	                 insert_suspension(dummy(AtomicsA, AtomicsB), Susp, inst of suspend, suspend)
 	                )
                  ;
@@ -146,7 +146,7 @@ s_or_pure(A, B) :-
                  ;
                   KCB == false ->
                         (sdl(not(B), _, _),     %not really necessary but should never fail
-                         sdl(A, _, _)           %determine the outcome of the  'A or B'           
+                         sdl(A, _, _)           %determine the outcome of the  'A or B'
                         )
                  )
                 )
@@ -156,7 +156,7 @@ s_or_pure(A, B) :-
         ;
          KCA == false ->
                 (sdl(not(A), _, _),             %not really necessary but should never fail
-                 sdl(B, _, _)                   %determine the outcome of the  'A or B'  
+                 sdl(B, _, _)                   %determine the outcome of the  'A or B'
                 )
         ).
 
@@ -165,7 +165,7 @@ s_or_pure(A, B) :-
 % in A or_else B, if A is unknown but if B is known and is false then we can conclude that A has to be true
 s_or_else_pure(A, B) :-
         known(A, KCA),
-        (KCA == no ->                   
+        (KCA == no ->
                 (known(B, KCB),
                  (KCB == no ->  %we will have to delay
                         (term_variables(dummy(A), VarsA),
@@ -186,13 +186,13 @@ s_or_else_pure(A, B) :-
                          make_suspension(s_or_else_pure(A, B), 3, Susp),
 	                 insert_suspension(dummy(AtomicsA, AtomicsB), Susp, inst of suspend, suspend)
 	                )
-                ; 
+                ;
                  KCB == false ->        %here A must be true
                         (sdl(not(B), _, _),     %not really necessary but should never fail
-                         sdl(A, _, _)           %determine the outcome of the  'A or B'           
+                         sdl(A, _, _)           %determine the outcome of the  'A or B'
                         )
                 )
-               )      
+               )
         ;
          KCA == true ->
                 sdl(A, _, _)    %should never fail
@@ -206,7 +206,7 @@ s_or_else_pure(A, B) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %to handle C Boolean expressions which return an int
-% which can be part of expressions such as x = (y<z) 
+% which can be part of expressions such as x = (y<z)
 %see my Eileen's MSc diary
 % pretty much as a reified constraint
 
@@ -242,7 +242,7 @@ s_reif(Constraint, R) :-
                         )
                  )
                 )
-        ).  
+        ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %to handle Javabyte code dcmp and lcmp
@@ -302,12 +302,12 @@ successF(Constraint) :-
         setval(entail_stack, [es(T, yes)|ES]),  %not Constraint can be true
         fail.
 
-known(Constraint, KC) :-        
+known(Constraint, KC) :-
         getval(entail_stack, ES),
         setval(entail_stack, [es(no, no)|ES]),          %initial element is pushed on the stack
-        
+
         not successT(Constraint),
-        
+
         not successF(Constraint),
         getval(entail_stack, [es(ST, SF)|ES]),
         setval(entail_stack, ES),                       %top of the stack is removed: job done
@@ -334,7 +334,7 @@ get_atomics([V|Rest], List) :-
          ptc_solver__is_array(V) ->
                 (partition_array_vars(V, List2),
                  append(List2, List1, List)
-                ) 
+                )
 	;
 	 ptc_solver__is_record(V) ->
 	       (partition_record_vars(V, List2),
@@ -351,7 +351,7 @@ partition_array_vars(V, List) :-
 % called from partition_vars/5 by partition_record_vars(Value, IL1, RL1, EL1)
 % Vars is a list of record variables, which can belong to an array or not
 partition_record_vars(V, List) :-
-	ptc_solver__get_record_field_values(V, Field_values),    % obtain all the fields and values of V 
+	ptc_solver__get_record_field_values(V, Field_values),    % obtain all the fields and values of V
 	term_variables(Field_values, Vars),
 	partition_component_vars(Vars, List).    % partition all field variables
 
@@ -366,16 +366,16 @@ partition_component_vars([V|Rest], List) :-
 	;
 	 ptc_solver__is_real(V) ->	                                   % a real
 	    List = [V|List1]
-	;                                                 
-	 ptc_solver__is_record(V) ->                           % a record 
+	;
+	 ptc_solver__is_record(V) ->                           % a record
 	    (partition_record_vars(V, List2), % need to partition the variables recorded as fields in all Vars
              append(List2, List1, List)
-            ) 
+            )
 	;
 	 ptc_solver__is_array(V) ->                             % an array
 	    (partition_array_vars(V, List2),
 	     append(List2, List1, List)
-            ) 
+            )
 	),
 	partition_component_vars(Rest, List1).
 

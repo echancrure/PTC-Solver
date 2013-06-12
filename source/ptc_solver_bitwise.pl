@@ -1,15 +1,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 19/06/02
-% Eclipse 5.2 program
+% Eclipse 6.0 program
 % ptc_solver_bitwise.pl
 % bitwise constraints
 % part of the solver module
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The solver works on decimals only (no binary, octal or hexadecimals)
-%  therefore the binary encoding must be specified : bit length, signed/unsigned 
+%  therefore the binary encoding must be specified : bit length, signed/unsigned
 %  2's complement is assumed for signed encoding
 % Eclipse 's binary representation cannot be used as it deletes leading zeros
-%  and therefore the length of the encoding cannot be detected   
+%  and therefore the length of the encoding cannot be detected
 %%%
 %I must be an integer decimal number including, possibly, a minus sign for negative numbers
 %Len must be one of : 8, 16, 32 or 64
@@ -37,7 +37,7 @@ bitwise_check(L, Len, Sign) :-
                 all(L, -65535, 65535)
         ;
         (Len == 64, Sign == unsigned) ->        %!!!loss
-                all(L, 0, 65535)        
+                all(L, 0, 65535)
         ),
         !.
 bitwise_check(_, Len, Sign) :-
@@ -76,7 +76,7 @@ convert3(0, 0, []) :-
         !.
 convert3(_, 0, _) :-
 %should never happen due to contraints in bitwise_check
-        ptc_solver__verbose("Overflow in binary convertion").    
+        ptc_solver__verbose("Overflow in binary convertion").
 convert3(I, Len, L) :-
         !,
         I2 is I // 2,
@@ -97,11 +97,11 @@ add_bits(0, 0, 0, 0).
 add1([R], A, [R2], N) :-   %a single element
         !,
         add_bits(R, A, R2, N).
-add1([B|R], A, [B2|R2], N2) :-        
+add1([B|R], A, [B2|R2], N2) :-
         add1(R, A, R2, N),
         add_bits(B, N, B2, N2).
 
-%%%        
+%%%
 to_decimal(L, Sign, Z) :-
         (Sign == signed ->
                 (L = [S|R],
@@ -125,7 +125,7 @@ to_decimal2([D|L], N1, R) :-
         to_decimal2(L, N, R2),
         R is R2 + D*2^N,
         N1 is N + 1.
-        
+
 %%%
 neg_bit(0, 1).
 neg_bit(1, 0).
@@ -155,7 +155,7 @@ or_bit(1, 1, 1).
 list_or([], [], []).
 list_or([B|R], [C|S], [D|T]) :-
         or_bit(B, C, D),
-        list_or(R, S, T).        
+        list_or(R, S, T).
 %%%
 xor_bit(0, 0, 0).
 xor_bit(0, 1, 1).
@@ -210,7 +210,7 @@ s_bwnot2(X, Len, Sign, Z) :-
         not nonground(X) ->
                 (convert(X, Len, Sign, Z2),
                  list_negate(Z2, Z3),
-                 to_decimal(Z3, Sign, Z) 
+                 to_decimal(Z3, Sign, Z)
                 )
         ;
         not nonground(Z) ->
@@ -235,7 +235,7 @@ s_bwand2(X, Y, Len, Sign, Z) :-
                 (convert(X, Len, Sign, X2),
                  convert(Y, Len, Sign, Y2),
                  list_and(X2, Y2, Z2),
-                 to_decimal(Z2, Sign, Z) 
+                 to_decimal(Z2, Sign, Z)
                 )
         ;
                 (make_suspension(s_bwand2(X, Y, Len, Sign, Z), 3, Susp),
@@ -256,7 +256,7 @@ s_bwor2(X, Y, Len, Sign, Z) :-
                 (convert(X, Len, Sign, X2),
                  convert(Y, Len, Sign, Y2),
                  list_or(X2, Y2, Z2),
-                 to_decimal(Z2, Sign, Z) 
+                 to_decimal(Z2, Sign, Z)
                 )
         ;
                 (make_suspension(s_bwor2(X, Y, Len, Sign, Z), 3, Susp),
@@ -277,7 +277,7 @@ s_bwxor2(X, Y, Len, Sign, Z) :-
                 (convert(X, Len, Sign, X2),
                  convert(Y, Len, Sign, Y2),
                  list_xor(X2, Y2, Z2),
-                 to_decimal(Z2, Sign, Z) 
+                 to_decimal(Z2, Sign, Z)
                 )
         ;
         (not nonground(X), not nonground(Z)) ->
@@ -306,7 +306,7 @@ s_left_shift2(X, S, Len, Sign, Z) :-
         (not nonground(X), not nonground(S)) ->
                 (convert(X, Len, Sign, Z2),
                  list_left_shift(Z2, S, Z3),
-                 to_decimal(Z3, Sign, Z) 
+                 to_decimal(Z3, Sign, Z)
                 )
         ;
                 (make_suspension(s_left_shift2(X, S, Len, Sign, Z), 3, Susp),
@@ -334,9 +334,9 @@ s_right_shift2(X, S, Len, Sign, Z) :-
                   Sign == signed ->
                         (Z2 = [V|_],
                          list_right_shift(Z2, S, V, Z3)
-                        ) 
+                        )
                  ),
-                 to_decimal(Z3, Sign, Z) 
+                 to_decimal(Z3, Sign, Z)
                 )
         ;
                 (make_suspension(s_right_shift2(X, S, Len, Sign, Z), 3, Susp),

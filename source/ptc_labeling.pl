@@ -1,7 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec
-% Eclipse 4.2 program
-% se_labeling1.pl
+% Eclipse 6.0 program
 % takes care of the labeling of variables in the solver's format
 % various strategy could be implemented including the use of local search algorithms (Hill climbing, Tabu Search etc.)
 %  see Eclipse sample programs
@@ -11,8 +10,6 @@
 :- export ptc_labeling__integers/1, ptc_labeling__enums/1, ptc_labeling__reals/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%:- begin_module(ptc_labeling).
-
 :- lib(clpq), lib(fd).
 :- import ptc_enum__sample/1 from ptc_enum.
 

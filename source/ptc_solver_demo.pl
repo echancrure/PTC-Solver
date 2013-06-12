@@ -1,12 +1,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 08/02/01
-% Eclipse 5.8 program
+% Eclipse 6.0 program
 % solver_demo.pl
-% demo of ATGen's solver capabilities 
+% demo of ATGen's solver capabilities
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- lib(ptc_solver).                                
-%:- [ptc_solver].		%the solver is compiled and imported
+%:- lib(ptc_solver).
+:- use_module([ptc_solver]).		%the solver is compiled and imported
 :- [util__post_precedence].                           %
 :- import print__symbolic/1, print__constraints/1, print__list/1, print__ranges/2, print__effects/2, print__solutions/2 from print.
 :- import ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/1 from ptc_solver.
@@ -48,7 +48,7 @@ order280604([X3,X2,Y4,Z5,T1,Z7,Z8]) :-
         ptc_solver__sdl(Y4<=X3),
         ptc_solver__sdl(45=Z7),
         ptc_solver__sdl(Z7 = T1-100),
-        ptc_solver__sdl(T1 = Y4-X3), 
+        ptc_solver__sdl(T1 = Y4-X3),
         ptc_solver__label_integers([X3,X2,Y4,Z5,T1,Z7,Z8]).
 inter280604([X3,X2,Y4,Z5,T1,Z7,Z8]) :-
         ptc_solver__clean_up,
@@ -72,7 +72,7 @@ pb120504([A,B,C]) :-
         ptc_solver__type(myinteger, integer, range_bounds(0, 10000)),
         ptc_solver__variable([A,B,C], myinteger),
 
-        ptc_solver__sdl(A<=B),                          %30F   
+        ptc_solver__sdl(A<=B),                          %30F
         ptc_solver__sdl(A<>B and B<>C),                 %27F
         ptc_solver__sdl(A<>C and B<>C and A<>B),        %33F
         ptc_solver__sdl(A*A+B*B-C*C< 1.0001*1.0001),    %39T
@@ -93,7 +93,7 @@ pb110504([M]) :-
         ptc_solver__type(m_type, array, [ten], char_type),
         ptc_solver__variable([M], m_type),
         ptc_solver__sdl(reif(element(M, [0]) <> 32, R1)),
-        ptc_solver__sdl(reif(element(M, [0]) <> 10, R2)), 
+        ptc_solver__sdl(reif(element(M, [0]) <> 10, R2)),
         ptc_solver__sdl(reif(R1<>0 and_then R2<>0, R3)),
         ptc_solver__sdl(reif(element(M, [0]) <> 9, R4)). %should really conclude earlier see 11/05/04 Eileen MSc diary
 
@@ -112,12 +112,12 @@ pb300404([M0, M1, M2]) :-
         ptc_solver__sdl(M = up_arr(M, [2], 0)), % the 3rd element is 0 [?,?,0]
 	%%%
         ptc_solver__sdl(reif(element(M, [0]) = 32, R01)),
-        ptc_solver__sdl(reif(element(M, [0]) = 10, R02)), 
+        ptc_solver__sdl(reif(element(M, [0]) = 10, R02)),
         ptc_solver__sdl(reif(R01<>0 or_else R02<>0, R03)),
         ptc_solver__sdl(R03 = 1),
         %%%
         ptc_solver__sdl(reif(element(M, [1]) = 32, R11)),
-        ptc_solver__sdl(reif(element(M, [1]) = 10, R12)), 
+        ptc_solver__sdl(reif(element(M, [1]) = 10, R12)),
         ptc_solver__sdl(reif(R11<>0 or_else R12<>0, R13)),
         ptc_solver__sdl(R13 = 1),
         %%%
@@ -154,7 +154,7 @@ e(A,B,C,D,E, X):-
         ptc_solver__sdl(B = 2.0),
 	ptc_solver__sdl(C= conversion(integer, 2.6)).
 
-	
+
 
 d(A,B) :-	ptc_solver__clean_up,
         ptc_solver__default_declarations,
@@ -201,7 +201,7 @@ arr(A) :-
         ptc_solver__sdl(element(up_arr(M, [0], 32+10), [0])>32),
 	ptc_solver__variable([M_out], m_type),
 	ptc_solver__sdl(M_out = up_arr(M, [0], 32+10)).
-        
+
 cmp(A, B, Z) :-
         ptc_solver__clean_up,
         ptc_solver__default_declarations,
@@ -232,7 +232,7 @@ reif :-
         ptc_solver__sdl(A = 8),
         ptc_solver__sdl(B = 5).
 
-        
+
 martin30 :-
         ptc_solver__clean_up,
         ptc_solver__default_declarations,
@@ -240,7 +240,7 @@ martin30 :-
         ptc_solver__type(arr, array, [ran], integer),
         ptc_solver__variable([Test], arr),
         ptc_solver__sdl(element(Test, [2]) = 10).
-        
+
 rem(Year) :-
         ptc_solver__clean_up,
         ptc_solver__default_declarations,
@@ -311,7 +311,7 @@ try :-
         printf("C:%Gw\n", C),
         fail.
 
-label_integers(List) :-        
+label_integers(List) :-
         ptc_solver__label_integers(List),
         !.
 
@@ -324,11 +324,11 @@ example_label_floats(X, Y) :-
 	ptc_solver__label_reals([X, Y, Z]).
 
 example(A, B) :-
-        ptc_solver__clean_up,                       %to start in a clean environment        
+        ptc_solver__clean_up,                       %to start in a clean environment
         ptc_solver__default_declarations,           %solver initialisations
         ptc_solver__variable([A, B], integer),      %A and B are declared as integers
         ptc_solver__sdl(A>45 and B-5=A*A),          %constraints are imposed
-        ptc_solver__label_integers([A,B]).          %a unique random solution is generated    
+        ptc_solver__label_integers([A,B]).          %a unique random solution is generated
 
 
 test(X, Y) :-
@@ -369,7 +369,7 @@ martin(Next_date) :-
                 ptc_solver__sdl(field(Next_date, year) = T),
                 ptc_solver__label_integers([T]).
 
-        
+
 m2 :-
         ptc_solver__submit_string("ptc_solver__clean_up, ptc_solver__default_declarations"),
 	ptc_solver__submit_string("ptc_solver__type(name_t, enumeration, [mon, tue])"),
@@ -406,13 +406,13 @@ p2(VSE_440_next_date, VSE_451_date, VSE_159_year):-
         (S2= 1 , ptc_solver__sdl(field(VSE_451_date,name) = sun) ; S2 = 0).
 p3(VSE_440_next_date, VSE_451_date, VSE_159_year):-
         (S3= 1 , ptc_solver__sdl(true) ; S3 = 0).
-p4(VSE_440_next_date, VSE_451_date, VSE_159_year):-        
+p4(VSE_440_next_date, VSE_451_date, VSE_159_year):-
         (S4= 1 , ptc_solver__sdl((field(VSE_451_date,month) = dec and field(VSE_451_date,day) = 31)) ; write(4)).
 p5(VSE_440_next_date, VSE_451_date, VSE_159_year):-
         (S5= 1 , ptc_solver__sdl(true) ; write(5)).
-p6(VSE_440_next_date, VSE_451_date, VSE_159_year):-        
+p6(VSE_440_next_date, VSE_451_date, VSE_159_year):-
         fail.
-p7(VSE_440_next_date, VSE_451_date, VSE_159_year):-        
+p7(VSE_440_next_date, VSE_451_date, VSE_159_year):-
         fail.
 
 session3(X, Y) :-
@@ -431,7 +431,7 @@ session3(X, Y) :-
 	call(q12(X, Y)),
 	call(q13(X, Y)).
 
-q1(X, Y) :-	
+q1(X, Y) :-
 	(S1 = 1, ptc_solver__sdl(X>2 or Y>2) ; write(1)).
 q2(X, Y) :-
 	(S2 = 1, ptc_solver__sdl(X<2) ; write(2)).
@@ -470,4 +470,3 @@ pb(Date1, Date2) :-
 	ptc_solver__variable( [ Date1, Date2], date_3),
         %ptc_solver__sdl(Date2 = up_rec(Date1, n2, up_rec(field(Date1, n2), name, sun))).
 	ptc_solver__sdl(Date2 = up_rec(field(Date1, n2), name, sun)).
-        

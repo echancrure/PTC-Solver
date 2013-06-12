@@ -1,13 +1,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Chris Meudec
-% Eclipse 5.1 program
+% Eclipse 6.0 program
 % ptc_array.pl
 % module array for array meta variables handling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % an array variable R is of the form: R{ptc_array(Type, Component_type, Indice_Elements)},
 %  where Indice_Elements is a list of (Indice, Element) and Type the type of the array and Component_type the type
 %  of the elements of the array
-%  a multi-dimentional array is represented as [([1, 1], el), [1, 2], el) etc.]
+%  a multidimensional array is represented as [([1, 1], el), [1, 2], el) etc.]
 %  an array of array is represented as [([1], array), ([2], array) etc.]
 %  so the internal representation follows the logical structures of arrays
 % an array meta variable never becomes ground, even if an array is fully known it is still represented as a meta array variable
@@ -21,8 +21,6 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%:- begin_module(ptc_array).
-
 :- lib(suspend).
 :- lib(fd).
 

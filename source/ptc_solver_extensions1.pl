@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 08/10/99
-% Eclipse 5.8 program
+% Eclipse 6.0 program
 % ptc_solver_extensions1.pl
 % user defined constraints
 % part of the ptc_solver module

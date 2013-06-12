@@ -1,11 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec -  - started 08/10/99
-% Eclipse 5.1
-% se_solver_engine1.pl
+% Eclipse 6.0
 % part of the ptc_solver module
 % inconsistencies detection and constraints applications
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% clpq could be better abs X = 7.3 simply delays whereas X= -7.3 or X= 7.3 
+% clpq could be better abs X = 7.3 simply delays whereas X= -7.3 or X= 7.3
 %  would be better (other operators to check as well, notably exponentation)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -14,7 +13,7 @@
 %Rel is the relation
 %L is the left operand of Op
 %R is the right operand of Op
-%process L and R, then apply the constraint L Rel R throught apply_relation/7 
+%process L and R, then apply the constraint L Rel R throught apply_relation/7
 relation(Rel, L, R):-
 	arithmetic(L, X, XT), %process left operand giving X of type XT
 	arithmetic(R, Y, YT), %process right operand giving Y of type YT
@@ -34,7 +33,7 @@ relation(Rel, L, R):-
 %YT is the type of Y
 %apply the appropriate constraint
 apply_relation(_, X, array, =, _, Y, array) :-
-	!, 
+	!,
 	X = Y.
 apply_relation(_, X, record, =, _, Y, record) :-
 	!,
@@ -56,7 +55,7 @@ apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
 		      PosX #>= Pos_succY
 		     )
 		 ;
-		  Fun = < -> 
+		  Fun = < ->
 		     (ptc_enum__pred(Y, PredY),
 		      ptc_enum__get_position(PredY, Pos_predY),
 		      ptc_enum__get_position(X, PosX),
@@ -64,25 +63,25 @@ apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
 		      PosX #<= Pos_predY
 		     )
 		 ;
-		     (ptc_enum__get_position(X, PosX),  
+		     (ptc_enum__get_position(X, PosX),
 		      ptc_enum__get_position(Y, PosY),
 		      Constraint =.. [Rel_int, PosX, PosY],
 		      !,
 		      Constraint
-		     ) 
+		     )
 		 )
-	     ;	 
+	     ;
 	     (XT = i, YT = i) ->          % an integer constraint
 		 (Constraint =.. [Rel_int, X, Y],    % build the constraint
 		  !,
 		  Constraint                         %finaly apply the constraint
 		 )
-	     ;                            
+	     ;
 	     (real_conversion(X, XT, NewX),
 	      real_conversion(Y, YT, NewY),
-	      ((Fun = =, var(Le), var(Ri))  -> 
+	      ((Fun = =, var(Le), var(Ri))  ->
 		     NewX = NewY  %ensure true equality between terms(for outputs) {NewX = NewY} is different to X = Y
-		 ; 
+		 ;
 		     (Constraint =.. [Rel_rea, NewX, NewY], %build the constraint
 		      !,
 		      {Constraint}                    %finally apply the constraint
@@ -97,7 +96,7 @@ apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
 %called from apply_relation/7 by get_integer_real_relation(Fun, Rel_int, Rel_rea)
 %Fun is a SDL relational operator
 %Rel_int is the out fd (integer) equivalent
-%Rel_rea is the out clpq (real) equivalent  
+%Rel_rea is the out clpq (real) equivalent
 get_integer_real_relation(=, #=, =).
 get_integer_real_relation(<>, #\=, =\=).
 get_integer_real_relation(<, #<, <).
@@ -117,27 +116,27 @@ real_conversion(I, i, R) :-     %same as converting an integer to a real
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % called from relation/3 and unfold_indexes/2
 % is recursif; can fail
-% X is an arithmetic expression in Ada syntax (without relational operators which are treated by relation/3) 
+% X is an arithmetic expression in Ada syntax (without relational operators which are treated by relation/3)
 %  to transform into constraints
 % R denotes the result of the operation represented by X
-% T denotes r or i indicating a real or an integer constraint 
+% T denotes r or i indicating a real or an integer constraint
 %changed 18-05-2000: arithmetic used to return a literal term when dealing with integers (e.g. X+Y) we now evaluate it in-situ
 % this change has consequences for the rest of the solver: tidying up of the code is required (no done yet).
-% check for numbers 
-arithmetic(X, X, T):- 
-	number(X), 
+% check for numbers
+arithmetic(X, X, T):-
+	number(X),
 	!,
-	(integer(X) -> 
-	    T = i 
-	; 
+	(integer(X) ->
+	    T = i
+	;
 	    T = r
 	).
 
 % check for variables
-arithmetic(X, R, T):- 
+arithmetic(X, R, T):-
 	var(X),
 	!,
-	(is_domain(X) -> 
+	(is_domain(X) ->
 	    (T = i,
 	     R = X
 	    )
@@ -159,9 +158,9 @@ arithmetic(X, R, T):-
 	 ;
 	 ptc_solver__is_real(X) ->
 	    (T = r,
-	     {R = X}  %trick because {R = X} is different to R = X %is that not just because of rational notation? 
+	     {R = X}  %trick because {R = X} is different to R = X %is that not just because of rational notation?
 	                                                      % if you insist that rationals be noted D_N then the problem should disapear
-%	     ,{R >= -pow(2, 40)/3, R =< +pow(2, 40)/3} %default domain (redundant? 
+%	     ,{R >= -pow(2, 40)/3, R =< +pow(2, 40)/3} %default domain (redundant?
 	                                               %yes for ordinary variables just check for ghost varaibles)
 	    )
 	).
@@ -179,23 +178,23 @@ arithmetic(X, R, T):-
 
 % arithmetic/3 for operators
 % check operands and apply the correct operator depending on whether dealing
-%  with an integer expression or a potentially mixed real expression 
+%  with an integer expression or a potentially mixed real expression
 arithmetic(*(Le, Ri), R, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	((XT = i, YT = i) -> 
+	((XT = i, YT = i) ->
 	    ((R #= X * Y ->       %may fail if overflow occurs due to fd limitations
 	        T = i
              ;
                 ptc_solver__error("FD overflow")
-             )   
+             )
 	    )
         ;
 	    (real_conversion(X, XT, NewX),
 	     real_conversion(Y, YT, NewY),
 	     {R = NewX * NewY}, %constraint applied here for easier labeling of reals
-	     T = r  
+	     T = r
 	    )
 	).
 
@@ -210,7 +209,7 @@ arithmetic(+(Le, Ri), R, T):-
 	;
 	    (real_conversion(X, XT, NewX),
 	     real_conversion(Y, YT, NewY),
-	     {R = NewX + NewY}, 
+	     {R = NewX + NewY},
 	     T = r
 	    )
 	).
@@ -220,7 +219,7 @@ arithmetic(-(Le, Ri), R, T):-
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
 	((XT = i, YT = i) ->
-	    (R #= X-Y,  
+	    (R #= X-Y,
 	     T = i
 	    )
 	;
@@ -230,38 +229,38 @@ arithmetic(-(Le, Ri), R, T):-
 	     T = r
 	    )
 	).
-	
-arithmetic(-(Ri), R, T) :- 
+
+arithmetic(-(Ri), R, T) :-
 	!,
 	arithmetic(Ri, Y, T), %the type of -(Ri) is the type of Ri, T.
-	(T = i -> 
+	(T = i ->
 	     R #= -Y
         ;
-	     {R = -Y}     
-        ). 
+	     {R = -Y}
+        ).
 /* # */
 
-arithmetic(abs(Ri), R, T) :- 
+arithmetic(abs(Ri), R, T) :-
 	!,
 	arithmetic(Ri, X, T), %the type of abs(Ri) is the type of Ri, T.
-	(T = i -> 
+	(T = i ->
 	     s_abs(X, R)      %user defined operator
         ;
-	     {R = abs(X)}     
-        ). 
+	     {R = abs(X)}
+        ).
 
 arithmetic(**(Le, Ri), R, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	(XT = i ->             % implies Y is an integer 
+	(XT = i ->             % implies Y is an integer
 	    (s_pow(X, Y, R),  %user defined operator
 	     T = i
 	    )
         ;
 	    (real_conversion(Y, YT, NewY),
 	     {R = pow(X, NewY)}, %constraint applied here for easier labeling of reals
-	     T = r  
+	     T = r
 	    )
 	).
 
@@ -278,10 +277,10 @@ arithmetic(/(Le, Ri), R, T) :-
 	    (T = r,
 	     real_conversion(X, XT, NewX),
 	     real_conversion(Y, YT, NewY),
-	     {NewX / NewY = R}      %constraint applied here for easier labeling of reals	
+	     {NewX / NewY = R}      %constraint applied here for easier labeling of reals
 	    )
 	).
-	
+
 %mod can only apply to integer operands and the resulting type is always integer
 arithmetic(mod(Le, Ri), R, i) :-
 	!,
@@ -301,9 +300,9 @@ arithmetic(rem(Le, Ri), R, i) :-
 %does not deal when the new range is greater than the previous one
 arithmetic(conversion(Type_mark, From_exp), R, To_type) :-
         !,
-	arithmetic(From_exp, From_exp_eval, From_type), 
-	arithmetic(first(Type_mark), Min, To_type), 
-	arithmetic(last(Type_mark), Max, To_type),  
+	arithmetic(From_exp, From_exp_eval, From_type),
+	arithmetic(first(Type_mark), Min, To_type),
+	arithmetic(last(Type_mark), Max, To_type),
 	(apply_relation(From_exp, From_exp_eval, From_type, >=, first(Type_mark), Min, To_type) ->
 	        true
         ;
@@ -322,8 +321,8 @@ arithmetic(conversion(Type_mark, From_exp), R, To_type) :-
                 )
         ;
          (From_type == i, To_type == r) ->
-                %FOR ADA : s_round(R, From_exp_eval) 
-                s_cast_to_real(From_exp_eval, R) 
+                %FOR ADA : s_round(R, From_exp_eval)
+                s_cast_to_real(From_exp_eval, R)
         ;
                 R = From_exp_eval     %ie. From_type = To_type no conversion necessary
         ).
@@ -338,7 +337,7 @@ arithmetic(round(Ri), R, i) :-
 %arithmetic is not called on Array here because simplifications are performed within ptc_array__get_element
 arithmetic(element(Array, Index), R, T) :-
 	!,
-	ptc_array__get_element(element(Array, Index), R, T). 
+	ptc_array__get_element(element(Array, Index), R, T).
 
 arithmetic(agg(Type, AsgL), R, record) :-
         ptc_solver__get_frame(Type, record, _),
@@ -350,7 +349,7 @@ arithmetic(agg(Type, AsgL), R, array) :-
 	!,
 	ptc_array__create_array_from_agg(Type, AsgL, R).
 
-% 19-05-2000 added call to arithmetic on Exp 
+% 19-05-2000 added call to arithmetic on Exp
 arithmetic(up_arr(Array, Index, Exp), R, array) :-
 	!,
 	arithmetic(Array, Up_array, array),
@@ -364,7 +363,7 @@ arithmetic(field(Record, Field), R, T) :-
 	ptc_record__get_field(field(Record, Field), R, T).
 
 
-% 19-05-2000 added call to arithmetic on Exp 
+% 19-05-2000 added call to arithmetic on Exp
 arithmetic(up_rec(Record, Field, Exp), R, record) :-
 	!,
 	arithmetic(Record, Up_record, record),
@@ -379,7 +378,7 @@ arithmetic(first(Discrete_type), R, T) :-
 
 arithmetic(last(Discrete_type), R, T) :-
 	!,
-	ptc_solver__last(Discrete_type, Tmp_R),    
+	ptc_solver__last(Discrete_type, Tmp_R),
 	arithmetic(Tmp_R, R, T).
 
 %succ works on the base type of X
@@ -426,7 +425,7 @@ arithmetic(val(Basetype, Ri), R, T) :-
 	     R = X
 	    )
 	).
-	
+
 %%%bitwise
 arithmetic(bw_not(Le, Len, Sign), R, i) :-
         !,
@@ -453,8 +452,8 @@ arithmetic(right_shift(Le, S, Len, Sign), R, i) :-
         s_right_shift(Le, S, Len, Sign, R).
 
 %%%!!!boolean expressions can occur here when they are an element (of an array or record) during consideration of the final assignment
-%%%!!! see apply_const_effects 
-	
+%%%!!! see apply_const_effects
+
 
 %not a variable, not a number, not a compound, must be an atom i.e. a literal e.g. 'monday'
 arithmetic(Literal, Literal, e) :-
@@ -493,8 +492,8 @@ eq_cast(Le, Ri) :-
                 ptc_solver__error("Failed eq_cast/2 in ptc_solver_engine1 file the types are different and not real nor integer")
         ).
 %%%%%%%%%%%%%%%%%%%%%sdl/3, boolean/3, negate/3%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A single, simpler, predicate can be (and originally was) written to replace the three given below, 
-% but for efficiency reasons it has been rewritten. 
+% A single, simpler, predicate can be (and originally was) written to replace the three given below,
+% but for efficiency reasons it has been rewritten.
 % 2 style of simpler implementations involving only one predicate can be given:
 %   *one with many overlapping clauses
 %   *one using if the else
@@ -522,7 +521,7 @@ sdl(Cond, CLi, CLo) :-
 	    (ptc_array__get_element(Cond, Elem),
 	     sdl(Elem, CLi, CLo)
 	    )
-	;     
+	;
 	Cond = field(_, _) ->
 		(ptc_record__get_field(Cond, Elem, e),	%booleans are enumerations
 		 sdl(Elem, CLi, CLo)
@@ -551,16 +550,16 @@ boolean(and(L, R), CLi, CLo) :-
         (N >= 0.5 ->
                 (sdl(L, CLi, CLo1),
                  sdl(R, CLo1, CLo)
-                ) 
+                )
         ;
 	        (sdl(R, CLi, CLo1),
 	         sdl(L, CLo1, CLo)
                 )
-        ). 
+        ).
 
 boolean(and_then(L, R), CLi, CLo) :-
 	sdl(L, CLi, CLo1),
-        sdl(R, CLo1, CLo). 
+        sdl(R, CLo1, CLo).
 
 boolean(or(L, R), _, _) :-
         s_or(L, R).             %see ptc_solver_boolean
@@ -580,16 +579,16 @@ boolean(not(Bool), CLi, CLo) :-
 	Bool = element(_, _) ->
 	    (ptc_array__get_element(Bool, Elem),
 	     boolean(not(Elem), CLi, CLo)
-	    ) 
+	    )
 	;
 	Bool = field(_, _) ->
 		(ptc_record__get_field(Bool, Elem, e),	%booleans are enumerations
 		 boolean(not(Elem), CLi, CLo)
 		)
 	;
-	    negate(Bool, CLi, CLo)      
+	    negate(Bool, CLi, CLo)
 	.
-	
+
 boolean(=(X, Y), CLi, [=(X, Y)|CLi]) :-
 	relation(=, X, Y).
 boolean(<>(X, Y), CLi, [<>(X, Y)|CLi]) :-
@@ -615,25 +614,25 @@ negate(true, _, _) :-       %not true
 	fail.
 negate(not(Rel), CLi, CLo) :-                 %not not Rel == Rel
 	sdl(Rel, CLi, CLo).
-negate(=(X, Y), CLi, [<>(X, Y)|CLi]) :- 
-	relation(<>, X, Y). 
-negate(<>(X, Y), CLi, [=(X, Y)|CLi]) :- 
+negate(=(X, Y), CLi, [<>(X, Y)|CLi]) :-
+	relation(<>, X, Y).
+negate(<>(X, Y), CLi, [=(X, Y)|CLi]) :-
 	relation(=, X, Y).
-negate(<(X, Y), CLi, [>=(X, Y)|CLi]) :- 
+negate(<(X, Y), CLi, [>=(X, Y)|CLi]) :-
 	relation(>=, X, Y).
-negate(>(X, Y), CLi, [<=(X, Y)|CLi]) :- 
+negate(>(X, Y), CLi, [<=(X, Y)|CLi]) :-
 	relation(<=, X, Y).
-negate(<=(X, Y), CLi, [>(X, Y)|CLi]) :- 
-	relation(>, X, Y). 
-negate(>=(X, Y), CLi, [<(X, Y)|CLi]) :- 
+negate(<=(X, Y), CLi, [>(X, Y)|CLi]) :-
+	relation(>, X, Y).
+negate(>=(X, Y), CLi, [<(X, Y)|CLi]) :-
 	relation(<, X, Y).
-negate(and(X, Y), CLi, CLo) :- 
+negate(and(X, Y), CLi, CLo) :-
 	boolean(or(not(X), not(Y)), CLi, CLo).
-negate(and_then(X, Y), CLi, CLo) :- 
+negate(and_then(X, Y), CLi, CLo) :-
 	boolean(or_else(not(X), not(Y)), CLi, CLo).
-negate(or(X, Y), CLi, CLo) :-   
+negate(or(X, Y), CLi, CLo) :-
 	boolean(and(not(X), not(Y)), CLi, CLo).
-negate(or_else(X, Y), CLi, CLo) :-   
+negate(or_else(X, Y), CLi, CLo) :-
 	boolean(and_then(not(X), not(Y)), CLi, CLo).
 negate(xor(X, Y), CLi, CLo) :-
         boolean(or(and(X, Y), and(not(X), not(Y))), CLi, CLo).

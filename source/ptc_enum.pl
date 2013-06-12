@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Chris Meudec
-% Eclipse 3.5.2 program
+% Eclipse 6.0 program
 % mix_enum3.pl
 % module enum for enumeration meta variables handling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,8 +14,6 @@
 	  ptc_enum__get_basetype/2, ptc_enum__succ/2, ptc_enum__pred/2, ptc_enum__pos/3, ptc_enum__val/3.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%:- begin_module(ptc_enum).
-
 :- use_module(library(fd)).
 :- use_module(library(suspend)).
 
@@ -76,7 +74,7 @@ print_enum(_{ptc_enum(Basetype, Subtype, Position)}, Print) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_enum__clean_up :-
-	retract_all(ptc_enum(_, _)).
+	retractall(ptc_enum(_, _)).
 
 
 %record the list of literals of a base enumeration type

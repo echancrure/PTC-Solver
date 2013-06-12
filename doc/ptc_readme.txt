@@ -1,6 +1,6 @@
 ***********************************************************
-PTC Solver Version 1.5.3
-February 2005, Christophe Meudec, meudecc@itcarlow.ie
+PTC Solver Version 1.6
+June 2013, Christophe Meudec, echancrure@gmail.com
 ***********************************************************
 
 This file contains last minute information and additional
@@ -24,18 +24,19 @@ TABLE OF CONTENTS
 
 Apart from this file, ptc_readme.txt, the main source of
 information on the PTC Solver is its user manual given in
-the file ptc_user_manual.pdf .
+the file ptc_user_manual.pdf and its document page at
 
-The ATGen project website,
-http://glasnost.itcarlow.ie/~meudecc/atgen/ , is the source for
-latest minute information on the PTC solver, including news,
-upgrades, patches, applications and session examples. 
+https://docs.google.com/document/d/121YIr-f-EwJ7aLwtxQoahjZ2XtOTJK6sdLUz0-SA2ig/edit?usp=sharing
 
 The author and contact person for the PTC solver is
-Christophe Meudec meudecc@itcarlow.ie
+Christophe Meudec echancrure@gmail.com
 
 2. WHAT'S NEW IN THIS RELEASE
 ===========================================================
+Version 1.6 is a port update. The PTC Solver is now compatible
+with the latest version of Eclipse 6.0. The PTC Solver is now
+open source.
+
 Version 1.5.3 is a minor update of the ptc_solver. The conversion 
 of integral numerical values into reals has been improved.
 
@@ -110,9 +111,9 @@ ptc_user_manual.pdf file for more details.
 3. INSTALLATION OVERVIEW
 ===========================================================
 
-You should have a working version of ECLiPSe 5.8 installed
+You should have a working version of ECLiPSe 6.0 installed
 on your machine before proceeding further. ECLiPSe can be
-obtained from http://www.icparc.ic.ac.uk/eclipse/ .
+obtained from http://eclipseclp.org/ .
 
 The PTC Solver installation zip file should be extracted in
 your ECLiPSe installation directory. The PTC Solver installs
@@ -162,6 +163,12 @@ Your problem will be addressed as soon as possible.
 
 7. RELEASES HISTORY
 ===========================================================  
+***** Version 1.6 *****
+June 2013
+  Minor update
+   - The solver has been ported to ECLiPSe 6.0;
+   - The solver is now open source.
+
 ***** Version 1.5.3 *****
 February 2005 (internal release only)
   Minor update
@@ -380,14 +387,12 @@ March 2001
 
 Dr Christophe Meudec
 Institute of Technology Carlow
-CPM Department
+CAN Department
 Kilkenny Road
 Carlow
 Ireland
 
-meudecc@itcarlow.ie
-Tel +353 (0)503 76266
-Fax +353 (0)503 70517
+echancrure@gmail.com
 
 http://glasnost.itcarlow.ie/~meudecc/
 

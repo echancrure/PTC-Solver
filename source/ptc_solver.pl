@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 23/06/00
-% Eclipse 5.8 program
+% Eclipse 6.0 program
 % ptc_solver.pl
 % ptc_solver module
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%This module is a little bit messy. Its fonction is to provide an interface for the solver.
+%This module is a little bit messy. Its function is to provide an interface for the solver.
 %It could be simplified via syntactic rationalisation of the solver per se.
 %%%
 :- module(ptc_solver).
@@ -38,10 +38,11 @@
 :- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
 :- include([ptc_solver_bitwise]).
 
-:- [ptc_array, ptc_record, ptc_enum, ptc_labeling].
-%:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).
+:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
+%:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
+
 :- import ptc_enum__pred/2, ptc_enum__is_enum/1, ptc_enum__pos/3, ptc_enum__is_enum_type/1, ptc_enum__get_literal/3, ptc_enum__get_basetype/2 from ptc_enum.
 :- import ptc_enum__val/3, ptc_enum__sample/1 from ptc_enum.
 :- import ptc_record__create_record/2, ptc_record__get_field/3, ptc_record__is_record/1, ptc_record__create_record_from_agg/3 from ptc_record.
@@ -162,13 +163,13 @@ ptc_solver__get_frame(Type_mark, Subtype_mark, Value) :-
 ptc_solver__clean_up :-
         setval(entail_stack, []),    %initialisation (see ptc_solver_boolean.pl file)
 	erase_all(frame),
-	retract_all(or_constraint_behaviour(_)),
-	retract_all(enumeration_start(_)),
-        retract_all(float_to_int_convention(_)),
+	retractall(or_constraint_behaviour(_)),
+	retractall(enumeration_start(_)),
+        retractall(float_to_int_convention(_)),
 	assert(enumeration_start(1)),
         assert(float_to_int_convention(truncate)),
-	retract_all(ptc_solver__first(_, _)),
-	retract_all(ptc_solver__last(_, _)),
+	retractall(ptc_solver__first(_, _)),
+	retractall(ptc_solver__last(_, _)),
 	ptc_enum__clean_up.
 
 %%we will also need another predicate for the generation of a list of solutions
@@ -244,7 +245,7 @@ ptc_solver__set_flag(Flag, Value) :-
                         ptc_solver__error("In ptc_solver_set_flag/2, the or_constraint_behaviour can only be set once")
                 ;
                         ((Value = pure ; Value = choice) ->
-                                (retract_all(or_constraint_behaviour(_)),
+                                (retractall(or_constraint_behaviour(_)),
                                  assert(or_constraint_behaviour(Value))
                                 )
                         ;
@@ -254,7 +255,7 @@ ptc_solver__set_flag(Flag, Value) :-
 	;
          Flag == enumeration_start ->
 		(integer(Value) ->
-			(retract_all(enumeration_start(_)),
+			(retractall(enumeration_start(_)),
                          assert(enumeration_start(Value))
 			)
 		;
@@ -266,7 +267,7 @@ ptc_solver__set_flag(Flag, Value) :-
                         ptc_solver__error("In ptc_solver_set_flag/2, the float_to_int_convention can only be set once")
                 ;
                         ((Value = truncate ; Value = nearest) ->
-                                (retract_all(float_to_int_convention(_)),
+                                (retractall(float_to_int_convention(_)),
                                  assert(float_to_int_convention(Value))
                                 )
                         ;
@@ -296,7 +297,7 @@ ptc_solver__create_record_from_agg(A,B,C) :-
 ptc_solver__create_array_from_agg(A,B,C) :-
         ptc_array__create_array_from_agg(A,B,C).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % defining the operators precedence of the solver
 :- include([util__post_precedence]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%END%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

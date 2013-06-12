@@ -17,19 +17,16 @@ release.
     5. I will report evidence of program bugs, and fixes, if known, to the 
 author. 
 
-Redistribution are
-permitted provided that the following conditions are met: 
+Redistribution are permitted provided that the following conditions are met: 
 
     All advertising materials mentioning features or use of this software must
     acknowledge the use of the PTC Solver or its components. 
 
-    The name of the author may not be used to endorse or promote products 
-derived
+    The name of the author may not be used to endorse or promote products derived
     from this software without specific prior written permission. 
 
     Redistributions of source code must retain the above copyright notice, this 
-list of
-    conditions, and the following disclaimer. 
+    list of conditions, and the following disclaimer. 
 
 DISCLAIMER 
 

@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec
-% Eclipse 5.1 program
+% Eclipse 6.0 program
 % util__pre_precedence.pl
 % undoing the operators precedence of the solver prior to compilation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -11,7 +11,7 @@
 %  so we only declare dynamic predicate once at first loading. And retract them all at all other time.
 abolish_list_op([], _).
 abolish_list_op([O|OL], Mode) :-
-	abolish_op(O, Mode),
+	abolish_op(O, Mode),    %deprecated
 	abolish_list_op(OL, Mode).
 
 
