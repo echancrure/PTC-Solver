@@ -1,6 +1,6 @@
 ***********************************************************
-PTC Solver Version 1.6
-June 2013, Christophe Meudec, echancrure@gmail.com
+PTC Solver Version 1.7
+June 2022, Christophe Meudec, echancrure@gmail.com
 ***********************************************************
 
 This file contains last minute information and additional
@@ -33,6 +33,9 @@ Christophe Meudec echancrure@gmail.com
 
 2. WHAT'S NEW IN THIS RELEASE
 ===========================================================
+Version 1.7 is a port update. The PTC Solver is now compatible
+with Eclipse 7.0. Labeling of rationals is more thorough.
+
 Version 1.6 is a port update. The PTC Solver is now compatible
 with the latest version of Eclipse 6.0. The PTC Solver is now
 open source.
@@ -111,9 +114,9 @@ ptc_user_manual.pdf file for more details.
 3. INSTALLATION OVERVIEW
 ===========================================================
 
-You should have a working version of ECLiPSe 6.0 installed
+You should have a working version of ECLiPSe 7.0 installed
 on your machine before proceeding further. ECLiPSe can be
-obtained from http://eclipseclp.org/ .
+obtained from https://eclipseclp.org/ .
 
 The PTC Solver installation zip file should be extracted in
 your ECLiPSe installation directory. The PTC Solver installs
@@ -163,6 +166,14 @@ Your problem will be addressed as soon as possible.
 
 7. RELEASES HISTORY
 ===========================================================  
+***** Version 1.7 *****
+June 2022
+  Minor update
+   - The solver has been ported to ECLiPSe 7.0;
+   - The labeling of rationals is more thorough and will take 
+     longer in infeasible cases, it is still unsastifactory 
+     in many instances.
+
 ***** Version 1.6 *****
 June 2013
   Minor update
@@ -386,14 +397,14 @@ March 2001
 ===========================================================  
 
 Dr Christophe Meudec
-Institute of Technology Carlow
-CAN Department
+South East Technological University
+Computing Department
 Kilkenny Road
 Carlow
 Ireland
 
 echancrure@gmail.com
 
-http://glasnost.itcarlow.ie/~meudecc/
+http://www.echancrure.eu/
 
 ========================== END ============================

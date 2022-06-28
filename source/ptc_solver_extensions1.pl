@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 08/10/99
-% Eclipse 6.0 program
+% Eclipse 7.0 program
 % ptc_solver_extensions1.pl
 % user defined constraints
 % part of the ptc_solver module
@@ -224,7 +224,7 @@ ada_round_inverse(MinI, MaxI, R) :-
 s_abs(X, R) :-
 	Xeval #= X+0,                %evaluate X
 	Reval #= R+0,                %evaluate R
-	Reval #>= 0,                 %it is always a constraint for R to be positif
+	Reval #>= 0,                 %it is always a constraint for R to be positive
 	s_abs2(Xeval, Reval).
 
 
@@ -243,33 +243,32 @@ s_abs2(X, R):-
 	    (dvar_domain(X, DomX),
 	     dom_range(DomX, MinX, MaxX),
 	     (MinX >= 0 ->       %X is positive
-		 R #= X
+		  	R #= X
 	     ;
 	      MaxX =< 0 ->       %X is negative
-	         R #= -X
+	        R #= -X
 	     ;                   %the domain of X crosses 0 (nor positive, nor negative)
-	         (%updating R according to X
-		  Max_abs_X is max(-MinX, MaxX),      %the maximum absolute value of X
-		  R #<= Max_abs_X,                    %i.e. R is positif and <= Max_abs_X
-		  %updating X according to R
-		  dvar_domain(R, DomR),
-	          dom_range(DomR, MinR, MaxR),
-		  %2 tricks, should be equivalent to X::[-MaxR..-MinR, MinR..MaxR] in all cases
-		  Neg_minR is -MaxR,
-		  (MinR = 0 ->                        %MinR = 0 causes overlapping which generates an error
-		      X :: Neg_minR..MaxR
-		  ;
-		      (Neg_maxR is -MinR,
-		       X :: [Neg_minR..Neg_maxR, MinR..MaxR] %nonlinear domain
-		      )
-		  ),
-		  make_suspension(s_abs2(X, R), 3, Susp),
-		  insert_suspension((X, R), Susp, any of fd, fd)
-	         )
+	    	(%updating R according to X
+		  	 Max_abs_X is max(-MinX, MaxX),      %the maximum absolute value of X
+		  	 R #<= Max_abs_X,                    %i.e. R is positive and <= Max_abs_X
+		  	 %updating X according to R
+		  	 dvar_domain(R, DomR),
+	         dom_range(DomR, MinR, MaxR),
+		  	 %2 tricks, should be equivalent to X::[-MaxR..-MinR, MinR..MaxR] in all cases
+		  	 Neg_minR is -MaxR,
+		  	 (MinR = 0 ->                        %MinR = 0 causes overlapping which generates an error
+		      	X :: Neg_minR..MaxR
+		  	 ;
+		      	(Neg_maxR is -MinR,
+		         X :: [Neg_minR..Neg_maxR, MinR..MaxR] %nonlinear domain
+		      	)
+		   	 ),
+		  	 make_suspension(s_abs2(X, R), 3, Susp),
+		  	 insert_suspension((X, R), Susp, any of fd, fd)
+	    	)
 	     )
 	    )
 	.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   S_DIV/3   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %called from arithmetic/3 by s_div(X, Y, Z)

@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 19/12/00
-% Eclipse 6.0 program
+% Eclipse 7.0 program
 % ptc_solver_boolean.pl
 % Boolean constraints
 % part of the solver module

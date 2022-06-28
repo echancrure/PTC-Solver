@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Chris Meudec
-% Eclipse 6.0 program
+% Eclipse 7.0 program
 % mix_enum3.pl
 % module enum for enumeration meta variables handling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -245,12 +245,12 @@ ptc_enum__succ(X{ptc_enum(BasetypeX, _, PositionX)}, R{ptc_enum(_, _, PositionR)
 	     sublist([(_, New_maxX), (_, New_maxR)], Enum_listX),
 	     PositionX :: New_minX..New_maxX,
 	     (nonground(PositionX) ->
-		 (make_suspension(ptc_enum__succ(X, R), 3, Susp),
-		  insert_suspension((PositionX, PositionR), Susp, any of fd, fd)
-                 )
+		 	(make_suspension(ptc_enum__succ(X, R), 3, Susp),
+		  	 insert_suspension((PositionX, PositionR), Susp, any of fd, fd)
+        	)
 	     ;                       %PositionX can become ground
-		 sublist([(X, PositionX), (R, _)], Enum_listX) %X and R become ground
-             )
+		 	sublist([(X, PositionX), (R, _)], Enum_listX) %X and R become ground
+         )
 	    )
         ;                     %PositionR can become ground
 	    sublist([(X, _), (R, PositionR)], Enum_listX)  %X and R become ground

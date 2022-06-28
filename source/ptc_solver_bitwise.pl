@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 19/06/02
-% Eclipse 6.0 program
+% Eclipse 7.0 program
 % ptc_solver_bitwise.pl
 % bitwise constraints
 % part of the solver module

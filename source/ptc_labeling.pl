@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec
-% Eclipse 6.0 program
+% Eclipse 7.0 program
 % takes care of the labeling of variables in the solver's format
 % various strategy could be implemented including the use of local search algorithms (Hill climbing, Tabu Search etc.)
 %  see Eclipse sample programs
@@ -109,7 +109,7 @@ ptc_labeling__reals(RL) :-
 %choice point
 %R is an out real variable from RL_delayed
 %RL_delayed is a list of real variables with associated delayed constraints
-%Rest_delayed is out and is euivalent to RL_delayed minus R
+%Rest_delayed is out and is equivalent to RL_delayed minus R
 %select a variable R from RL_delayed according to the maximum delayed first principle
 % on backtraking take a random variable using delete
 select_r(_, [], _) :-
@@ -117,13 +117,15 @@ select_r(_, [], _) :-
         fail.
 select_r(R, RL, Rest) :-
 	maxdelayed(RL, -999, [], Low_delay_out, [], High_delay_out),
-                (delete(R, High_delay_out, Rest_High),  %random select
-                 append(Low_delay_out, Rest_High, Rest)
-                )
+	(
+            (delete(R, High_delay_out, Rest_High),  %random select from highly delayed variables
+             append(Low_delay_out, Rest_High, Rest)
+            )
         ;               %choice point
-	        %select_r(R, Low_delay_out, Rest) --does not cut cut the search
-                select_r(R, [], Rest)   %cut the search to limit number of combinations
-        .
+			(delete(R, Low_delay_out, Rest_Low),  %random select from lowly delayed variables
+			 append(High_delay_out, Rest_Low, Rest)
+   			)
+	).
 
 %initial call: maxdelayed(RL, -999, [], Low_delay_out, [], High_delay_out)
 maxdelayed([], _, Low_delay_in, Low_delay_in, High_delay_in, High_delay_in) :- !.
@@ -152,8 +154,8 @@ maxdelayed([R|RL], Max_delay_nb, Low_delay_in, Low_delay_out, High_delay_in, Hig
 %can fail
 %R is the real variable to sample
 %constrain R to a value or fail
-%the sampling is not exhaustif i.e. a failure does not indicate an absence of solution
-% (contrast with sample_integer/1
+%the sampling is not exhaustive i.e. a failure does not indicate an absence of solution
+% (contrast with sample_integer/1)
 %remark: bias towards 0.0; a more efficient version would do the sampling using rationals
 % with a domain size of 2000 about 18 samples are taken (3+5+5+5)
 sample_real(R) :-

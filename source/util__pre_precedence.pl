@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec
-% Eclipse 6.0 program
+% Eclipse 7.0 program
 % util__pre_precedence.pl
 % undoing the operators precedence of the solver prior to compilation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -9,20 +9,13 @@
 %  so they are also included below)
 % also the default handler for dynamic (see dynamic +SpecList) does not seem to be working.
 %  so we only declare dynamic predicate once at first loading. And retract them all at all other time.
-abolish_list_op([], _).
-abolish_list_op([O|OL], Mode) :-
-	abolish_op(O, Mode),    %deprecated
-	abolish_list_op(OL, Mode).
-
-
 :- current_op(80, xfy, xor) ->
-	(abolish_list_op([-, +, not], fy),
-	 abolish_list_op([**, abs, *, /, mod, rem, +, -, &], yfx),
-	 abolish_list_op([and, and_then, or, or_else, xor], xfy),
-	 abolish_list_op([=, <>, <, >, <=, >=], xfx)
-	)
+		(export op(0, fy, [-, +, not]),
+	 	 export op(0, yfx, [**, abs, *, /, mod, rem, +, -, &]),
+	 	 export op(0, xfy, [and, and_then, or, or_else, xor]),
+	 	 export op(0, xfx, [=, <>, <, >, <=, >=])
+		)
 	;
-	true
-	.
-
+		true
+	. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%END%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

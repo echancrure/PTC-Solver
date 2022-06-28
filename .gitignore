@@ -1,1 +1,17 @@
-/doc
+
+doc/solver user manual.tex
+doc/tmp/solver user manual.aux
+doc/solver user manual.tex
+doc/solver user manual.bbl
+doc/solver user manual.blg
+doc/.texlipse
+doc/.project
+bug.pl
+PTC Solver Mailing List Email.gdoc
+PTC Solver Mailing List.gsheet
+doc/solver user manual.pdf
+doc/solver user manual.tex
+doc/solver user manual.tex
+source/solver_demos.pl
+source/ptc_solver_demo.pl
+doc/tmp/solver user manual.log
