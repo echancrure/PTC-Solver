@@ -13,5 +13,7 @@ doc/solver user manual.pdf
 doc/solver user manual.tex
 doc/solver user manual.tex
 source/solver_demos.pl
-source/ptc_solver_demo.pl
 doc/tmp/solver user manual.log
+doc/solver user manual.synctex.gz
+doc/solver user manual.tex
+
