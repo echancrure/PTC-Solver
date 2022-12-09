@@ -6,6 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This module is a little bit messy. Its function is to provide an interface for the solver.
 %It could be simplified via syntactic rationalisation of the solver per se.
+%compile('//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_solver').
 %%%
 :- module(ptc_solver).
 
@@ -33,13 +34,14 @@
 
 
 :- lib(clpq), lib(fd), lib(suspend).
+:- lib(ic).
 :- import (::)/2, (#=)/2, (#\=)/2, (#>)/2, (#>=)/2, (#<)/2, (#<=)/2 from fd.       %conflict resolution
 
 :- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
 :- include([ptc_solver_bitwise]).
 
-%:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
-:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
+:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
+%:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
 
@@ -93,8 +95,6 @@ ptc_solver__submit_string(String) :-
         call(Goal),     %may fail
         setval(current_vars, Name_value_list_new).
 
-
-
 %vars, in_list, new_ones
 match([], _, []).
 match([V|Rest], Var_list, Out) :-
@@ -131,7 +131,7 @@ ptc_solver__get_single_variable(String, Value) :-
         (match2((Name, Value), Name_value_list_in) ->
                true
         ;
-                Value = -2
+               Value = -2
         ).
 
 ptc_solver__get_all_variables(V) :-

@@ -118,7 +118,6 @@ ptc_array__get_all_index_elements(_{Attr}, Index_elements) :-
 	-?->
 	Attr = ptc_array(_, _, Index_elements).
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %X is element(Array, Index) where Array is an array expression and Index is a list of index expressions
 %when an index which needs to be evaluated (not always necessary) is unknown delays are reported in get_element
@@ -161,13 +160,13 @@ get_element(X, Simp_exp, D) :-
 	(X = element(Array, Index), ptc_array__is_array(Array)) ->
 	    (eval_index(Index, Eval_index, Ground),
 	     (Ground = true ->
-		 (ptc_array__get_all_index_elements(Array, Indice_elements),
-		  member((Eval_index, Simp_exp), Indice_elements)
-	         )
+		 	(ptc_array__get_all_index_elements(Array, Indice_elements),
+		  	 member((Eval_index, Simp_exp), Indice_elements)
+	        )
 	     ;
-	         (Simp_exp = element(Array, Eval_index),
-		  D = Eval_index
-	         )
+	        (Simp_exp = element(Array, Eval_index),
+		  	 D = Eval_index
+	        )
 	     )
 	    )
 	;
@@ -176,7 +175,7 @@ get_element(X, Simp_exp, D) :-
 	     get_element(element(Array, Index), Simp_exp, D)
 	    )
 
-%below is moree efiicient than creating the array as above
+%below is more efiicient than creating the array as above
 %but below is incomplete as Find_AsgL does not work for positional aggregates
 %	    eval_index(Index, Eval_index, Ground),
 %	     (Ground = true ->
@@ -269,7 +268,7 @@ eval_index2([Index|Rest_indexes], [I|Rest_I]) :-
             Ieval #= I
 	;
 	    Ieval = I
-        ),
+    ),
 	eval_index2(Rest_indexes, Rest_I).
 
 
