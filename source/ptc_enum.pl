@@ -227,7 +227,7 @@ ptc_enum__succ(X{ptc_enum(BasetypeX, _, PositionX)}, R{ptc_enum(_, _, PositionR)
 	     sublist([(_, New_maxX), (_, New_maxR)], Enum_listX),
 	     PositionX #:: New_minX..New_maxX,
 	     (nonground(PositionX) ->
-			suspend(ptc_enum__succ(X, R), 3, [PositionX, PositionR]->ic:[min,max,hole,type])
+			suspend(ptc_enum__succ(X, R), 3, [PositionX, PositionR]->ic:[min,max,hole])
 	     ;
 		 	sublist([(X, PositionX), (R, _)], Enum_listX) %X and R become ground
          )
@@ -277,7 +277,7 @@ ptc_enum__pos(Basetype, X{ptc_enum(_, _, Position)}, R) :-
 	free(R),                    %R is a typeless variable (only happens in first call)
 	!,
 	R = Position,
-	suspend(ptc_enum__pos(Basetype, X, R), 2, [R]->ic:[min,max,hole,type]).
+	suspend(ptc_enum__pos(Basetype, X, R), 2, [R]->ic:[min,max,hole]).
 
 %X is an enumeration variable
 %R is an integer variable
@@ -307,7 +307,7 @@ ptc_enum__pos(Basetype, X{ptc_enum(_, _, Position)}, R) :-
 	    )
 	;
 	    (R #:: New_minR..New_maxR,
-		 suspend(ptc_enum__pos(Basetype, X, R), 2, [R]->ic:[min,max,hole,type])
+		 suspend(ptc_enum__pos(Basetype, X, R), 2, [R]->ic:[min,max,hole])
 	    )
 	).
 
