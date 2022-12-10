@@ -34,14 +34,14 @@
 
 
 :- lib(clpq), lib(fd), lib(suspend).
-:- lib(ic).
+:- use_module(library(ic)).
 :- import (::)/2, (#=)/2, (#\=)/2, (#>)/2, (#>=)/2, (#<)/2, (#<=)/2 from fd.       %conflict resolution
 
 :- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
 :- include([ptc_solver_bitwise]).
 
-%:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
-:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
+:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
+%:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
 
@@ -67,17 +67,17 @@
 %%%
 ptc_solver__version("1.7.1").
 ptc_solver__error(Message) :-
-        writeln(stdout, "***PTC Solver error***"),
-        writeln(stdout, Message),
-        abort.
+    writeln(stdout, "***PTC Solver error***"),
+    writeln(stdout, Message),
+    abort.
 
 ptc_solver__verbose(Message, Term) :-
-        (Term = [] ->
-                printf(stdout, "%w\n", Message)
-        ;
-                printf(stdout, "%w: %w\n", [Message, Term])
-        ),
-        flush(stdout).
+    (Term = [] ->
+        printf(stdout, "%w\n", Message)
+    ;
+        printf(stdout, "%w: %w\n", [Message, Term])
+    ),
+    flush(stdout).
 
 %%%
 %useful for embedding
@@ -120,123 +120,119 @@ match2(In, [_|Rest]) :-
 %%%
 %given a string denoting a variable returns the variable
 ptc_solver__match_variable(String, Ref) :-
-        getval(current_vars, V),
-        atom_string(Name, String),
-        match2((Name, Ref), V).
+    getval(current_vars, V),
+    atom_string(Name, String),
+    match2((Name, Ref), V).
 
 %useful for embedding
 ptc_solver__get_single_variable(String, Value) :-
-        atom_string(Name, String),
-        getval(current_vars, Name_value_list_in),
-        (match2((Name, Value), Name_value_list_in) ->
-               true
-        ;
-               Value = -2
-        ).
+    atom_string(Name, String),
+    getval(current_vars, Name_value_list_in),
+    (match2((Name, Value), Name_value_list_in) ->
+        true
+    ;
+        Value = -2
+    ).
 
 ptc_solver__get_all_variables(V) :-
-        getval(current_vars, V).
-
+    getval(current_vars, V).
 
 ptc_solver__is_rational(Var) :-
-        rational(Var).
+    rational(Var).
 
 ptc_solver__rational_to_decimal(Rat, Dec) :-
-        Dec is float(Rat).
+    Dec is float(Rat).
 
 ptc_solver__numerator(Rat, Num) :-
-        Num is numerator(Rat).
+    Num is numerator(Rat).
 
 ptc_solver__denominator(Rat, Den) :-
-        Den is denominator(Rat).
+    Den is denominator(Rat).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %2 important clauses that record the entire type system
 %Type_mark is direct from the source code
 %Subtype_mark is the base type of the type : integer, real, base_enumeration, record, array(Component_type_mark), or Parents_type for an enumeration subtype
 ptc_solver__set_frame(Type_mark, Subtype_mark, Value) :-
-        record(frame, f(Type_mark, Subtype_mark, Value)).
+    record(frame, f(Type_mark, Subtype_mark, Value)).
 
 ptc_solver__get_frame(Type_mark, Subtype_mark, Value) :-
-        recorded(frame, f(Type_mark, Subtype_mark, Value)).     %extremely slow!!! see 16-05-2001
+    recorded(frame, f(Type_mark, Subtype_mark, Value)).     %extremely slow!!! see 16-05-2001
 
 ptc_solver__clean_up :-
-        setval(entail_stack, []),    %initialisation (see ptc_solver_boolean.pl file)
+    setval(entail_stack, []),    %initialisation (see ptc_solver_boolean.pl file)
 	erase_all(frame),
 	retractall(or_constraint_behaviour(_)),
 	retractall(enumeration_start(_)),
-        retractall(float_to_int_convention(_)),
+    retractall(float_to_int_convention(_)),
 	assert(enumeration_start(1)),
-        assert(float_to_int_convention(truncate)),
+    assert(float_to_int_convention(truncate)),
 	retractall(ptc_solver__first(_, _)),
 	retractall(ptc_solver__last(_, _)),
 	ptc_enum__clean_up.
 
-%%we will also need another predicate for the generation of a list of solutions
-%%through backtracking of labeling
-
 ptc_solver__label_integers(IL) :-
-        ptc_labeling__integers(IL).
+    ptc_labeling__integers(IL).
 
 ptc_solver__label_enums(IL) :-
-         ptc_labeling__enums(IL).
+    ptc_labeling__enums(IL).
 
 ptc_solver__label_reals(IL) :-
-        ptc_labeling__reals(IL).
+    ptc_labeling__reals(IL).
 
 ptc_solver__is_real(_{wrap:Attrib}) :-
-        -?->
-        compound(Attrib).
+    -?->
+    compound(Attrib).
 
 ptc_solver__is_integer(Var) :-
-        is_domain(Var).
+    is_domain(Var).
 
 ptc_solver__real_min(Real_var, Inf, Taken) :-
-        inf(Real_var, Inf),
-        (not entailed(Real_var =\= Inf) ->      %trick should be equivalent to entailed(Value = Inf)
+    inf(Real_var, Inf),
+    (not entailed(Real_var =\= Inf) ->      %trick should be equivalent to entailed(Value = Inf)
 	    Taken = taken                       %lower bound included
 	;
 	    Taken = not_taken                   %lower bound excluded
 	).
 
 ptc_solver__real_max(Real_var, Sup, Taken) :-
-        sup(Real_var, Sup),
-        (not entailed(Real_var =\= Sup) ->      %trick should be equivalent to entailed(Value = Sup)
+    sup(Real_var, Sup),
+    (not entailed(Real_var =\= Sup) ->      %trick should be equivalent to entailed(Value = Sup)
 	    Taken = taken                       %upper bound included
 	;
 	    Taken = not_taken                   %upper bound excluded
 	).
 
 ptc_solver__integer_range(Integer_var, Min, Max) :-
-        dvar_domain(Integer_var, Domain),
-        dom_range(Domain, Min, Max).
+    dvar_domain(Integer_var, Domain),
+    dom_range(Domain, Min, Max).
 
 ptc_solver__is_enum(Var) :-
-        ptc_enum__is_enum(Var).
+    ptc_enum__is_enum(Var).
 
 ptc_solver__is_record(Var) :-
-        ptc_record__is_record(Var).
+    ptc_record__is_record(Var).
 
 ptc_solver__is_array(Var) :-
-        ptc_array__is_array(Var).
+    ptc_array__is_array(Var).
 
 ptc_solver__sample_enum2(Var) :-
-        ptc_enum__sample(Var).
+    ptc_enum__sample(Var).
 
 ptc_solver__enum_get_literal(Enum_type, Position, Literal) :-
-        ptc_enum__get_literal(Enum_type, Position, Literal).
+    ptc_enum__get_literal(Enum_type, Position, Literal).
 
 ptc_solver__enum_get_position(Enum, Position) :-
-        ptc_enum__get_position(Enum, Position).
+    ptc_enum__get_position(Enum, Position).
 
 ptc_solver__enum_get_basetype(Enum, Basetype) :-
-        ptc_enum__get_basetype(Enum, Basetype).
+    ptc_enum__get_basetype(Enum, Basetype).
 
 ptc_solver__get_record_field_values(Var, Field_values) :-
-        ptc_record__get_all_field_values(Var, Field_values).
+    ptc_record__get_all_field_values(Var, Field_values).
 
 ptc_solver__get_array_index_elements(Var, Index_elements) :-
-        ptc_array__get_all_index_elements(Var, Index_elements).
+    ptc_array__get_all_index_elements(Var, Index_elements).
 
 %%%
 ptc_solver__set_flag(Flag, Value) :-
@@ -282,20 +278,20 @@ ptc_solver__set_flag(Flag, Value) :-
 %sdl can set delayed constraints
 %sdl can have choice points (e.g. A or B conditions).
 ptc_solver__sdl(Cond) :-
-        sdl(Cond, [], _).
+    sdl(Cond, [], _).
 
 ptc_solver__arithmetic(Exp, Eval, T) :-
-        arithmetic(Exp, Eval, T).
+    arithmetic(Exp, Eval, T).
 
 ptc_solver__relation(Comparator, Left, Right) :-
-        relation(Comparator, Left, Right).
+    relation(Comparator, Left, Right).
 
 %%%%
 ptc_solver__create_record_from_agg(A,B,C) :-
-        ptc_record__create_record_from_agg(A,B,C).
+    ptc_record__create_record_from_agg(A,B,C).
 
 ptc_solver__create_array_from_agg(A,B,C) :-
-        ptc_array__create_array_from_agg(A,B,C).
+    ptc_array__create_array_from_agg(A,B,C).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % defining the operators precedence of the solver

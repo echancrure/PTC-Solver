@@ -1,7 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 19/12/00
 % Eclipse 7.0 program
-% ptc_solver_boolean.pl
 % Boolean constraints
 % part of the solver module
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,178 +30,174 @@
 % we give here both constraints controlled by an asserted fact
 
 s_or(A, B) :-
-        (or_constraint_behaviour(V) ->
-                true
-        ;
-                V = pure
-        ),
-        (V = pure ->
-                s_or_pure(A, B)
-        ;
-         V = choice ->
-                s_or_choice(A, B)
-        ).
+    (or_constraint_behaviour(V) ->
+        true
+    ;
+        V = pure
+    ),
+    (V = pure ->
+        s_or_pure(A, B)
+    ;
+     V = choice ->
+        s_or_choice(A, B)
+    ).
 
 s_or_else(A, B) :-
-        (or_constraint_behaviour(V) ->
-                true
-        ;
-                V = pure
-        ),
-        (V = pure ->
-                s_or_else_pure(A, B)
-        ;
-         V = choice ->
-                s_or_else_choice(A, B)
-        ).
+    (or_constraint_behaviour(V) ->
+        true
+    ;
+        V = pure
+    ),
+    (V = pure ->
+        s_or_else_pure(A, B)
+    ;
+     V = choice ->
+        s_or_else_choice(A, B)
+    ).
 
 %%%%%%%%%%%%%%%%%%%%%%%  CHOICE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %truly random!
 s_or_choice(A, B) :-
-        frandom(N),
-        N6 is fix(N*6),
+    frandom(N),
+    N6 is fix(N*6),
 	(N6 = 0 ->
-	        (       sdl(and(A, not(B)), _, _)
-	         ;
-	                sdl(and(A, B), _, _)
-                 ;
-	                sdl(and(not(A), B), _, _)
-	        )
+	    (   sdl(and(A, not(B)), _, _)
+	    ;
+	        sdl(and(A, B), _, _)
         ;
+	        sdl(and(not(A), B), _, _)
+	    )
+    ;
 	 N6 = 1 ->
-	        (       sdl(and(A, not(B)), _, _)
-	         ;
-	                sdl(and(not(A), B), _, _)
-                 ;
-	                sdl(and(A, B), _, _)
-	        )
+	    (   sdl(and(A, not(B)), _, _)
+	    ;
+	        sdl(and(not(A), B), _, _)
         ;
-         N6 = 2 ->
-                (       sdl(and(not(A), B), _, _)
-	         ;
-	                sdl(and(A, not(B)), _, _)
-                 ;
-	                sdl(and(A, B), _, _)
-	        )
+	        sdl(and(A, B), _, _)
+	    )
+    ;
+     N6 = 2 ->
+        (   sdl(and(not(A), B), _, _)
+	    ;
+	        sdl(and(A, not(B)), _, _)
         ;
-         N6 = 3 ->
-                (       sdl(and(not(A), B), _, _)
-	         ;
-	                sdl(and(A, B), _, _)
-                 ;
-	                sdl(and(A, not(B)), _, _)
-	        )
+	        sdl(and(A, B), _, _)
+	    )
+    ;
+     N6 = 3 ->
+        (   sdl(and(not(A), B), _, _)
+	    ;
+	        sdl(and(A, B), _, _)
         ;
-         N6 = 4 ->
-                (       sdl(and(A, B), _, _)
-                 ;
-                        sdl(and(not(A), B), _, _)
-	         ;
-	                sdl(and(A, not(B)), _, _)
-	        )
+	        sdl(and(A, not(B)), _, _)
+	    )
+    ;
+     N6 = 4 ->
+        (   sdl(and(A, B), _, _)
         ;
-         N6 = 5 ->
-                (       sdl(and(A, B), _, _)
-                 ;
-                        sdl(and(A, not(B)), _, _)
-	         ;
-	                sdl(and(not(A), B), _, _)
-	        )
-        ).
+            sdl(and(not(A), B), _, _)
+	    ;
+	        sdl(and(A, not(B)), _, _)
+	    )
+    ;
+     N6 = 5 ->
+        (   sdl(and(A, B), _, _)
+        ;
+            sdl(and(A, not(B)), _, _)
+	    ;
+            sdl(and(not(A), B), _, _)
+	    )
+    ).
 
 s_or_else_choice(A, B) :-
-        sdl(A, _, _),
-        frandom(N),
-        N2 is fix(N*2),
-        (N2 = 0 ->
-                (       sdl(B, _ , _)
-                ;
-                        boolean(not(B), _, _)
-                )
+    sdl(A, _, _),
+    frandom(N),
+    N2 is fix(N*2),
+    (N2 = 0 ->
+        (   sdl(B, _ , _)
         ;
-         N2 = 1 ->
-                (       sdl(not(B), _, _)
-                ;
-                        sdl(B, _ , _)
-                )
-        ).
+            boolean(not(B), _, _)
+        )
+    ;
+     N2 = 1 ->
+        (   sdl(not(B), _, _)
+        ;
+            sdl(B, _ , _)
+        )
+    ).
 
 %%%%%%%%%%%%%%%%%%%%%%%  PURE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 s_or_pure(A, B) :-
-        known(A, KCA),
-        (KCA == no ->
-                (known(B, KCB),
-                 (KCB == no ->
-                        (term_variables(dummy(A), VarsA),
-                         get_atomics(VarsA, AtomicsA),
-                         term_variables(dummy(B), VarsB),
-                         get_atomics(VarsB, AtomicsB),
-                         make_suspension(s_or(A, B), 4, Susp),  %priority has been lowered from 3 to 4 (David's diary 29/06/04) to be lower than the clpfd constraints before the fail within success/2
-	                 insert_suspension(dummy(AtomicsA, AtomicsB), Susp, inst of suspend, suspend)
-	                )
-                 ;
-                  KCB == true ->
-                        sdl(B, _, _)            %should never fail
-                 ;
-                  KCB == false ->
-                        (sdl(not(B), _, _),     %not really necessary but should never fail
-                         sdl(A, _, _)           %determine the outcome of the  'A or B'
-                        )
-                 )
+    known(A, KCA),
+    (KCA == no ->
+        (known(B, KCB),
+         (KCB == no ->
+            (term_variables(dummy(A), VarsA),
+             get_atomics(VarsA, AtomicsA),
+             term_variables(dummy(B), VarsB),
+             get_atomics(VarsB, AtomicsB),
+             suspend(s_or(A, B), 4, [AtomicsA, AtomicsB]->inst) %priority has been lowered from 3 to 4 (David's diary 29/06/04) to be lower than the clpfd constraints before the fail within success/2
+	        )
+         ;
+            KCB == true ->
+                sdl(B, _, _)            %should never fail
+         ;
+            KCB == false ->
+                (sdl(not(B), _, _),     %not really necessary but should never fail
+                 sdl(A, _, _)           %determine the outcome of the  'A or B'
                 )
+         )
+        )
         ;
          KCA == true ->
-                sdl(A, _, _)                    %should never fail
+            sdl(A, _, _)                    %should never fail
         ;
          KCA == false ->
-                (sdl(not(A), _, _),             %not really necessary but should never fail
-                 sdl(B, _, _)                   %determine the outcome of the  'A or B'
-                )
+            (sdl(not(A), _, _),             %not really necessary but should never fail
+             sdl(B, _, _)                   %determine the outcome of the  'A or B'
+            )
         ).
 
 %27/01/05
 %we are changing the pure or_else constraint to be a bit more clever
 % in A or_else B, if A is unknown but if B is known and is false then we can conclude that A has to be true
 s_or_else_pure(A, B) :-
-        known(A, KCA),
-        (KCA == no ->
-                (known(B, KCB),
-                 (KCB == no ->  %we will have to delay
-                        (term_variables(dummy(A), VarsA),
-                         get_atomics(VarsA, AtomicsA),
-                         term_variables(dummy(B), VarsB),
-                         get_atomics(VarsB, AtomicsB),
-                         make_suspension(s_or_else_pure(A, B), 3, Susp),
-	                 insert_suspension(dummy(AtomicsA, AtomicsB), Susp, inst of suspend, suspend)
-	                )
-                 ;
-                  KCB == true ->        %unsure here, in pure logic we should sdl(B, _, _) but what about A? in C code this will only happen if A is false
-                                        % but in ordinary logic the value of A does not matter ...
-                                        % so for safety we delay just as above
-                        (term_variables(dummy(A), VarsA),
-                         get_atomics(VarsA, AtomicsA),
-                         term_variables(dummy(B), VarsB),
-                         get_atomics(VarsB, AtomicsB),
-                         make_suspension(s_or_else_pure(A, B), 3, Susp),
-	                 insert_suspension(dummy(AtomicsA, AtomicsB), Susp, inst of suspend, suspend)
-	                )
-                ;
-                 KCB == false ->        %here A must be true
-                        (sdl(not(B), _, _),     %not really necessary but should never fail
-                         sdl(A, _, _)           %determine the outcome of the  'A or B'
-                        )
-                )
-               )
-        ;
-         KCA == true ->
-                sdl(A, _, _)    %should never fail
-        ;
-         KCA == false ->
-                (sdl(not(A), _, _),     %should never fail
-                 sdl(B, _, _)
-                )
-        ).
-
+    known(A, KCA),
+    (KCA == no ->
+        (known(B, KCB),
+         (KCB == no ->  %we will have to delay
+            (term_variables(dummy(A), VarsA),
+             get_atomics(VarsA, AtomicsA),
+             term_variables(dummy(B), VarsB),
+             get_atomics(VarsB, AtomicsB),
+             suspend(s_or_else_pure(A, B), 3, [AtomicsA, AtomicsB]->inst)
+	        )
+         ;
+          KCB == true ->        %unsure here, in pure logic we should sdl(B, _, _) but what about A? in C code this will only happen if A is false
+                                % but in ordinary logic the value of A does not matter ...                                    
+                                % so for safety we delay just as above
+            (term_variables(dummy(A), VarsA),
+             get_atomics(VarsA, AtomicsA),
+             term_variables(dummy(B), VarsB),
+             get_atomics(VarsB, AtomicsB),
+             suspend(s_or_else_pure(A, B), 3, [AtomicsA, AtomicsB]->inst)
+	        )
+         ;
+          KCB == false ->        %here A must be true
+            (sdl(not(B), _, _),     %not really necessary but should never fail
+             sdl(A, _, _)           %determine the outcome of the  'A or B'
+            )
+         )
+        )
+    ;
+     KCA == true ->
+        sdl(A, _, _)    %should never fail
+    ;
+     KCA == false ->
+        (sdl(not(A), _, _),     %should never fail
+         sdl(B, _, _)
+        )
+    ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %to handle C Boolean expressions which return an int
@@ -215,34 +210,32 @@ s_reif(Constraint, R) :-
 	(R == 1 ->
 		sdl(Constraint, _, _)
 	;
-         R == 0 ->
+     R == 0 ->
 		sdl(not(Constraint), _, _)
 	;                               %R in unknown
-	        (known(Constraint, KC),
-                 (KC == no ->           %the constraint is unknown : we must delay
-                        (term_variables(dummy(Constraint), Vars_constraint),
-                         get_atomics(Vars_constraint, Atomics_constraint),
-                         make_suspension(s_reif(Constraint, R), 3, Susp),
-	                 insert_suspension(dummy(Atomics_constraint, R), Susp,inst of suspend, suspend)
-	                )
-                 ;
-                  KC == true ->         %the constraint can only be true
-                        (sdl(Constraint, _, _) ->         %should never fail
-                                R = 1
-                        ;
-                                ptc_solver__error("Constraint can only be true but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
-
-                        )
-                 ;
-                  KC == false ->        %the constraint can only be false
-                        (sdl(not(Constraint), _, _) ->    %should never fail
-                                R = 0
-                        ;
-                                ptc_solver__error("Constraint can only be false but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
-                        )
-                 )
-                )
-        ).
+	 (known(Constraint, KC),
+        (KC == no ->           %the constraint is unknown : we must delay
+            (term_variables(dummy(Constraint), Vars_constraint),
+             get_atomics(Vars_constraint, Atomics_constraint),
+             suspend(s_reif(Constraint, R), 3, [Atomics_constraint, R]->inst)
+	        )
+        ;
+         KC == true ->         %the constraint can only be true
+            (sdl(Constraint, _, _) ->         %should never fail
+                R #= 1
+            ;
+                ptc_solver__error("Constraint can only be true but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
+            )
+        ;
+         KC == false ->        %the constraint can only be false
+            (sdl(not(Constraint), _, _) ->    %should never fail
+                R #= 0
+            ;
+                ptc_solver__error("Constraint can only be false but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
+            )
+        )
+     )
+    ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %to handle Javabyte code dcmp and lcmp
@@ -252,95 +245,92 @@ s_reif(Constraint, R) :-
 %                       1  if 1st > 2nd
 %see my Jacinta's MSc diary
 s_cmp(Exp1, Exp2, R) :-
-        arithmetic(Exp1, D1, _),
-        arithmetic(Exp2, D2, _),
-        arithmetic(R, Z, i),
-        Z #<2,
-        Z #>(-2),
-        s_cmp2(D1, D2, Z).
-
+    arithmetic(Exp1, D1, _),
+    arithmetic(Exp2, D2, _),
+    arithmetic(R, Z, i),
+    Z #>= -1,
+    Z #=< 1,
+    s_cmp2(D1, D2, Z).
 
 s_cmp2(D1, D2, R) :-
-        (ground(R) ->
-                (R == -1 ->
-                        sdl(D1 < D2, _, _)
-                ;
-                 R == 0 ->
-                        sdl(D1 = D2, _, _)
-                ;
-                 R == 1 ->
-                        sdl(D1 > D2, _, _)
-                )
+    (ground(R) ->
+        (R == -1 ->
+            sdl(D1 < D2, _, _)
         ;
-                        %crude constraint here only
-                        %could be much much better by checking domains
-         (ground(D1), ground(D2)) ->
-                (D1 = D2 ->
-                        R = 0
-                ;
-                 D1 > D2 ->
-                        R = 1
-                ;
-                 D1 < D2 ->
-                        R = -1
-                )
-        ;%we must delay
-                (make_suspension(s_cmp2(D1, D2, R), 3, Susp),
-	         insert_suspension(dummy(D1, D2, R), Susp, inst of suspend, suspend)
-	        )
-        ).
+         R == 0 ->
+            sdl(D1 = D2, _, _)
+        ;
+         R == 1 ->
+            sdl(D1 > D2, _, _)
+        )
+    ;
+     %crude constraint here only
+     %could be much much better by checking domains
+     (ground(D1), ground(D2)) ->
+        (D1 == D2 ->
+            R #= 0
+        ;
+         D1 > D2 ->
+            R #= 1
+        ;
+         D1 < D2 ->
+            R #= -1
+        )
+    ;   %we must delay
+        suspend(s_cmp2(D1, D2, R), 3, [D1, D2, R]->inst)
+    ).
 
 %%%%
 successT(Constraint) :-
-        sdl(Constraint, _, _),
-        getval(entail_stack, [es(no, F)|ES]),
-        setval(entail_stack, [es(yes, F)|ES]),  %Constraint can be true
-        fail.
+    sdl(Constraint, _, _),
+    getval(entail_stack, [es(no, F)|ES]),
+    setval(entail_stack, [es(yes, F)|ES]),  %Constraint can be true
+    fail.
 successF(Constraint) :-
-        sdl(not(Constraint), _, _),
-        getval(entail_stack, [es(T, no)|ES]),
-        setval(entail_stack, [es(T, yes)|ES]),  %not Constraint can be true
-        fail.
+    sdl(not(Constraint), _, _),
+    getval(entail_stack, [es(T, no)|ES]),
+    setval(entail_stack, [es(T, yes)|ES]),  %not Constraint can be true
+    fail.
 
 known(Constraint, KC) :-
-        getval(entail_stack, ES),
-        setval(entail_stack, [es(no, no)|ES]),          %initial element is pushed on the stack
+    getval(entail_stack, ES),
+    setval(entail_stack, [es(no, no)|ES]),          %initial element is pushed on the stack
 
-        not successT(Constraint),
+    not successT(Constraint),
 
-        not successF(Constraint),
-        getval(entail_stack, [es(ST, SF)|ES]),
-        setval(entail_stack, ES),                       %top of the stack is removed: job done
-        ((ST == yes, SF == yes) ->
-                KC = no                 %cannot be decided
-        ;
-         (ST == yes, SF == no) ->
-                KC = true               %the constraint can only be true
-        ;
-         (ST == no, SF == yes) ->
-                KC = false              %the constraint can only be false
-        ;
-         (ST == no, SF == no) ->
-                ptc_solver__error("Constraint cannot be true nor false: systematic error (from known/2 in ptc_solver_boolean.pl")
-        ).
+    not successF(Constraint),
+    getval(entail_stack, [es(ST, SF)|ES]),
+    setval(entail_stack, ES),                       %top of the stack is removed: job done
+    ((ST == yes, SF == yes) ->
+        KC = no                 %cannot be decided
+    ;
+     (ST == yes, SF == no) ->
+        KC = true               %the constraint can only be true
+    ;
+     (ST == no, SF == yes) ->
+        KC = false              %the constraint can only be false
+    ;
+     (ST == no, SF == no) ->
+        ptc_solver__error("Constraint cannot be true nor false: systematic error (from known/2 in ptc_solver_boolean.pl")
+    ).
 
 %%%
 %for reif we need to suspend on all variables (see 30/04/04 Eileen's diary)
 get_atomics([], []).
 get_atomics([V|Rest], List) :-
-        ((ptc_solver__is_enum(V) ; ptc_solver__is_integer(V) ; ptc_solver__is_real(V))->
-                List = [V|List1]
-        ;
-         ptc_solver__is_array(V) ->
-                (partition_array_vars(V, List2),
-                 append(List2, List1, List)
-                )
+    ((ptc_solver__is_enum(V) ; ptc_solver__is_integer(V) ; ptc_solver__is_real(V))->
+        List = [V|List1]
+    ;
+     ptc_solver__is_array(V) ->
+        (partition_array_vars(V, List2),
+         append(List2, List1, List)
+        )
 	;
 	 ptc_solver__is_record(V) ->
-	       (partition_record_vars(V, List2),
-                append(List2, List1, List)
-               )
-        ),
+	    (partition_record_vars(V, List2),
+         append(List2, List1, List)
+        )
+    ),
 	get_atomics(Rest, List1).
 
 partition_array_vars(V, List) :-
