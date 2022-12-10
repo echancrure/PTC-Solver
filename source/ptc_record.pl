@@ -1,12 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Chris Meudec
 % Eclipse 7.0
-% mix_record1.pl
 % module record for record meta variables handling
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % a record variable R is of the form: R{ptc_record(Field_values)}, where Field_values is a list of (Field_name, Value)
 % a record meta variable never becomes ground, even if a record is fully known it is still represented as a meta record variable
-
 :- module(ptc_record).
 
 :- meta_attribute(ptc_record, [unify:unify_record/2, print:print_record/2]).
@@ -14,7 +12,6 @@
 :- export ptc_record__get_field/3, ptc_record__raw_get_field/2, ptc_record__up_record/4, ptc_record__create_record_from_agg/3.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 :- import ptc_solver__get_frame/3 from ptc_solver.
 :- import ptc_solver__arithmetic/3 from ptc_solver.
 :- import ptc_solver__sdl/1 from ptc_solver.
@@ -30,7 +27,6 @@ unify_record(Term, Attr) :-
 unify_term_record(_{AttrY}, AttrX) :-   %META + META
 	-?->
 	AttrX = AttrY.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %print a record variable (only for debug)
@@ -121,11 +117,11 @@ ptc_record__create_record_from_agg(Type, AsgL, Record) :-
 	ptc_record__create_record(Field_values, Record).
 
 init_field_values(AsgL, Field_values) :-
-        (AsgL = [(_, _)|_] ->
-                init_field_values_named(AsgL, Field_values)
-        ;
-                init_field_values_positional(AsgL, Field_values)
-        ).
+    (AsgL = [(_, _)|_] ->
+        init_field_values_named(AsgL, Field_values)
+    ;
+        init_field_values_positional(AsgL, Field_values)
+    ).
 
 init_field_values_named([], _).
 init_field_values_named([([Field], Value)|Rest], Field_values) :-
@@ -136,5 +132,5 @@ init_field_values_named([([Field], Value)|Rest], Field_values) :-
 
 init_field_values_positional([], _).
 init_field_values_positional([Exp|Rest], [(_, Exp)|Rest2]) :-
-        init_field_values_positional(Rest, Rest2).
+    init_field_values_positional(Rest, Rest2).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%END%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
