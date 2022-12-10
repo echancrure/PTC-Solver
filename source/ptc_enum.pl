@@ -20,7 +20,6 @@
 :- dynamic ptc_enum/2.
 
 :- import ptc_solver__get_frame/3, ptc_solver__first/2, ptc_solver__last/2, ptc_solver__arithmetic/3 from ptc_solver.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %remark using suspend.pl template for metaterm handlers
 
@@ -235,7 +234,6 @@ ptc_enum__succ(X{ptc_enum(BasetypeX, _, PositionX)}, R{ptc_enum(_, _, PositionR)
     ;  
 	    sublist([(X, _), (R, PositionR)], Enum_listX)  %X and R become ground
 	).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 continue_init_succ(X{ptc_enum(BasetypeX, _, PositionX)}, R) :-
