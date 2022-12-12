@@ -31,11 +31,7 @@
 :- export ptc_solver__match_variable/2, ptc_solver__is_rational/1, ptc_solver__rational_to_decimal/2.
 :- export ptc_solver__numerator/2, ptc_solver__denominator/2, ptc_solver__set_flag/2.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-:- lib(clpq), lib(fd), lib(suspend).
 :- use_module(library(ic)).
-:- import (::)/2, (#=)/2, (#\=)/2, (#>)/2, (#>=)/2, (#<)/2, (#<=)/2 from fd.       %conflict resolution
 
 :- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
 :- include([ptc_solver_bitwise]).
@@ -44,7 +40,6 @@
 %:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
-
 :- import ptc_enum__pred/2, ptc_enum__is_enum/1, ptc_enum__pos/3, ptc_enum__is_enum_type/1, ptc_enum__get_literal/3, ptc_enum__get_basetype/2 from ptc_enum.
 :- import ptc_enum__val/3, ptc_enum__sample/1 from ptc_enum.
 :- import ptc_record__create_record/2, ptc_record__get_field/3, ptc_record__is_record/1, ptc_record__create_record_from_agg/3 from ptc_record.

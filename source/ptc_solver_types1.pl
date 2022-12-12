@@ -7,17 +7,19 @@
 
 %default declarations for booleans, integers, floating numbers without range
 ptc_solver__default_declarations :-
-	I :: -65535..65535,
+	Smallest_Int = -65535,
+	Largest_Int = 65535,
+	I #:: Smallest_Int..Largest_Int,
 	ptc_solver__set_frame(integer, integer, I),
-	{R >= -pow(2, 40)/3, R =< pow(2, 40)/3},
-	ptc_solver__set_frame(float, real, R),
-	ptc_solver__type(boolean, enumeration, [false, true]),
-	asserta(ptc_solver__first(integer, -65535)),
-	asserta(ptc_solver__last(integer, 65535)),
-	{B = pow(2, 40)/3, B1 = -B},
-	asserta(ptc_solver__first(float, B1)),
-	asserta(ptc_solver__last(float, B)).
-
+	asserta(ptc_solver__first(integer, Smallest_Int)),
+	asserta(ptc_solver__last(integer, Largest_Int)),
+	Smallest_Real $= -pow(2, 40)/3,
+	Largest_real $= pow(2, 40)/3,
+	R $:: Smallest_Real..Largest_real,
+	ptc_solver__set_frame(float, real, R),	%sometimes using float sometimes real...
+	asserta(ptc_solver__first(float, Smallest_Real)),
+	asserta(ptc_solver__last(float, Largest_real)),
+	ptc_solver__type(boolean, enumeration, [false, true]).
 
 %%%%%%%%%%
 %a real type without range constraint
@@ -135,9 +137,9 @@ ptc_solver__subtype(Subtype_mark, Type_mark, range_bounds(Min, Max)) :-
 	 Base_type = real ->
 		(relation(>=, R, Min),
 		 relation(<=, R, Max),
-		 ptc_solver__set_frame(Subtype_mark, real, R),    %record the subtype
-		 asserta(ptc_solver__first(Subtype_mark, Min)),  %record the first integer
-		 asserta(ptc_solver__last(Subtype_mark, Max))    %record the last integer
+		 ptc_solver__set_frame(Subtype_mark, real, R),  %record the subtype
+		 asserta(ptc_solver__first(Subtype_mark, Min)), %record the first integer
+		 asserta(ptc_solver__last(Subtype_mark, Max))	%record the last integer
 		)
 	; %the subtype of a enumeration subtype
 		ptc_solver__subtype(Subtype_mark, Base_type, range_bounds(Min, Max))
