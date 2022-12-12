@@ -71,8 +71,8 @@ ptc_record__raw_get_field(field(Record, Field), Exp) :-
 %get the value of a field of an aggregate
 ptc_record__raw_get_field(field(agg(Type_mark, AsgL), Field), Exp) :-
 	!,
-        ptc_solver__get_frame(Type_mark, record, _),            %making sure we are dealing with a record aggregate
-        ptc_record__create_record_from_agg(Type_mark, AsgL, R),
+    ptc_solver__get_frame(Type_mark, record, _),            %making sure we are dealing with a record aggregate
+    ptc_record__create_record_from_agg(Type_mark, AsgL, R),
 	ptc_record__raw_get_field(field(R, Field), Exp).
 
 %get the value of a field of a update record, simplify if possible.

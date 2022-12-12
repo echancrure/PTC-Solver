@@ -40,12 +40,12 @@ bitwise_check(L, Len, Sign) :-
         ),
         !.
 bitwise_check(_, Len, Sign) :-
-        ptc_solver__verbose("Invalid Length or Sign in bitwise_check: ", [Len, Sign]).
+    ptc_solver__verbose("Invalid Length or Sign in bitwise_check: ", [Len, Sign]).
 
 all([], _, _) :-
         !.
 all([V|R], Min, Max) :-
-    V :: Min..Max,
+    V #:: Min..Max,
     all(R, Min, Max).
 %%%
 %convert a decimal coded integer into its binary equivalent of length Len using Sign coding
@@ -74,7 +74,7 @@ convert2(I, Len, L) :-
 convert3(0, 0, []) :-
     !.
 convert3(_, 0, _) :-
-%should never happen due to contraints in bitwise_check
+    %should never happen due to contraints in bitwise_check
     ptc_solver__verbose("Overflow in binary convertion").
 convert3(I, Len, L) :-
     !,
@@ -102,20 +102,20 @@ add1([B|R], A, [B2|R2], N2) :-
 
 %%%
 to_decimal(L, Sign, Z) :-
-        (Sign == signed ->
-                (L = [S|R],
-                 to_decimal2(R, _, R2),
-                 (S == 1 ->
-                        Z is -1*R2
-                 ;
-                  S == 0 ->
-                        Z is R2
-                 )
-                )
-        ;
-         Sign == unsigned ->
-                to_decimal2(L, _, Z)
-        ).
+    (Sign == signed ->
+        (L = [S|R],
+         to_decimal2(R, _, R2),
+         (S == 1 ->
+            Z is -1*R2
+         ;
+          S == 0 ->
+            Z is R2
+         )
+        )
+    ;
+     Sign == unsigned ->
+        to_decimal2(L, _, Z)
+    ).
 
 to_decimal2([D], 1, R) :-
     !,
@@ -201,94 +201,87 @@ list_right_shift(Z2, S, V, Result) :-
 %%%
 %Bitwise negation
 s_bwnot(X, Len, Sign, Z) :-
-        Xeval #= X+0,
-        bitwise_check([Xeval], Len, Sign),
-        s_bwnot2(Xeval, Len, Sign, Z).
+    Xeval #= X+0,
+    bitwise_check([Xeval], Len, Sign),
+    s_bwnot2(Xeval, Len, Sign, Z).
 
 s_bwnot2(X, Len, Sign, Z) :-
-        not nonground(X) ->
-                (convert(X, Len, Sign, Z2),
-                 list_negate(Z2, Z3),
-                 to_decimal(Z3, Sign, Z)
-                )
-        ;
-        not nonground(Z) ->
-                (s_bwnot(Z, Len, Sign, X)
-                )
-        ;
-                (make_suspension(s_bwnot2(X, Len, Sign, Z), 3, Susp),
-		 insert_suspension((X, Z), Susp, inst of suspend, suspend)
-		)
-	.
+    (not nonground(X) ->
+        (convert(X, Len, Sign, Z2),
+         list_negate(Z2, Z3),
+         to_decimal(Z3, Sign, Z)
+        )
+    ;
+     not nonground(Z) ->
+        s_bwnot(Z, Len, Sign, X)
+    ;
+        suspend(s_bwnot2(X, Len, Sign, Z), 3, [X, Z]->inst)
+    ).
 
+%%%
+%There is a lot of repeat code below refactoring should be performed
 %%%
 %Bitwise and
 s_bwand(X, Y, Len, Sign, Z) :-
-        Xeval #= X+0,
-        Yeval #= Y+0,
-        bitwise_check([Xeval, Yeval], Len, Sign),
-        s_bwand2(Xeval, Yeval, Len, Sign, Z).
+    Xeval #= X+0,
+    Yeval #= Y+0,
+    bitwise_check([Xeval, Yeval], Len, Sign),
+    s_bwand2(Xeval, Yeval, Len, Sign, Z).
 
 s_bwand2(X, Y, Len, Sign, Z) :-
-        (not nonground(X), not nonground(Y)) ->
-                (convert(X, Len, Sign, X2),
-                 convert(Y, Len, Sign, Y2),
-                 list_and(X2, Y2, Z2),
-                 to_decimal(Z2, Sign, Z)
-                )
-        ;
-                (make_suspension(s_bwand2(X, Y, Len, Sign, Z), 3, Susp),
-		 insert_suspension((X, Y, Z), Susp, inst of suspend, suspend)
-		)
-	.
+    ((not nonground(X), not nonground(Y)) ->
+        (convert(X, Len, Sign, X2),
+         convert(Y, Len, Sign, Y2),
+         list_and(X2, Y2, Z2),
+         to_decimal(Z2, Sign, Z)
+        )
+    ;
+        suspend(s_bwand2(X, Y, Len, Sign, Z), 3, [X, Y, Z]->inst)
+    ).
 
 %%%
 %Bitwise or
 s_bwor(X, Y, Len, Sign, Z) :-
-        Xeval #= X+0,
-        Yeval #= Y+0,
-        bitwise_check([Xeval, Yeval], Len, Sign),
-        s_bwor2(Xeval, Yeval, Len, Sign, Z).
+    Xeval #= X+0,
+    Yeval #= Y+0,
+    bitwise_check([Xeval, Yeval], Len, Sign),
+    s_bwor2(Xeval, Yeval, Len, Sign, Z).
 
 s_bwor2(X, Y, Len, Sign, Z) :-
-        (not nonground(X), not nonground(Y)) ->
-                (convert(X, Len, Sign, X2),
-                 convert(Y, Len, Sign, Y2),
-                 list_or(X2, Y2, Z2),
-                 to_decimal(Z2, Sign, Z)
-                )
-        ;
-                (make_suspension(s_bwor2(X, Y, Len, Sign, Z), 3, Susp),
-		 insert_suspension((X, Y, Z), Susp, inst of suspend, suspend)
-		)
-	.
+    ((not nonground(X), not nonground(Y)) ->
+        (convert(X, Len, Sign, X2),
+         convert(Y, Len, Sign, Y2),
+         list_or(X2, Y2, Z2),
+         to_decimal(Z2, Sign, Z)
+        )
+    ;
+        suspend(s_bwor2(X, Y, Len, Sign, Z), 3, [X, Y, Z]->inst)
+    ).
 
 %%%
 %Bitwise xor
 s_bwxor(X, Y, Len, Sign, Z) :-
-        Xeval #= X+0,
-        Yeval #= Y+0,
-        bitwise_check([Xeval, Yeval], Len, Sign),
-        s_bwxor2(Xeval, Yeval, Len, Sign, Z).
+    Xeval #= X+0,
+    Yeval #= Y+0,
+    bitwise_check([Xeval, Yeval], Len, Sign),
+    s_bwxor2(Xeval, Yeval, Len, Sign, Z).
 
 s_bwxor2(X, Y, Len, Sign, Z) :-
-        (not nonground(X), not nonground(Y)) ->
-                (convert(X, Len, Sign, X2),
-                 convert(Y, Len, Sign, Y2),
-                 list_xor(X2, Y2, Z2),
-                 to_decimal(Z2, Sign, Z)
-                )
-        ;
-        (not nonground(X), not nonground(Z)) ->
-                s_bwxor(X, Z, Len, Sign, Y)
-        ;
-        (not nonground(Y), not nonground(Z)) ->
-                s_bwxor(Y, Z, Len, Sign, X)
-        ;
-                (make_suspension(s_bwxor2(X, Y, Len, Sign, Z), 3, Susp),
-		 insert_suspension((X, Y, Z), Susp, inst of suspend, suspend)
-		)
-	.
+    ((not nonground(X), not nonground(Y)) ->
+        (convert(X, Len, Sign, X2),
+         convert(Y, Len, Sign, Y2),
+         list_xor(X2, Y2, Z2),
+         to_decimal(Z2, Sign, Z)
+        )
+    ;
+     (not nonground(X), not nonground(Z)) ->
+        s_bwxor(X, Z, Len, Sign, Y)
+    ;
+     (not nonground(Y), not nonground(Z)) ->
+        s_bwxor(Y, Z, Len, Sign, X)
+    ;
+        suspend(s_bwxor2(X, Y, Len, Sign, Z), 3, [X, Y, Z]->inst)
+    ).
 
 %%%
 %left shift, S is the amount of shifting
@@ -308,9 +301,7 @@ s_left_shift2(X, S, Len, Sign, Z) :-
          to_decimal(Z3, Sign, Z)
         )
     ;
-        (make_suspension(s_left_shift2(X, S, Len, Sign, Z), 3, Susp),
-		 insert_suspension((X, S), Susp, inst of suspend, suspend)
-		)
+        suspend(s_left_shift2(X, S, Len, Sign, Z), 3, [X, S]->inst)
     ).
 
 %%%
@@ -327,19 +318,17 @@ s_right_shift(X, S, Len, Sign, Z) :-
 s_right_shift2(X, S, Len, Sign, Z) :-
     ((not nonground(X), not nonground(S)) ->
         (convert(X, Len, Sign, Z2),
-            (Sign == unsigned ->
-                list_right_shift(Z2, S, 0, Z3)
-            ;
-                Sign == signed ->
-                    (Z2 = [V|_],
-                     list_right_shift(Z2, S, V, Z3)
-                    )
-            ),
-            to_decimal(Z3, Sign, Z)
+         (Sign == unsigned ->
+            list_right_shift(Z2, S, 0, Z3)
+         ;
+          Sign == signed ->
+            (Z2 = [V|_],
+             list_right_shift(Z2, S, V, Z3)
+            )
+         ),
+         to_decimal(Z3, Sign, Z)
         )
     ;
-        (make_suspension(s_right_shift2(X, S, Len, Sign, Z), 3, Susp),
-		 insert_suspension((X, S), Susp, inst of suspend, suspend)
-		)
+        suspend(s_right_shift2(X, S, Len, Sign, Z), 3, [X, S]->inst)
     ).
 %%%%%%%%%%%%% THE END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
