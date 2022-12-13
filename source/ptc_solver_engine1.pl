@@ -5,7 +5,6 @@
 % inconsistencies detection and constraints applications
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%called from boolean/3 and negate/3
 %can fail
 %Rel is the relation
 %L is the left operand of Op
@@ -34,89 +33,67 @@ apply_relation(_, X, array, =, _, Y, array) :-
 apply_relation(_, X, record, =, _, Y, record) :-
 	!,
 	X = Y.
-
 apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
-	(get_integer_real_relation(Fun, Rel_int, Rel_rea), %get correct relation syntax
-	     ((XT = e, YT = e) ->               %a constraint on enumeration variables
-		 (Fun = = ->
-		     (!,        %do not under any circumstances remove this 27-09-01
-                      X = Y
-		     )
-		 ;
-		  Fun = > ->
-		     (ptc_enum__succ(Y, SuccY),
-		      ptc_enum__get_position(SuccY, Pos_succY),
-		      ptc_enum__get_position(X, PosX),
-		      !,
-		      PosX #>= Pos_succY
-		     )
-		 ;
-		  Fun = < ->
-		     (ptc_enum__pred(Y, PredY),
-		      ptc_enum__get_position(PredY, Pos_predY),
-		      ptc_enum__get_position(X, PosX),
-		      !,
-		      PosX #<= Pos_predY
-		     )
-		 ;
-		     (ptc_enum__get_position(X, PosX),
-		      ptc_enum__get_position(Y, PosY),
-		      Constraint =.. [Rel_int, PosX, PosY],
-		      !,
-		      Constraint
-		     )
-		 )
-	     ;
-	     (XT = i, YT = i) ->          % an integer constraint
-		 (Constraint =.. [Rel_int, X, Y],    % build the constraint
-		  !,
-		  Constraint                         %finaly apply the constraint
-		 )
-	     ;
-	     (convert_to_real(X, XT, NewX),
-	      convert_to_real(Y, YT, NewY),
-	      ((Fun = =, var(Le), var(Ri))  ->
-		     NewX = NewY  %ensure true equality between terms(for outputs) {NewX = NewY} is different to X = Y
-		 ;
-		     (Constraint =.. [Rel_rea, NewX, NewY], %build the constraint
-		      !,
-		      {Constraint}                    %finally apply the constraint
-		     )
-	      )
-	     )
-           )
+	get_integer_real_relation(Fun, Rel_int, Rel_rea), %get correct relation syntax
+	((XT = e, YT = e) ->               %a constraint on enumeration variables
+		(Fun = = ->
+		    (!,        %do not under any circumstances remove this 27-09-01
+             X = Y
+		    )
+		;
+		 Fun = > ->
+		 	(ptc_enum__succ(Y, SuccY),
+		  	 ptc_enum__get_position(SuccY, Pos_succY),
+		  	 ptc_enum__get_position(X, PosX),
+		  	 !,
+		  	 PosX #>= Pos_succY
+		 	)
+		;
+		 Fun = < ->
+		    (ptc_enum__pred(Y, PredY),
+		     ptc_enum__get_position(PredY, Pos_predY),
+		     ptc_enum__get_position(X, PosX),
+		     !,
+		     PosX #=< Pos_predY
+		 	)
+		;
+		    (ptc_enum__get_position(X, PosX),
+		     ptc_enum__get_position(Y, PosY),
+		     Constraint =.. [Rel_int, PosX, PosY],
+		     !,
+		     Constraint
+		    )
+		)
+	;
+	 (XT == i, YT == i) ->          % an integer constraint
+		(Constraint =.. [Rel_int, X, Y],    % build the constraint
+		 !,
+		 Constraint                         %finaly apply the constraint
+		)
+	 ;
+		(Constraint =.. [Rel_rea, NewX, NewY], %build the constraint
+		 !,
+		 Constraint                    %finally apply the constraint
+		)
 	),
 	!.
 
-%called from apply_relation/7 by get_integer_real_relation(Fun, Rel_int, Rel_rea)
 %Fun is a SDL relational operator
 %Rel_int is the out fd (integer) equivalent
 %Rel_rea is the out clpq (real) equivalent
-get_integer_real_relation(=, #=, =).
-get_integer_real_relation(<>, #\=, =\=).
-get_integer_real_relation(<, #<, <).
-get_integer_real_relation(>, #>, >).
-get_integer_real_relation(<=, #<=, =<).
-get_integer_real_relation(>=, #>=, >=).
-
-%called from arithmetic/3 by convert_to_real(X, XT, R)
-%X is an arithmetic expression
-%XT is the type of X
-%R is an out real variable or expression
-%if X is already a real then R = X
-convert_to_real(X, r, X).       %no change (already a real type variable)
-convert_to_real(I, i, R) :-     %same as converting an integer to a real
-        s_cast_to_real(I, R).   %for ADA : s_round(R, I)
+get_integer_real_relation(=, #=, $=).
+get_integer_real_relation(<>, #\=, $\=).
+get_integer_real_relation(<, #<, $<).
+get_integer_real_relation(>, #>, $>).
+get_integer_real_relation(<=, #=<, $=<).
+get_integer_real_relation(>=, #>=, $>=).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% called from relation/3 and unfold_indexes/2
-% is recursif; can fail
+% is recursive; can fail
 % X is an arithmetic expression in Ada syntax (without relational operators which are treated by relation/3)
 %  to transform into constraints
 % R denotes the result of the operation represented by X
 % T denotes r or i indicating a real or an integer constraint
-%changed 18-05-2000: arithmetic used to return a literal term when dealing with integers (e.g. X+Y) we now evaluate it in-situ
-% this change has consequences for the rest of the solver: tidying up of the code is required (no done yet).
 % check for numbers
 arithmetic(X, X, T):-
 	number(X),
@@ -128,48 +105,26 @@ arithmetic(X, X, T):-
 	).
 
 % check for variables
-arithmetic(X, R, T):-
+arithmetic(X, X, T):-
 	var(X),
 	!,
-	(is_domain(X) ->
-	    (T = i,
-	     R = X
+	(get_solver_type(X, Type) ->
+	    (Type == integer ->
+			T = i
+	    ;
+		 Type == real ->
+		 	T = r
 	    )
 	 ;
-	 ptc_enum__is_enum(X) ->
-	    (T = e,
-	     R = X
-	    )
+	  ptc_enum__is_enum(X) ->
+	    T = e
 	 ;
-	 ptc_record__is_record(X) ->
-	    (T = record,
-	     R = X
-	    )
+	  ptc_record__is_record(X) ->
+	    T = record
 	 ;
-	 ptc_array__is_array(X) ->
-	    (T = array,
-	     R = X
-	    )
-	 ;
-	 ptc_solver__is_real(X) ->
-	    (T = r,
-	     {R = X}  %trick because {R = X} is different to R = X %is that not just because of rational notation?
-	                                                      % if you insist that rationals be noted D_N then the problem should disapear
-%	     ,{R >= -pow(2, 40)/3, R =< +pow(2, 40)/3} %default domain (redundant?
-	                                               %yes for ordinary variables just check for ghost varaibles)
-	    )
+	  ptc_array__is_array(X) ->
+	    T = array
 	).
-
-%simplifications
-%!!08/04/2002 these create problems during matching
-%!!(A/B is matched wrongly A with *(N, D) and B with D
-%To change
-%arithmetic(/(*(N, D), D), R, T) :-
-%        !,
-%        arithmetic(N, R, T).
-%arithmetic(/(/(*(*(N, D), D), D), D), R, T) :-
-%        !,
-%        arithmetic(N, R, T).
 
 % arithmetic/3 for operators
 % check operands and apply the correct operator depending on whether dealing
@@ -178,17 +133,12 @@ arithmetic(*(Le, Ri), R, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	((XT = i, YT = i) ->
-	    ((R #= X * Y ->       %may fail if overflow occurs due to fd limitations
-	        T = i
-             ;
-                ptc_solver__error("FD overflow")
-             )
+	((XT == i, YT == i) ->
+	    (R #= X * Y,
+	     T = i
 	    )
-        ;
-	    (convert_to_real(X, XT, NewX),
-	     convert_to_real(Y, YT, NewY),
-	     {R = NewX * NewY}, %constraint applied here for easier labeling of reals
+    ;
+	    (R $= NewX * NewY,
 	     T = r
 	    )
 	).
@@ -197,14 +147,12 @@ arithmetic(+(Le, Ri), R, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	((XT = i, YT = i) ->
-	    (R #= X+Y,  %needs to be evaluated otherwise ptc_solver__sdl(M_out = up_arr(M, [0], 32+10)) will not work
+	((XT == i, YT == i) ->
+	    (R #= X+Y,
 	     T = i
 	    )
 	;
-	    (convert_to_real(X, XT, NewX),
-	     convert_to_real(Y, YT, NewY),
-	     {R = NewX + NewY},
+	    (R $= NewX + NewY,
 	     T = r
 	    )
 	).
@@ -213,14 +161,12 @@ arithmetic(-(Le, Ri), R, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	((XT = i, YT = i) ->
+	((XT == i, YT == i) ->
 	    (R #= X-Y,
 	     T = i
 	    )
 	;
-	    (convert_to_real(X, XT, NewX),
-	     convert_to_real(Y, YT, NewY),
-	     {R = NewX - NewY},
+	    (R $= NewX - NewY,
 	     T = r
 	    )
 	).
@@ -228,16 +174,16 @@ arithmetic(-(Le, Ri), R, T):-
 arithmetic(-(Ri), R, T) :-
 	!,
 	arithmetic(Ri, Y, T), %the type of -(Ri) is the type of Ri, T.
-	(T = i ->
-	     R #= -Y
-        ;
-	     {R = -Y}
-        ).
+	(T == i ->
+	    R #= -Y
+    ;
+	    R $= -Y
+    ).
 %removed my custom abs operator: perhaps it used to deal with holes better than ic's abs 
 arithmetic(abs(Ri), R, T) :-
 	!,
 	arithmetic(Ri, X, T), %the type of abs(Ri) is the type of Ri, T.
-	(T = i ->
+	(T == i ->
 		R #= abs(X)
     ;
 	    R $= abs(X)
@@ -263,15 +209,13 @@ arithmetic(/(Le, Ri), R, T) :-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	((XT = i, YT = i) ->
+	((XT == i, YT == i) ->
 	    (T = i,
 	     s_div(X, Y, R)     %custom defined operator for integer division: no equivalent in ic
 	    )
 	;
 	    (T = r,
-	     convert_to_real(X, XT, NewX),
-	     convert_to_real(Y, YT, NewY),
-	     {NewX / NewY = R}      %constraint applied here for easier labeling of reals
+	     R $= X / Y
 	    )
 	).
 
@@ -280,7 +224,7 @@ arithmetic(mod(Le, Ri), R, i) :-
 	!,
 	arithmetic(Le, X, i),
 	arithmetic(Ri, Y, i),
-	s_mod(X, Y, R). %user defined operator
+	s_mod(X, Y, R). 	%custom defined operator for modulo: no equivalent in ic
 
 %rem can only apply to integer operands and the resulting type is always integer
 arithmetic(rem(Le, Ri), R, i) :-
@@ -308,15 +252,10 @@ arithmetic(conversion(Type_mark, From_exp), R, To_type) :-
         ptc_solver__error("Failed type conversion: systematic run-time error in your code")
     ),
 	((From_type == r, To_type == i) ->
-        (float_to_int_convention(truncate) ->
-            s_cast_to_int(From_exp_eval, R)
-        ;
-            s_round(From_exp_eval, R)
-        )
+        s_cast_to_int(From_exp_eval, R)
     ;
      (From_type == i, To_type == r) ->
-        %FOR ADA : s_round(R, From_exp_eval)
-        s_cast_to_real(From_exp_eval, R)
+	    R $= From_exp_eval
     ;
         R = From_exp_eval     %ie. From_type = To_type no conversion necessary
     ).
@@ -325,7 +264,7 @@ arithmetic(conversion(Type_mark, From_exp), R, To_type) :-
 arithmetic(round(Ri), R, i) :-
 	!,
 	arithmetic(Ri, X, r),
-	s_round(X, R). %user defined constraint especially for ada (i.e. does not truncate)
+	s_cast_to_int(X, R).
 
 %the type of the result is the type of the element accessed
 %arithmetic is not called on Array here because simplifications are performed within ptc_array__get_element
@@ -377,7 +316,7 @@ arithmetic(last(Discrete_type), R, T) :-
 arithmetic(succ(X), R, T) :-
 	!,
 	arithmetic(X, Xeval, T),
-	(T = i ->
+	(T == i ->
 	    R #= Xeval + 1
 	;                   %X is an enumeration variable or a literal (i.e. T = e)
 	    ptc_enum__succ(Xeval, R)
@@ -387,7 +326,7 @@ arithmetic(succ(X), R, T) :-
 arithmetic(pred(X), R, T) :-
 	!,
 	arithmetic(X, Xeval, T),
-	(T = i ->
+	(T == i ->
 	    R #= Xeval - 1
 	;                   %X is an enumeration variable or a literal (i.e. T = e)
 	    ptc_enum__pred(Xeval, R)
@@ -397,7 +336,7 @@ arithmetic(pred(X), R, T) :-
 arithmetic(pos(Basetype, Ri), R, i) :-
 	!,
 	arithmetic(Ri, X, T),
-	(T = i ->         %X is an integer
+	(T == i ->         %X is an integer
 	    R = X
 	;                 %X is a literal or an enumeration variable (i.e. XT = e)
 	    ptc_enum__pos(Basetype, X, R)
@@ -443,10 +382,6 @@ arithmetic(right_shift(Le, S, Len, Sign), R, i) :-
     !,
     s_right_shift(Le, S, Len, Sign, R).
 
-%%%!!!boolean expressions can occur here when they are an element (of an array or record) during consideration of the final assignment
-%%%!!! see apply_const_effects
-
-
 %not a variable, not a number, not a compound, must be an atom i.e. a literal e.g. 'monday'
 arithmetic(Literal, Literal, e) :-
 	atom(Literal),
@@ -477,7 +412,7 @@ eq_cast(Le, Ri) :-
         s_cast_to_int(R_eval, L_eval)  	%as is done in conversion constraint
     ;
      (L_type == r, R_type == i) ->    	%from int to real
-        s_cast_to_real(R_eval, L_eval)	%as is done in conversion constraint
+        L_eval $= R_eval
     ;
         ptc_solver__error("Failed eq_cast/2 in ptc_solver_engine1 file the types are different and not real nor integer")
     ).
@@ -527,7 +462,6 @@ sdl(Cond, CLi, CLo) :-
 	;
 		boolean(Cond, CLi, CLo)
 	).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %called from sdl/3 by boolean(Cond, CLi, CLo) and also by negate/3
 %recursif; choice points; can fail
