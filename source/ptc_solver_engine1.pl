@@ -4,9 +4,6 @@
 % part of the ptc_solver module
 % inconsistencies detection and constraints applications
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% clpq could be better abs X = 7.3 simply delays whereas X= -7.3 or X= 7.3
-%  would be better (other operators to check as well, notably exponentation)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %called from boolean/3 and negate/3
 %can fail
@@ -19,7 +16,6 @@ relation(Rel, L, R):-
 	arithmetic(R, Y, YT), %process right operand giving Y of type YT
 	!,
 	apply_relation(L, X, XT, Rel, R, Y, YT).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %called from relation/3 by apply_relation(L, X, XT, Rel, R, Y, YT)
@@ -77,8 +73,8 @@ apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
 		  Constraint                         %finaly apply the constraint
 		 )
 	     ;
-	     (real_conversion(X, XT, NewX),
-	      real_conversion(Y, YT, NewY),
+	     (convert_to_real(X, XT, NewX),
+	      convert_to_real(Y, YT, NewY),
 	      ((Fun = =, var(Le), var(Ri))  ->
 		     NewX = NewY  %ensure true equality between terms(for outputs) {NewX = NewY} is different to X = Y
 		 ;
@@ -92,7 +88,6 @@ apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
 	),
 	!.
 
-
 %called from apply_relation/7 by get_integer_real_relation(Fun, Rel_int, Rel_rea)
 %Fun is a SDL relational operator
 %Rel_int is the out fd (integer) equivalent
@@ -104,13 +99,13 @@ get_integer_real_relation(>, #>, >).
 get_integer_real_relation(<=, #<=, =<).
 get_integer_real_relation(>=, #>=, >=).
 
-%called from arithmetic/3 by real_conversion(X, XT, R)
+%called from arithmetic/3 by convert_to_real(X, XT, R)
 %X is an arithmetic expression
 %XT is the type of X
 %R is an out real variable or expression
 %if X is already a real then R = X
-real_conversion(X, r, X).       %no change (already a real type variable)
-real_conversion(I, i, R) :-     %same as converting an integer to a real
+convert_to_real(X, r, X).       %no change (already a real type variable)
+convert_to_real(I, i, R) :-     %same as converting an integer to a real
         s_cast_to_real(I, R).   %for ADA : s_round(R, I)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -191,8 +186,8 @@ arithmetic(*(Le, Ri), R, T):-
              )
 	    )
         ;
-	    (real_conversion(X, XT, NewX),
-	     real_conversion(Y, YT, NewY),
+	    (convert_to_real(X, XT, NewX),
+	     convert_to_real(Y, YT, NewY),
 	     {R = NewX * NewY}, %constraint applied here for easier labeling of reals
 	     T = r
 	    )
@@ -207,8 +202,8 @@ arithmetic(+(Le, Ri), R, T):-
 	     T = i
 	    )
 	;
-	    (real_conversion(X, XT, NewX),
-	     real_conversion(Y, YT, NewY),
+	    (convert_to_real(X, XT, NewX),
+	     convert_to_real(Y, YT, NewY),
 	     {R = NewX + NewY},
 	     T = r
 	    )
@@ -223,8 +218,8 @@ arithmetic(-(Le, Ri), R, T):-
 	     T = i
 	    )
 	;
-	    (real_conversion(X, XT, NewX),
-	     real_conversion(Y, YT, NewY),
+	    (convert_to_real(X, XT, NewX),
+	     convert_to_real(Y, YT, NewY),
 	     {R = NewX - NewY},
 	     T = r
 	    )
@@ -238,28 +233,27 @@ arithmetic(-(Ri), R, T) :-
         ;
 	     {R = -Y}
         ).
-/* # */
-
+%removed my custom abs operator: perhaps it used to deal with holes better than ic's abs 
 arithmetic(abs(Ri), R, T) :-
 	!,
 	arithmetic(Ri, X, T), %the type of abs(Ri) is the type of Ri, T.
 	(T = i ->
-	     s_abs(X, R)      %user defined operator
-        ;
-	     {R = abs(X)}
-        ).
+		R #= abs(X)
+    ;
+	    R $= abs(X)
+    ).
 
+%removed my custom power operator 
 arithmetic(**(Le, Ri), R, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	(XT = i ->             % implies Y is an integer
-	    (s_pow(X, Y, R),  %user defined operator
+	((XT == i, YT == i) ->	%so even 1^(0.1) will be treated as a real expression even though 1 is  the result 
+	    (R #= X^Y,
 	     T = i
 	    )
-        ;
-	    (real_conversion(Y, YT, NewY),
-	     {R = pow(X, NewY)}, %constraint applied here for easier labeling of reals
+    ;
+	    (R $= X^Y,
 	     T = r
 	    )
 	).
@@ -271,12 +265,12 @@ arithmetic(/(Le, Ri), R, T) :-
 	arithmetic(Ri, Y, YT),
 	((XT = i, YT = i) ->
 	    (T = i,
-	     s_div(X, Y, R)     %user defined operator
+	     s_div(X, Y, R)     %custom defined operator for integer division: no equivalent in ic
 	    )
 	;
 	    (T = r,
-	     real_conversion(X, XT, NewX),
-	     real_conversion(Y, YT, NewY),
+	     convert_to_real(X, XT, NewX),
+	     convert_to_real(Y, YT, NewY),
 	     {NewX / NewY = R}      %constraint applied here for easier labeling of reals
 	    )
 	).
@@ -299,33 +293,33 @@ arithmetic(rem(Le, Ri), R, i) :-
 %float and integer conversions only
 %does not deal when the new range is greater than the previous one
 arithmetic(conversion(Type_mark, From_exp), R, To_type) :-
-        !,
+    !,
 	arithmetic(From_exp, From_exp_eval, From_type),
 	arithmetic(first(Type_mark), Min, To_type),
 	arithmetic(last(Type_mark), Max, To_type),
 	(apply_relation(From_exp, From_exp_eval, From_type, >=, first(Type_mark), Min, To_type) ->
-	        true
-        ;
-                ptc_solver__error("Failed type conversion: systematic run-time error in your code")
-        ),
+	    true
+    ;
+        ptc_solver__error("Failed type conversion: systematic run-time error in your code")
+    ),
 	(apply_relation(From_exp, From_exp_eval, From_type, <=, last(Type_mark), Max, To_type) ->
-	        true
-        ;
-                ptc_solver__error("Failed type conversion: systematic run-time error in your code")
-        ),
+	    true
+    ;
+        ptc_solver__error("Failed type conversion: systematic run-time error in your code")
+    ),
 	((From_type == r, To_type == i) ->
-                (float_to_int_convention(truncate) ->
-                        s_cast_to_int(From_exp_eval, R)
-                ;
-                        s_round(From_exp_eval, R)
-                )
+        (float_to_int_convention(truncate) ->
+            s_cast_to_int(From_exp_eval, R)
         ;
-         (From_type == i, To_type == r) ->
-                %FOR ADA : s_round(R, From_exp_eval)
-                s_cast_to_real(From_exp_eval, R)
-        ;
-                R = From_exp_eval     %ie. From_type = To_type no conversion necessary
-        ).
+            s_round(From_exp_eval, R)
+        )
+    ;
+     (From_type == i, To_type == r) ->
+        %FOR ADA : s_round(R, From_exp_eval)
+        s_cast_to_real(From_exp_eval, R)
+    ;
+        R = From_exp_eval     %ie. From_type = To_type no conversion necessary
+    ).
 
 %round can only apply to a real and the resulting type is always integer
 arithmetic(round(Ri), R, i) :-
@@ -340,12 +334,12 @@ arithmetic(element(Array, Index), R, T) :-
 	ptc_array__get_element(element(Array, Index), R, T).
 
 arithmetic(agg(Type, AsgL), R, record) :-
-        ptc_solver__get_frame(Type, record, _),
+    ptc_solver__get_frame(Type, record, _),
 	!,
 	ptc_record__create_record_from_agg(Type, AsgL, R).
 
 arithmetic(agg(Type, AsgL), R, array) :-
-        ptc_solver__get_frame(Type, array(_), _),
+    ptc_solver__get_frame(Type, array(_), _),
 	!,
 	ptc_array__create_array_from_agg(Type, AsgL, R).
 
@@ -353,7 +347,7 @@ arithmetic(agg(Type, AsgL), R, array) :-
 arithmetic(up_arr(Array, Index, Exp), R, array) :-
 	!,
 	arithmetic(Array, Up_array, array),
-        arithmetic(Exp, R_exp, _),
+    arithmetic(Exp, R_exp, _),
 	ptc_array__up_array(Up_array, Index, R_exp, R).
 
 %the type of the result is the type of the field
@@ -361,7 +355,6 @@ arithmetic(up_arr(Array, Index, Exp), R, array) :-
 arithmetic(field(Record, Field), R, T) :-
 	!,
 	ptc_record__get_field(field(Record, Field), R, T).
-
 
 % 19-05-2000 added call to arithmetic on Exp
 arithmetic(up_rec(Record, Field, Exp), R, record) :-
@@ -374,7 +367,6 @@ arithmetic(first(Discrete_type), R, T) :-
 	!,
 	ptc_solver__first(Discrete_type, Tmp_R),
 	arithmetic(Tmp_R, R, T).
-
 
 arithmetic(last(Discrete_type), R, T) :-
 	!,
@@ -428,28 +420,28 @@ arithmetic(val(Basetype, Ri), R, T) :-
 
 %%%bitwise
 arithmetic(bw_not(Le, Len, Sign), R, i) :-
-        !,
-        s_bwnot(Le, Len, Sign, R).
+    !,
+    s_bwnot(Le, Len, Sign, R).
 
 arithmetic(bw_and(Le, Ri, Len, Sign), R, i) :-
-        !,
-        s_bwand(Le, Ri, Len, Sign, R).
+    !,
+    s_bwand(Le, Ri, Len, Sign, R).
 
 arithmetic(bw_or(Le, Ri, Len, Sign), R, i) :-
-        !,
-        s_bwor(Le, Ri, Len, Sign, R).
+    !,
+    s_bwor(Le, Ri, Len, Sign, R).
 
 arithmetic(bw_xor(Le, Ri, Len, Sign), R, i) :-
-        !,
-        s_bwxor(Le, Ri, Len, Sign, R).
+    !,
+    s_bwxor(Le, Ri, Len, Sign, R).
 
 arithmetic(left_shift(Le, S, Len, Sign), R, i) :-
-        !,
-        s_left_shift(Le, S, Len, Sign, R).
+    !,
+    s_left_shift(Le, S, Len, Sign, R).
 
 arithmetic(right_shift(Le, S, Len, Sign), R, i) :-
-        !,
-        s_right_shift(Le, S, Len, Sign, R).
+    !,
+    s_right_shift(Le, S, Len, Sign, R).
 
 %%%!!!boolean expressions can occur here when they are an element (of an array or record) during consideration of the final assignment
 %%%!!! see apply_const_effects
@@ -462,13 +454,12 @@ arithmetic(Literal, Literal, e) :-
 
 %%!!!a boolean expression here
 %will occur whenever a constaint is applied on a boolean output via apply_assign_using_sdl
-%added in York
 arithmetic(Boolean_exp, R, e) :-
-                (ptc_solver__sdl(Boolean_exp) -> %this is correct only if the solver does not delay
-                        R = true
-                ;
-                        R = false
-                ).
+    (ptc_solver__sdl(Boolean_exp) -> %this is correct only if the solver does not delay
+        R = true
+    ;
+        R = false
+    ).
 %%%
 %see ATGen notebook 02/02/04 and Eileen's diary same period
 %to accomodate C assignments that may imply an implicit casting
@@ -477,20 +468,19 @@ arithmetic(Boolean_exp, R, e) :-
 %makes no difference for int to real conversion eq_cast(f, 42) is the same as f = 42
 % but for eq_cast(i, 7.9) i becomes 7 while i = 7.9 fails
 eq_cast(Le, Ri) :-
-        arithmetic(Le, L_eval, L_type),
-        arithmetic(Ri, R_eval, R_type),
-        (L_type == R_type ->
-                apply_relation(Le, L_eval, L_type, =, Ri, R_eval, R_type)
-        ;
-         (L_type == i, R_type == r) ->          %from real to int
-                s_cast_to_int(R_eval, L_eval)  %as is done in conversion constraint
-
-        ;
-         (L_type == r, R_type == i) ->          %from int to real
-                s_cast_to_real(R_eval, L_eval)   %as is done in conversion constraint
-        ;
-                ptc_solver__error("Failed eq_cast/2 in ptc_solver_engine1 file the types are different and not real nor integer")
-        ).
+    arithmetic(Le, L_eval, L_type),
+    arithmetic(Ri, R_eval, R_type),
+    (L_type == R_type ->
+        apply_relation(Le, L_eval, L_type, =, Ri, R_eval, R_type)
+    ;
+     (L_type == i, R_type == r) ->    	%from real to int
+        s_cast_to_int(R_eval, L_eval)  	%as is done in conversion constraint
+    ;
+     (L_type == r, R_type == i) ->    	%from int to real
+        s_cast_to_real(R_eval, L_eval)	%as is done in conversion constraint
+    ;
+        ptc_solver__error("Failed eq_cast/2 in ptc_solver_engine1 file the types are different and not real nor integer")
+    ).
 %%%%%%%%%%%%%%%%%%%%%sdl/3, boolean/3, negate/3%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A single, simpler, predicate can be (and originally was) written to replace the three given below,
 % but for efficiency reasons it has been rewritten.
@@ -512,32 +502,31 @@ eq_cast(Le, Ri) :-
 % backtracking generate different classes throught the choice points
 % failure denotes overall inconsistency or no more classes possible
 % boolean constraints are processed first then arithmetics through relation/3
-
 sdl(Cond, CLi, CLo) :-
-	var(Cond) ->                    %Cond must be a boolean variable that must be true
-                boolean(=(Cond, true), CLi, CLo)
+	(var(Cond) ->                    %Cond must be a boolean variable that must be true
+        boolean(=(Cond, true), CLi, CLo)
 	;
-	Cond = element(_, _) ->         %an array element which is a boolean
+	 Cond = element(_, _) ->         %an array element which is a boolean
 	    (ptc_array__get_element(Cond, Elem),
 	     sdl(Elem, CLi, CLo)
 	    )
 	;
-	Cond = field(_, _) ->
+	 Cond = field(_, _) ->
 		(ptc_record__get_field(Cond, Elem, e),	%booleans are enumerations
 		 sdl(Elem, CLi, CLo)
 		)
 	;
-	Cond = reif(Constraint, R) ->
-	        s_reif(Constraint, R)   %see ptc_solver_boolean
+	 Cond = reif(Constraint, R) ->
+	    s_reif(Constraint, R)   %see ptc_solver_boolean
 	;
-	Cond = cmp(Exp1, Exp2, R) ->
-	        s_cmp(Exp1, Exp2, R)    %see ptc_solver_boolean
-        ;
-        Cond = eq_cast(Exp1, Exp2) ->
-                eq_cast(Exp1, Exp2)     %see above
+	 Cond = cmp(Exp1, Exp2, R) ->
+	    s_cmp(Exp1, Exp2, R)    %see ptc_solver_boolean
+    ;
+     Cond = eq_cast(Exp1, Exp2) ->
+        eq_cast(Exp1, Exp2)     %see above
 	;
 		boolean(Cond, CLi, CLo)
-	.
+	).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %called from sdl/3 by boolean(Cond, CLi, CLo) and also by negate/3
@@ -547,47 +536,47 @@ boolean(false, Cli, Cli) :-
 	fail.
 boolean(and(L, R), CLi, CLo) :-
 	frandom(N),
-        (N >= 0.5 ->
-                (sdl(L, CLi, CLo1),
-                 sdl(R, CLo1, CLo)
-                )
-        ;
-	        (sdl(R, CLi, CLo1),
-	         sdl(L, CLo1, CLo)
-                )
-        ).
+    (N >= 0.5 ->
+        (sdl(L, CLi, CLo1),
+         sdl(R, CLo1, CLo)
+        )
+    ;
+	    (sdl(R, CLi, CLo1),
+	     sdl(L, CLo1, CLo)
+        )
+    ).
 
 boolean(and_then(L, R), CLi, CLo) :-
 	sdl(L, CLi, CLo1),
-        sdl(R, CLo1, CLo).
+    sdl(R, CLo1, CLo).
 
 boolean(or(L, R), _, _) :-
-        s_or(L, R).             %see ptc_solver_boolean
+    s_or(L, R).             %see ptc_solver_boolean
 
 boolean(or_else(L, R), _, _) :-
-        s_or_else(L, R).        %see ptc_solver_boolean
+    s_or_else(L, R).        %see ptc_solver_boolean
 
 boolean(xor(L, R), CLi, CLo) :-
-        boolean(or(and(L, not(R)), and(not(L), R)), CLi, CLo).
+    boolean(or(and(L, not(R)), and(not(L), R)), CLi, CLo).
 
 %not can be over an array of Booleans
 %see initial call to sdl as it is similar
 boolean(not(Bool), CLi, CLo) :-
-	var(Bool) ->            %Cond must be a boolean variable that must be true
-                boolean(=(Bool, false), CLi, CLo)
+	(var(Bool) ->            %Cond must be a boolean variable that must be true
+        boolean(=(Bool, false), CLi, CLo)
 	;
-	Bool = element(_, _) ->
+	 Bool = element(_, _) ->
 	    (ptc_array__get_element(Bool, Elem),
 	     boolean(not(Elem), CLi, CLo)
 	    )
 	;
-	Bool = field(_, _) ->
+	 Bool = field(_, _) ->
 		(ptc_record__get_field(Bool, Elem, e),	%booleans are enumerations
 		 boolean(not(Elem), CLi, CLo)
 		)
 	;
 	    negate(Bool, CLi, CLo)
-	.
+	).
 
 boolean(=(X, Y), CLi, [=(X, Y)|CLi]) :-
 	relation(=, X, Y).
@@ -635,6 +624,5 @@ negate(or(X, Y), CLi, CLo) :-
 negate(or_else(X, Y), CLi, CLo) :-
 	boolean(and_then(not(X), not(Y)), CLi, CLo).
 negate(xor(X, Y), CLi, CLo) :-
-        boolean(or(and(X, Y), and(not(X), not(Y))), CLi, CLo).
+    boolean(or(and(X, Y), and(not(X), not(Y))), CLi, CLo).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
