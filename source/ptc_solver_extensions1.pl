@@ -77,8 +77,8 @@ s_div2(X, Y, Z) :-
 	;
 	 Z == 0 ->                  %special case, abs(Y) > abs(X) holds
 	    (AbsY #> AbsX,          %could be improved
-	     s_abs(Y, AbsY),        %as we are not exactly interested in the absolute value of Y
-	     s_abs(X, AbsX)         %idem
+	     Y #= abs(AbsY),        %as we are not exactly interested in the absolute value of Y
+	     X #= abs(AbsX)         %idem
 	    )
 	;
 	 Z == 1 ->                  %special case, X div X = 1 always hold
@@ -245,7 +245,7 @@ cons_same_sign(X, Y) :-
 			Y #>= 0
 	    ;
 	     SignX = -1 ->
-	        Y #<= 0
+	        Y #=< 0
 	    )
 	;                          %the sign of X is unknown
 	 extract_sign(Y, SignY) ->  %the sign of Y is known
@@ -253,7 +253,7 @@ cons_same_sign(X, Y) :-
 			X #>= 0
 	    ;
 	     SignY = -1 ->
-	        X #<= 0
+	        X #=< 0
 	    )
 	;                          %the sign of X and the sign of Y are both unknown
 		suspend(cons_same_sign(X, Y), 3, [X,Y]->ic:[min,max,hole])

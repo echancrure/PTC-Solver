@@ -75,7 +75,7 @@ convert3(0, 0, []) :-
     !.
 convert3(_, 0, _) :-
     %should never happen due to contraints in bitwise_check
-    ptc_solver__verbose("Overflow in binary convertion").
+    ptc_solver__verbose("Overflow in binary convertion", []).
 convert3(I, Len, L) :-
     !,
     I2 is I // 2,
@@ -290,7 +290,7 @@ s_left_shift(X, S, Len, Sign, Z) :-
     Xeval #= X+0,
     Seval #= S+0,
     Seval #>= 0,
-    Seval #<= Len,
+    Seval #=< Len,
     bitwise_check([Xeval], Len, Sign),
     s_left_shift2(Xeval, Seval, Len, Sign, Z).
 
@@ -311,7 +311,7 @@ s_right_shift(X, S, Len, Sign, Z) :-
     Xeval #= X+0,
     Seval #= S+0,
     Seval #>= 0,
-    Seval #<= Len,
+    Seval #=< Len,
     bitwise_check([Xeval], Len, Sign),
     s_right_shift2(Xeval, Seval, Len, Sign, Z).
 

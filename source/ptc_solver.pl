@@ -195,7 +195,7 @@ ptc_solver__is_record(Var) :-
 ptc_solver__is_array(Var) :-
     ptc_array__is_array(Var).
 
-ptc_solver__sample_enum2(Var) :-
+ptc_solver__sample_enum(Var) :-
     ptc_enum__sample(Var).
 
 ptc_solver__enum_get_literal(Enum_type, Position, Literal) :-

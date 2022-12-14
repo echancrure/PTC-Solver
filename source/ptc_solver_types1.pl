@@ -13,8 +13,8 @@ ptc_solver__default_declarations :-
 	ptc_solver__set_frame(integer, integer, I),
 	asserta(ptc_solver__first(integer, Smallest_Int)),
 	asserta(ptc_solver__last(integer, Largest_Int)),
-	Smallest_Real $= -pow(2, 40)/3,
-	Largest_real $= pow(2, 40)/3,
+	Smallest_Real $= -(2^40)/3,
+	Largest_real $= (2^40)/3,
 	R $:: Smallest_Real..Largest_real,
 	ptc_solver__set_frame(float, real, R),	%sometimes using float sometimes real...
 	asserta(ptc_solver__first(float, Smallest_Real)),

@@ -442,7 +442,7 @@ sdl(Cond, CLi, CLo) :-
         boolean(=(Cond, true), CLi, CLo)
 	;
 	 Cond = element(_, _) ->         %an array element which is a boolean
-	    (ptc_array__get_element(Cond, Elem),
+	    (ptc_array__get_element(Cond, Elem, e),	%booleans are enumerations
 	     sdl(Elem, CLi, CLo)
 	    )
 	;
@@ -500,7 +500,7 @@ boolean(not(Bool), CLi, CLo) :-
         boolean(=(Bool, false), CLi, CLo)
 	;
 	 Bool = element(_, _) ->
-	    (ptc_array__get_element(Bool, Elem),
+	    (ptc_array__get_element(Bool, Elem, e),	%booleans are enumerations
 	     boolean(not(Elem), CLi, CLo)
 	    )
 	;
