@@ -28,8 +28,8 @@
 :- export ptc_solver__submit_string/1.
 :- export ptc_solver__get_single_variable/2, ptc_solver__get_all_variables/1.
 :- export ptc_solver__create_record_from_agg/3, ptc_solver__create_array_from_agg/3.
-:- export ptc_solver__match_variable/2, ptc_solver__is_rational/1, ptc_solver__rational_to_decimal/2.
-:- export ptc_solver__numerator/2, ptc_solver__denominator/2, ptc_solver__set_flag/2.
+:- export ptc_solver__match_variable/2.
+:- export ptc_solver__set_flag/2.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(library(ic)).
 
@@ -131,18 +131,6 @@ ptc_solver__get_single_variable(String, Value) :-
 
 ptc_solver__get_all_variables(V) :-
     getval(current_vars, V).
-
-ptc_solver__is_rational(Var) :-
-    rational(Var).
-
-ptc_solver__rational_to_decimal(Rat, Dec) :-
-    Dec is float(Rat).
-
-ptc_solver__numerator(Rat, Num) :-
-    Num is numerator(Rat).
-
-ptc_solver__denominator(Rat, Den) :-
-    Den is denominator(Rat).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %2 important clauses that record the entire type system
