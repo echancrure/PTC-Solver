@@ -23,7 +23,7 @@
 :- export ptc_solver__get_frame/3.
 :- export ptc_solver__enum_get_literal/3, ptc_solver__enum_get_position/2, ptc_solver__enum_get_basetype/2.
 :- export ptc_solver__get_record_field_values/2, ptc_solver__get_array_index_elements/2.
-:- export ptc_solver__integer_range/3, ptc_solver__real_min/3, ptc_solver__real_max/3, ptc_solver__is_integer/1, ptc_solver__is_real/1.
+:- export ptc_solver__integer_range/3, ptc_solver__is_integer/1, ptc_solver__is_real/1.
 :- export ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/1.
 :- export ptc_solver__submit_string/1.
 :- export ptc_solver__get_single_variable/2, ptc_solver__get_all_variables/1.
@@ -175,32 +175,16 @@ ptc_solver__label_enums(IL) :-
 ptc_solver__label_reals(IL) :-
     ptc_labeling__reals(IL).
 
-ptc_solver__is_real(_{wrap:Attrib}) :-
-    -?->
-    compound(Attrib).
+ptc_solver__is_real(Var) :-
+    var(Var),
+    ic:get_solver_type(Var, 'real').
 
 ptc_solver__is_integer(Var) :-
-    is_domain(Var).
-
-ptc_solver__real_min(Real_var, Inf, Taken) :-
-    inf(Real_var, Inf),
-    (not entailed(Real_var =\= Inf) ->      %trick should be equivalent to entailed(Value = Inf)
-	    Taken = taken                       %lower bound included
-	;
-	    Taken = not_taken                   %lower bound excluded
-	).
-
-ptc_solver__real_max(Real_var, Sup, Taken) :-
-    sup(Real_var, Sup),
-    (not entailed(Real_var =\= Sup) ->      %trick should be equivalent to entailed(Value = Sup)
-	    Taken = taken                       %upper bound included
-	;
-	    Taken = not_taken                   %upper bound excluded
-	).
+    var(Var),
+    ic:get_solver_type(Var, 'integer').
 
 ptc_solver__integer_range(Integer_var, Min, Max) :-
-    dvar_domain(Integer_var, Domain),
-    dom_range(Domain, Min, Max).
+    ic:get_bounds(Integer_var, Min, Max).
 
 ptc_solver__is_enum(Var) :-
     ptc_enum__is_enum(Var).

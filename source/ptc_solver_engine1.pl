@@ -33,7 +33,7 @@ apply_relation(_, X, array, =, _, Y, array) :-
 apply_relation(_, X, record, =, _, Y, record) :-
 	!,
 	X = Y.
-apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
+apply_relation(_, X, XT, Fun, _, Y, YT) :-
 	get_integer_real_relation(Fun, Rel_int, Rel_rea), %get correct relation syntax
 	((XT = e, YT = e) ->               %a constraint on enumeration variables
 		(Fun = = ->
@@ -71,7 +71,7 @@ apply_relation(Le, X, XT, Fun, Ri, Y, YT) :-
 		 Constraint                         %finaly apply the constraint
 		)
 	 ;
-		(Constraint =.. [Rel_rea, NewX, NewY], %build the constraint
+		(Constraint =.. [Rel_rea, X, Y], %build the constraint
 		 !,
 		 Constraint                    %finally apply the constraint
 		)
@@ -138,7 +138,7 @@ arithmetic(*(Le, Ri), R, T):-
 	     T = i
 	    )
     ;
-	    (R $= NewX * NewY,
+	    (R $= X * Y,
 	     T = r
 	    )
 	).
@@ -152,7 +152,7 @@ arithmetic(+(Le, Ri), R, T):-
 	     T = i
 	    )
 	;
-	    (R $= NewX + NewY,
+	    (R $= X + Y,
 	     T = r
 	    )
 	).
@@ -166,7 +166,7 @@ arithmetic(-(Le, Ri), R, T):-
 	     T = i
 	    )
 	;
-	    (R $= NewX - NewY,
+	    (R $= X - Y,
 	     T = r
 	    )
 	).

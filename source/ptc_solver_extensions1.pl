@@ -29,7 +29,7 @@ s_cast_to_int2(R, I) :-
 	     %updating the integer according to the real
 		 get_float_bounds(R, Inf, Sup),
 		 Min is fix(Inf),
-		 Max is fix(Max),
+		 Max is fix(Sup),
 		 I #:: Min .. Max,
 	     (ground(I) ->
 		 	true                        %no further improvements
