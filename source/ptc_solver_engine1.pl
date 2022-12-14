@@ -108,12 +108,14 @@ arithmetic(X, X, T):-
 arithmetic(X, X, T):-
 	var(X),
 	!,
-	(get_solver_type(X, Type) ->
-	    (Type == integer ->
+	(ic:is_solver_var(X) ->
+	    (ic:get_solver_type(X, Type),
+		 (Type == integer ->
 			T = i
-	    ;
-		 Type == real ->
-		 	T = r
+	     ;
+		  Type == real ->
+			T = r
+		 )
 	    )
 	 ;
 	  ptc_enum__is_enum(X) ->
