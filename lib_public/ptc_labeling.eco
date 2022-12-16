@@ -1,0 +1,7 @@
+:-(module(ptc_labeling)).
+:-(export(','(/(ptc_labeling__integers,1),','(/(ptc_labeling__enums,1),/(ptc_labeling__reals,1))))).
+:-(import(from(/(ptc_enum__sample,1),ptc_enum))).
+:-(lib(ic)).
+:-(:(sepia_kernel,store_pred(/(ptc_labeling__integers,1),[](o(102),a(2),0,o(104),a(3),most_constrained,o(104),a(4),indomain_middle,o(104),a(5),complete,o(101),a(6),o(404),a(7),ptc_labeling,o(151),proc(:(ic_search,/(search_body,7))),o(0)),20,0,0,'//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_labeling.pl',0,0))).
+:-(:(sepia_kernel,store_pred(/(ptc_labeling__enums,1),[](o(122),a(1),ref(14),ref(11),ref(fail),o(128),0,1,ref(12),o(10),a(1),o(157),o(134),0,o(136),pw(3),o(15),a(1),ref(24),o(368),a(1),y(1),o(139),ref(27),o(365),a(1),y(1),o(203),y(2),o(128),0,1,ref(49),o(3),a(1),y(3),o(143),proc(/(nonground,1)),15,o(204),y(2),pw(3),o(395),y(3),a(1),proc(/(ptc_enum__sample,1)),3,o(139),ref(52),o(199),0,3,o(396),y(1),a(1),ref(0),o(0)),57,0,0,'//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_labeling.pl',0,0))).
+:-(:(sepia_kernel,store_pred(/(ptc_labeling__reals,1),[](o(186),a(3),tag(0.001),val(0.001),o(104),a(4),log,o(2),a(1),a(2),o(151),proc(/(locate,4)),o(0)),13,0,0,'//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_labeling.pl',0,0))).

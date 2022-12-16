@@ -39,8 +39,8 @@ mytrace.    %call this to start debugging
 :- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
 :- include([ptc_solver_bitwise]).
 
-:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
-%:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
+%:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
+:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
 :- import ptc_enum__pred/2, ptc_enum__is_enum/1, ptc_enum__pos/3, ptc_enum__is_enum_type/1, ptc_enum__get_literal/3, ptc_enum__get_basetype/2 from ptc_enum.
@@ -62,7 +62,7 @@ mytrace.    %call this to start debugging
 :- dynamic enumeration_start/1.
 :- dynamic float_to_int_convention/1.
 %%%
-ptc_solver__version("1.7.1").
+ptc_solver__version("2").
 ptc_solver__error(Message) :-
     writeln(stdout, "***PTC Solver error***"),
     writeln(stdout, Message),

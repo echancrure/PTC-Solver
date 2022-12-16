@@ -8,7 +8,7 @@
 %IMPORTANT: in ptc_solver.pl you should use lib() of the modules rather than compile them there and then
 %IMPORTANT: therefore your code should be changed prior to execution of new_version
 %IMPORTANT: change the source path below
-%IMPORTANT: change the version number ptc_solver__version("1.7") in ptc_solver.pl
+%IMPORTANT: change the version number ptc_solver__version("2") in ptc_solver.pl
 %IMPORTANT: since Eclipse 5.7 some warnings are issued regarding non-existing modules during new_version, I think they can be ignored (over zealous module checking?)
 
 new_version :-  %have you read the IMPORTANT note above?
