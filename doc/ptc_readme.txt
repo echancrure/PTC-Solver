@@ -185,10 +185,16 @@ December 2022
      This has many important consequences, including:
        - As rationals are no longer used to represent reals, all 
          predicates and constraints relating to rationals have 
-         been removed from the solver;
+         been removed from the solver: 
+           - ptc_solver__is_rational/1
+           - ptc_solver__rational_to_decimal/2
+           - ptc_solver__numerator/2
+           - ptc_solver__denominator/2
        - This new version of the PTC Solver is estimated to be 
          on average at least 10 times faster than the previous versions.
          In particular labelling perfromance has been greatly improved;
+       - Labelling is less random than in previous versions: the PTC Solver
+         now often returns identical solutions on different runs;
        - The PTC Solver runtime performance variability has been at 
          least halved: the standard deviation is down from about 0.8 of 
          the mean to about 0.3;
@@ -200,7 +206,8 @@ December 2022
        - The range of reals has been slightly widened from
          -0.37*10^12 .. 0.37*10^12 to -10*10^12 .. 10*10^12. This is work
          in progress and further widening may happen;
-       - Ada rounding constraints have been removed for now. The PTC
+       - Ada rounding constraints have been removed for now. The 
+         float_to_int_convention flag has been deprecated. The PTC
          Solver now uses the C convention of truncating when rounding. 
 
 ***** Version 1.7 *****

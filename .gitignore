@@ -1,7 +1,6 @@
 
 doc/solver user manual.tex
 doc/tmp/solver user manual.aux
-doc/solver user manual.tex
 doc/solver user manual.bbl
 doc/solver user manual.blg
 doc/.texlipse
@@ -10,10 +9,7 @@ bug.pl
 PTC Solver Mailing List Email.gdoc
 PTC Solver Mailing List.gsheet
 doc/solver user manual.pdf
-doc/solver user manual.tex
-doc/solver user manual.tex
 source/solver_demos.pl
 doc/tmp/solver user manual.log
 doc/solver user manual.synctex.gz
-doc/solver user manual.tex
 doc/PTC Solver's Page (1).gdoc
