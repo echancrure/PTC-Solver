@@ -1,6 +1,6 @@
 ***********************************************************
-PTC Solver Version 1.7
-June 2022, Christophe Meudec, echancrure@gmail.com
+PTC Solver Version 2.0
+December 2022, Christophe Meudec, echancrure@gmail.com
 ***********************************************************
 
 This file contains last minute information and additional
@@ -24,15 +24,19 @@ TABLE OF CONTENTS
 
 Apart from this file, ptc_readme.txt, the main source of
 information on the PTC Solver is its user manual given in
-the file ptc_user_manual.pdf and its document page at
+the file ptc_user_manual.pdf and the document page at
 
 https://docs.google.com/document/d/121YIr-f-EwJ7aLwtxQoahjZ2XtOTJK6sdLUz0-SA2ig/edit?usp=sharing
 
 The author and contact person for the PTC solver is
-Christophe Meudec echancrure@gmail.com
+Dr Christophe Meudec echancrure@gmail.com
 
 2. WHAT'S NEW IN THIS RELEASE
 ===========================================================
+Version 2.0 is a major update. The PTC Solver internal constraints
+over integers and reals have been ported to the more powerful ECLiPSe
+IC library.
+
 Version 1.7 is a port update. The PTC Solver is now compatible
 with Eclipse 7.0. Labeling of rationals is more thorough.
 
@@ -125,20 +129,17 @@ subdirectory of ECLiPSe.
 
 The released PTC Solver zip file contains the following files:
 
-
 doc\ptc_embed_sessions.cpp  %Examples of sessions for PTC solver embedding
 doc\ptc_embed_solver.cpp    %Auxillary C functions for PTC solver embedding
 doc\ptc_license.txt         %PTC Solver user license
 doc\ptc_readme.txt          %This file
 doc\ptc_user_manual.pdf     %The PTC Solver user manual
 lib_public\ptc_array.eco           %Solver library to deal with array types
-lib_public\ptc_enum.eco            %Solver library to deal with enumeration 
-types
+lib_public\ptc_enum.eco            %Solver library to deal with enumeration types
 lib_public\ptc_labeling.eco        %Solver library for labeling strategies      
   
 lib_public\ptc_record.eco          %Solver library to deal with record types
 lib_public\ptc_solver.eco          %The PTC Solver interface 
-
 
 4. DOCUMENTATION
 ===========================================================  
@@ -152,23 +153,59 @@ ptc_user_manual.pdf file.
 The solver limitations are described in the PTC Solver user
 manual.
 
-6. BUG REPORT
+6. BUG REPORTS
 ===========================================================  
 
-You can send a bug report to the contact person given below.
+You can send a bug report to the author.
 Make sure to give as many details as possible including:
 PTC Solver version, platform, ECLiPSE version, interfacing
 method (Prolog, C/C++ ...), script of the constraints
 posted, description of the problem, full error messages issued
 (including provenance: OS, Interface, ECLiPSe or PTC Solver).
 
-Your problem will be addressed as soon as possible.
+Your problem will be addressed promptly.
 
-7. RELEASES HISTORY
+7. REQUESTS
+=========================================================== 
+
+The PTC Solver handles many typical constraints suitable for
+the analysis of software code. However if you feel it is missing
+something please contact the author with a request for extension.
+
+The process of adding new constraints is usually straightforward 
+and your rquest will be addressed promptly.
+
+8. RELEASES HISTORY
 ===========================================================  
+***** Version 2.0 *****
+December 2022
+  Significant overhaul
+   - The PTC Solver internal constraints over integers and reals
+     have been ported to the more powerful ECLiPSe IC library. 
+     This has many important consequences, including:
+       - As rationals are no longer used to represent reals, all 
+         predicates and constraints relating to rationals have 
+         been removed from the solver;
+       - This new version of the PTC Solver is estimated to be 
+         on average at least 10 times faster than the previous versions.
+         In particular labelling perfromance has been greatly improved;
+       - The PTC Solver runtime performance variability has been at 
+         least halved: the standard deviation is down from about 0.8 of 
+         the mean to about 0.3;
+       - The range of integers that can be safely handled
+         has been increased by at least 2 orders of magnitude. This is
+         work in progress so further widening may occur.
+         For now, the integers range has been widened from 
+         -65 535 .. +65 535 to -10 000 000 .. +10 000 000;
+       - The range of reals has been slightly widened from
+         -0.37*10^12 .. 0.37*10^12 to -10*10^12 .. 10*10^12. This is work
+         in progress and further widening may happen;
+       - Ada rounding constraints have been removed for now. The PTC
+         Solver now uses the C convention of truncating when rounding. 
+
 ***** Version 1.7 *****
 June 2022
-  Minor update
+  Major update
    - The solver has been ported to ECLiPSe 7.0;
    - The labeling of rationals is more thorough and will take 
      longer in infeasible cases, it is still unsastifactory 
@@ -176,7 +213,7 @@ June 2022
 
 ***** Version 1.6 *****
 June 2013
-  Minor update
+  Major update
    - The solver has been ported to ECLiPSe 6.0;
    - The solver is now open source.
 
@@ -379,21 +416,20 @@ October 2001
 May 2001
   Minor update.
    - Internally Booleans are now treated as enumeration
-   variables. The only change at the interface level is that
-   the labelling of Boolean variables should be performed
-   using the enumeration variables labelling predicate.
+     variables. The only change at the interface level is that
+     the labelling of Boolean variables should be performed
+     using the enumeration variables labelling predicate.
    - Addition of the Boolean logical operators or_else and and_then. 
    - Various documentation corrections (e.g. sqr and odd
-   functions are not provided as was suggested by the documentation,
-   and aggregates were all wrongly documented)
+     functions are not provided as was suggested by the documentation,
+     and aggregates were all wrongly documented)
    - Various small internal improvements and simplifications.
 
 *****Version 1.0.0*****
 March 2001
   Initial release
 
-
-8. CONTACT
+9. CONTACT
 ===========================================================  
 
 Dr Christophe Meudec

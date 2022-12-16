@@ -7,18 +7,22 @@
 
 %default declarations for booleans, integers, floating numbers without range
 ptc_solver__default_declarations :-
-	Smallest_Int = -65535,
-	Largest_Int = 65535,
-	I #:: Smallest_Int..Largest_Int,
+	%LONG_MAX #= 2^31-1,				%i.e. 2147483647, C long, about 2 billions
+	%LONG_MAX #= 65535,					%i.e. previous solver version maximum under fd
+	LONG_MAX #= 10*10^6,				%for now. Note larger may fail regression tests with stack overflow
+	LONG_MIN #= -LONG_MAX,
+	I #:: LONG_MIN..LONG_MAX,
 	ptc_solver__set_frame(integer, integer, I),
-	asserta(ptc_solver__first(integer, Smallest_Int)),
-	asserta(ptc_solver__last(integer, Largest_Int)),
-	Smallest_Real $= -(2^40)/3,
-	Largest_real $= (2^40)/3,
-	R $:: Smallest_Real..Largest_real,
+	asserta(ptc_solver__first(integer, LONG_MIN)),
+	asserta(ptc_solver__last(integer, LONG_MAX)),
+	%FLOAT_MAX $= 3.4028235*10^38,		%i.e. single precision 32 bits C float
+	%FLOAT_MAX $= (2^40)/3,				%i.e. previous solver version maximum under clpq, about 366 billions
+	FLOAT_MAX $= 10*10^12,				%for now: 10 trillions
+	FLOAT_MIN $= -FLOAT_MAX,			%i.e. single precision 32 bits C float
+	R $:: FLOAT_MIN..FLOAT_MAX,
 	ptc_solver__set_frame(float, real, R),	%sometimes using float sometimes real...
-	asserta(ptc_solver__first(float, Smallest_Real)),
-	asserta(ptc_solver__last(float, Largest_real)),
+	asserta(ptc_solver__first(float, FLOAT_MIN)),
+	asserta(ptc_solver__last(float, FLOAT_MAX)),
 	ptc_solver__type(boolean, enumeration, [false, true]).
 
 %%%%%%%%%%

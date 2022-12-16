@@ -8,6 +8,9 @@
 %It could be simplified via syntactic rationalisation of the solver per se.
 %compile('//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_solver').
 %%%
+mytrace.    %call this to start debugging
+:- spy mytrace/0.
+%%%
 :- module(ptc_solver).
 
 :- export ptc_solver__version/1.
@@ -58,7 +61,6 @@
 :- dynamic or_constraint_behaviour/1.
 :- dynamic enumeration_start/1.
 :- dynamic float_to_int_convention/1.
-
 %%%
 ptc_solver__version("1.7.1").
 ptc_solver__error(Message) :-
