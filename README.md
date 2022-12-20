@@ -6,7 +6,7 @@ It basically solves constraints expressed using traditional programming language
 
 Useful for symbolic execution, static analysis of code etc.
 
-See https://docs.google.com/document/d/121YIr-f-EwJ7aLwtxQoahjZ2XtOTJK6sdLUz0-SA2ig/edit?usp=sharing for further information.
+See the user manual and the release notes in the doc folder for further details.
 
 Dr Chris Meudec
 
