@@ -1,0 +1,5 @@
+{
+    "prolog.dialect": "ecl",
+    "prolog.executablePath": "",
+    "prolog.linter.run": "never"
+}

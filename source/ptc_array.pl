@@ -19,20 +19,17 @@
 :- export ptc_array__is_array/1, ptc_array__create_array/4, ptc_array__get_all_index_elements/2.
 :- export ptc_array__get_element/3, ptc_array__up_array/4, ptc_array__create_array_from_agg/3.
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- lib(suspend).
-:- lib(fd).
-
+:- use_module(library(ic)).
+%:- ensure_loaded(ptc_solver).
 :- import ptc_solver__arithmetic/3 from ptc_solver.
 :- import ptc_solver__relation/3 from ptc_solver.
 :- import ptc_solver__get_frame/3 from ptc_solver.
 :- import ptc_solver__error/1 from ptc_solver.
+%:- ensure_loaded(ptc_enum).
 :- import ptc_enum__get_position/2 from ptc_enum.
+%:- ensure_loaded(ptc_record).
 :- import ptc_record__raw_get_field/2 from ptc_record.
-
-:- import (#=)/2 from fd.       %conflict resolution
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %unify_array(Value, Attribute) : only a false call and META + nonvar(Attr) will ever arise
 unify_array(_, Attr) :-
@@ -51,7 +48,6 @@ unify_term_array(_{AttrY}, AttrX) :-  %META+META
 print_array(_{ptc_array(Type, Element_type, Indice_elements)}, Print) :-
 	-?->
 	Print = ptc_array(Type, Element_type, Indice_elements).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %check if a variable is an array variable
@@ -88,14 +84,12 @@ gen1([(Min, Max)|Rest], In, Out) :-
 	combine(In, Single_list, Out1),
 	gen1(Rest, Out1, Out).
 
-
 %generate a list of indices between Min and Max
 %gen_single_list(1, 4, [1, 2, 3, 4]).
 gen_single_list(Max, Max, [Max]).
 gen_single_list(Min, Max, [Min|Rest]) :-
 	ptc_solver__arithmetic(succ(Min), Next, _),
 	gen_single_list(Next, Max, Rest).
-
 
 %combine a list of index with a list of indices
 combine([], _, []).
@@ -104,7 +98,6 @@ combine([Index|Index_list], Indice_L, New_Index_list) :-
 	combine(Index_list, Indice_L, Rest_Index_list),
 	append(Sub_Index_list, Rest_Index_list, New_Index_list).
 
-
 %combine a list of indices with an index
 %subcombine([1, 2], [1, 1, 1], [[1, 1, 1, 1], [1, 1, 1, 2]]).
 subcombine([], _, []).
@@ -112,12 +105,10 @@ subcombine([Indice|Indice_L], Index, [New_Index|Rest]) :-
 	append(Index, [Indice], New_Index),
 	subcombine(Indice_L, Index, Rest).
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_array__get_all_index_elements(_{Attr}, Index_elements) :-
 	-?->
 	Attr = ptc_array(_, _, Index_elements).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %X is element(Array, Index) where Array is an array expression and Index is a list of index expressions
@@ -125,30 +116,29 @@ ptc_array__get_all_index_elements(_{Attr}, Index_elements) :-
 % throught the delayed list of variables Delayed, in which case if the type is unknown or
 % if the result is not a meta variable(i.e. a frame) we get the type and frame
 ptc_array__get_element(X, R, T) :-
-	get_element(X, Simplified_X, Delayed), %a lot of syntactic simplifications can be performed here
-	(nonvar(Delayed) ->      			  %the index is unknown because of the variables in Delayed
+	get_element(X, Simplified_X, Delayed),	%a lot of syntactic simplifications can be performed here
+	(nonvar(Delayed) ->      			  	%the index is unknown because of the variables in Delayed
 	    (Simplified_X = element(Array, _),
 	     get_element_type(Array, Component_type_mark),      %extracts the type of the elements of Array
 	     ptc_solver__get_frame(Component_type_mark, Component_base_type, R), %return a frame of type Component_type_mark i.e. of type the type of the elements of the array
 	     (Component_base_type = integer ->                       %USE THE SAME TYPES INSTEAD OF THIS TRANSFORMATION (EITHER I OR INTEGER)
-		 T = i
+		 	T = i
 	     ;
 	      Component_base_type = real ->
-	         T = r
+	        T = r
 	     ;
 	      Component_base_type = base_enumeration ->
-	         T = e
+	        T = e
 	     ;
 	      Component_base_type = record ->
-	         T = record
+	        T = record
 	     ;
 	      Component_base_type = array(_) ->
-	         T = array
-	     ;%must be an enumeration subtype
-	         T = e
+	        T = array
+	     ;
+	        T = e	%must be an enumeration subtype
 	     ),
-	     make_suspension(ptc_solver__relation(=, Simplified_X, R), 3, Susp),
-	     insert_suspension(Delayed, Susp, inst of suspend, suspend)
+		 suspend(ptc_solver__relation(=, Simplified_X, R), 3, Delayed->inst)	%Delayed may contain ic and/or enum variables
 	    )
 	;                                      % no delays
 	    ptc_solver__arithmetic(Simplified_X, R, T)
@@ -156,34 +146,34 @@ ptc_array__get_element(X, R, T) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %get the element of a meta array variable while performing as much simplification as possible.
-%D : if the element is unknown Delayed contains the variables on which the index depends
-get_element(X, Simp_exp, D) :-
-	(X = element(Array, Index), ptc_array__is_array(Array)) ->
+%Delayed : if the element is unknown, Delayed contains the variables on which the index depends
+get_element(X, Simp_exp, Delayed) :-
+	((X = element(Array, Index), ptc_array__is_array(Array)) ->
 	    (eval_index(Index, Eval_index, Ground),
 	     (Ground = true ->
-		 (ptc_array__get_all_index_elements(Array, Indice_elements),
-		  member((Eval_index, Simp_exp), Indice_elements)
-	         )
+		 	(ptc_array__get_all_index_elements(Array, Indice_elements),
+		  	 member((Eval_index, Simp_exp), Indice_elements)
+	        )
 	     ;
-	         (Simp_exp = element(Array, Eval_index),
-		  D = Eval_index
-	         )
+	        (Simp_exp = element(Array, Eval_index),
+			 Delayed = Eval_index
+	        )
 	     )
 	    )
 	;
 	 X = element(agg(Type, AsgL), Index) ->
 	    (ptc_array__create_array_from_agg(Type, AsgL, Array),
-	     get_element(element(Array, Index), Simp_exp, D)
+	     get_element(element(Array, Index), Simp_exp, Delayed)
 	    )
 
-%below is moree efiicient than creating the array as above
+%below is more efiicient than creating the array as above
 %but below is incomplete as Find_AsgL does not work for positional aggregates
 %	    eval_index(Index, Eval_index, Ground),
 %	     (Ground = true ->
 %		 find_AsgL(AsgL, Eval_index, Simp_exp)
 %	     ;
 %	         (Simp_exp = element(agg(Type, AsgL), Eval_index),
-%		  D = Eval_index
+%		  Delayed = Eval_index
 %	         )
 %	     )
 
@@ -191,42 +181,42 @@ get_element(X, Simp_exp, D) :-
 	 X = element(up_arr(Array, Index_upa, Exp_upa), Index) ->
 	    (eval_index(Index, Eval_index, Ground),
 	     (Ground = true ->
-		 (eval_index(Index_upa, Eval_index_upa, Ground_upa),
-		  (Ground_upa = true ->
-		      (Eval_index = Eval_index_upa ->
-			  Simp_exp = Exp_upa
-		      ;
-		          get_element(element(Array, Eval_index), Simp_exp, D)
-		      )
-		  ;
-		      (Simp_exp = element(up_arr(Array, Eval_index_upa, Exp_upa), Eval_index),
-		       D = Eval_index_upa
-		      )
-		  )
-	         )
+		 	(eval_index(Index_upa, Eval_index_upa, Ground_upa),
+		  	 (Ground_upa = true ->
+		      	(Eval_index = Eval_index_upa ->
+			  	 	Simp_exp = Exp_upa
+		        ;
+		          	get_element(element(Array, Eval_index), Simp_exp, Delayed)
+		      	)
+		  	 ;
+		      	(Simp_exp = element(up_arr(Array, Eval_index_upa, Exp_upa), Eval_index),
+			  	 Delayed = Eval_index_upa
+		      	)
+		  	 )
+	        )
 	     ;
-	         (Simp_exp = element(up_arr(Array, Index_upa, Exp_upa), Eval_index),
-		  D = Eval_index
-	         )
+	        (Simp_exp = element(up_arr(Array, Index_upa, Exp_upa), Eval_index),
+			 Delayed = Eval_index
+	        )
 	     )
 	    )
 	;
 	 X = element(element(Array, Index1), Index2) ->
 	    (get_element(element(Array, Index1), Simp_exp1, D1),
 	     (nonvar(D1) ->
-	         (Simp_exp = element(Simp_exp1, Index2),
-		  D = D1
-	         )
+	    	(Simp_exp = element(Simp_exp1, Index2),
+			 Delayed = D1
+	        )
 	     ;
-	         get_element(element(Simp_exp1, Index2), Simp_exp, D)
+	        get_element(element(Simp_exp1, Index2), Simp_exp, Delayed)
 	     )
 	    )
-	;                         %anything else must be a field record access
-	 X = element(field(Record_exp, Field), Index) ->
+	;                         
+	 X = element(field(Record_exp, Field), Index) ->	%anything else must be a field record access
 	    (ptc_solver__arithmetic(field(Record_exp, Field), Array, _),  %we obtain an array expression
-	     get_element(element(Array, Index), Simp_exp, D)
+	     get_element(element(Array, Index), Simp_exp, Delayed)
 	    )
-	.
+	).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %obtain the type of the elements of an array expression
@@ -264,53 +254,50 @@ eval_index(Index, Eval_index, Ground) :-
 
 eval_index2([], []).
 eval_index2([Index|Rest_indexes], [I|Rest_I]) :-
-	ptc_solver__arithmetic(Index, Ieval, T),                 %can be an integer or an enumeration
+	ptc_solver__arithmetic(Index, Ieval, T),	%can be an integer or an enumeration
 	(T = i ->
-            Ieval #= I
+        Ieval #= I
 	;
-	    Ieval = I
-        ),
+	    Ieval = I	%an enum
+    ),
 	eval_index2(Rest_indexes, Rest_I).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %find the correct element corresponding to index in an aggregate (represented as a list of pairs (Indexes, Exp))
 %can fail
-
 find_AsgL(AsgL, [I], R) :-
-        !,
-        find_AsgL2(AsgL, I, R).
+    !,
+    find_AsgL2(AsgL, I, R).
 find_AsgL(AsgL, [I|Rest], R) :-   %more than one indice : multidimentional array
-        !,
-        find_AsgL2(AsgL, I, Exp),    %Exp can be an unqualified aggregate i.e. a pure AsgL
-        ((nonvar(Exp), Exp = [_|_]) ->                %then Exp is an AsgL itself
-                find_AsgL(Exp, Rest, R)
-        ;
-                R = Exp
-        ).
+    !,
+    find_AsgL2(AsgL, I, Exp),    %Exp can be an unqualified aggregate i.e. a pure AsgL
+    ((nonvar(Exp), Exp = [_|_]) ->                %then Exp is an AsgL itself
+        find_AsgL(Exp, Rest, R)
+    ;
+        R = Exp
+    ).
 
 find_AsgL2([], _, _) :-
 	!,
 	fail.
 find_AsgL2([([others], Exp)], _, Exp) :-
-        !.
+    !.
 find_AsgL2([(Indexes, Exp)|Next], I, R) :-
-	in_index(Indexes, I) ->
+	(in_index(Indexes, I) ->
 	    R = Exp
 	;
 	    find_AsgL2(Next, I, R)
-	.
-
+	). 
 
 in_index([], _) :-
 	!,
 	fail.
 in_index([First|Next], I) :-
-        eq_index(First, I) ->
+    (eq_index(First, I) ->
 	    true
 	;
 	    in_index(Next, I)
-	.
+	).
 
 %all the different choices available
 %can fail if doesn't match
@@ -319,8 +306,8 @@ eq_index(range_bounds(Min, Max), I) :-
 	ptc_solver__relation(<=, Min, I),
 	ptc_solver__relation(<=, I, Max).
 eq_index(range(_), _) :-          %range attribute
-        !,
-        ptc_solver__error("range attribute not dealt with yet").
+    !,
+    ptc_solver__error("range attribute not dealt with yet").
 eq_index(A, I) :-                   %exp
 	!,
 	ptc_solver__relation(=, A, I).
@@ -331,7 +318,7 @@ eq_index(A, I) :-                   %exp
 % may re-awake the up_array several times add do ptc_solver__get_frame several times)
 % [this probably works via the unification handler for arrays that is defined at the top of this module]
 % and finally whenever Index becomes ground, the array attribute is added to a var which already has
-% an array attribute [again theis probably works via the array unification handler]
+% an array attribute [again this probably works via the array unification handler]
 % as well being very complex this looks like a lot of superflous work
 % also there is no need to evaluate the index every time
 ptc_array__up_array(Array, Index, Exp, New_array) :-
@@ -347,15 +334,13 @@ ptc_array__up_array(Array, Index, Exp, New_array) :-
 	;
 	    (get_meta_array_type(Array, Type),
 	     ptc_solver__get_frame(Type, array(_), New_array),
-             make_suspension(ptc_array__up_array(Array, Eval_index, Exp, New_array), 3, Susp),
-	     insert_suspension(Eval_index, Susp, inst of suspend, suspend)
+		 suspend(ptc_array__up_array(Array, Eval_index, Exp, New_array), 3, Eval_index->inst)	%Eval_index may contain ic and/or enum variables
 	    )
 	).
 
 get_meta_array_type(_{Attr}, Type) :-
 	-?->
 	Attr = ptc_array(Type, _, _).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %AsgL is of the form: for SPARK Ada
@@ -372,27 +357,24 @@ get_meta_array_type(_{Attr}, Type) :-
 %          or           range(typemark) --not yet implemented
 
 ptc_array__create_array_from_agg(Type, AsgL, Array) :-
-        ptc_solver__get_frame(Type, array(_), Anon_array),
+    ptc_solver__get_frame(Type, array(_), Anon_array),
 	ptc_array__get_all_index_elements(Anon_array, Indice_elements),
-        init_indice_elements(AsgL, Indice_elements),
-        create_array_from_indice_elements(Type, Indice_elements, Array).
-
+    init_indice_elements(AsgL, Indice_elements),
+    create_array_from_indice_elements(Type, Indice_elements, Array).
 
 init_indice_elements(AsgL, Indice_elements) :-
-        (AsgL = [(_, _)|_] ->
-                init_indice_elements_named(AsgL, Indice_elements)
-        ;
-                init_indice_elements_positional(AsgL, Indice_elements)
-        ).
+    (AsgL = [(_, _)|_] ->
+        init_indice_elements_named(AsgL, Indice_elements)
+    ;
+        init_indice_elements_positional(AsgL, Indice_elements)
+    ).
 
 %%%
 init_indice_elements_positional([], _).
-
 init_indice_elements_positional([([others], _)], []).
 init_indice_elements_positional([([others], Exp_asg)], [(_, Value)|Rest2]) :-
         ptc_solver__relation(=, Exp_asg, Value),
         init_indice_elements_positional([([others], Exp_asg)], Rest2).
-
 init_indice_elements_positional([Exp_asg|Rest], [(_, Value)|Rest2]) :-
         ptc_solver__relation(=, Exp_asg, Value),
         init_indice_elements(Rest, Rest2).
@@ -405,7 +387,6 @@ init_indice_elements_named(AsgL, [(Index, Value)|Rest]) :-
         find_AsgL(AsgL, Index, Exp),
         ptc_solver__relation(=, Value, Exp),             %a simple '=' does not work because Value might be an aggregate
         init_indice_elements_named(AsgL, Rest).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 create_array_from_indice_elements(Type, Indice_elements, Array) :-
