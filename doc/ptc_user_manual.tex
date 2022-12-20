@@ -1,0 +1,1074 @@
+\documentclass{article}
+\usepackage{graphics}
+%\input{latex-hack}
+%%% begin thesis format
+\pagestyle{plain}
+\setlength{\oddsidemargin}{-1cm}
+\setlength{\evensidemargin}{-1cm}
+\setlength{\topmargin}{-1.3cm}
+\setlength{\textwidth}{17cm}
+\setlength{\textheight}{24.6cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{The PTC Solver\\
+       User Manual\\
+       Version 2}
+\author{Dr. Christophe Meudec \\
+        echancrure@gmail.com \\
+        Ireland}
+\maketitle
+
+\begin{abstract}
+The PTC Solver is a constraints solver over path traversal conditions in Pascal,
+C, Ada, Java Bytecode like programming languages without pointers. It
+can be used for a variety of purposes in the area of software program analysis.
+\end{abstract}
+
+
+\noindent\textbf{Keywords:} constraint logic programming, program analysis
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+The PTC Solver described here is primarily intended for program analysis
+purposes.
+It roughly covers types and expressions that can be encountered in the Pascal
+programming language (except pointers). Constraints over integers, rationals,
+enumerations, boolean organised into records and arrays can be submitted. The
+solver adds constraints to its own internal constraint store for evaluation. A
+satisfiable set on constraints can be sampled and the solver generates actual
+values which reduces the system of constraints to true.
+
+To use the PTC Solver to its full potential a knowledge of the Prolog programming language is necessary.
+
+The PTC Solver is open source at at \texttt{https://github.com/echancrure/PTC-Solver}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Referencing}
+
+The main reference for the PTC solver is Christophe Meudec,
+ATGen: Automatic Test Data Generation using Constraint Logic Programming and
+Symbolic Execution
+in Software Testing, Verification and Reliability Journal
+June 2001, Vol 11, pp. 81-96.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Installation}
+
+The PTC Solver uses the ECLiPSe contraint logic programming environment.
+Therefore
+it will not work unless you install the latest version of ECLiPSe on your
+machine. ECLiPSe is free for non-commercial purposes and can be downloaded once
+the license agreement has been signed from
+\texttt{http://eclipseclp.org/}.
+ECLiPSe is available on the Windows and Unix platforms.
+
+The Zip file containing the PTC Solver you downloaded should be extracted in your
+ECLiPSe intallation directory. The
+PTC Solver will install itself in the \texttt{lib\_public} subdirectory of
+ECLiPSe.
+
+The way to load the solver depends on your programming
+environment (Prolog, C/C++, Tcl/Tk or Visual Basic) as explained in
+the relevant sections below.
+
+The PTC Solver has been primarily developed for the Windows family of operating
+systems. It should be
+directly portable to Unix platforms using the appropriate ECLiPSe Unix version.
+However the embedding and interfacing issues discussed in this manual are mostly
+only
+applicable to Windows.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{ATGen's Solver Basics}
+
+Here we describe briefly the fundamental concepts of the solver by examining
+ some of its most simple interface calls.
+
+You can declare real, integer, enumeration, record and array variables and impose
+constraints on them.
+The solver handles linear as well as non-linear constraints.
+On submitting a constraint the solver adds it to its existing store of
+constraints and can then:
+\begin{itemize}
+\item fail, the system of constraints was
+unsatisfiable, the system of constraint remains as it was
+before the addition of the latest constraint (the solver
+backtracks automatically)
+\item succeeds, the system of constraints may be satisfiable
+(if non-linear constraints are present the solver may fail
+to detect their unsatisfiability at this stage)
+\end{itemize}
+
+A satisfiable system of constraints can be sampled to generate actual values
+which reduces the set of constraints to true.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Limitations and Issues}
+We list here intrinsic limitations of the PTC solver as well as issues users should be aware of.
+
+%%%
+\subsection{Integer Overflowing}
+
+The PTC solver is dependent on the ECLiPSe system for the manipulation constraints over integers. 
+
+Integer overflow may occur in an uncontrolled maner in the solver. Large integer values may be encoded approximately.
+ 
+Note that this limitation also applies to the operands of the bitwise and shifting constraints. Currently only 16 bits encoded decimals can be handled properly. Constraints on 32 bits and 64 bits encoded decimals currently  use only 16 bits in the solver. This limitation will often result in an unsound solver for these encodings.
+
+%%%
+\subsection{Numeric Precision Issues}
+
+Internally the PTC Solver encode reals using floats: the usual limitations associated with floats apply.
+
+%%%
+\subsection{Logical Connectors Priorities}
+
+In the PTC Solver the priority of the logical connectors is different than what
+is commonly expected. See the \textit{Constraint Syntax} subsection for details.
+
+%%%
+\subsection{The 'or' Constraint}
+
+The 'or' constraint has two modes of behaviour, which can be set during
+initialisation using the \linebreak
+ptc\_solver\_\_set\_flag(or\_constraint\_behaviour, Value)
+predicate where Value is one of the following ('pure' is the default value):
+
+\begin{itemize}
+\item 'pure', in this case the 'or' constraint behaves as a true constraint. In other
+words, as much as possible is deduced from the constraint and it
+remains latent in the system until more information can be deduced
+automatically.
+
+\item 'choice', in this case the 'or' constraint is broken down and its components
+submitted to the system one by one during backtracking. The extra
+induced backtracking on failure must be tackled appropriately at a
+higher level. Thus on backtracking the 'or' constraint returns
+different ways in which it can be satisfied. Formally the
+constraint 'A or B' can be satisfied by 'A and not(B)', 'A and B'
+and 'not(A) and B'.
+\end{itemize}
+
+%%%
+\subsection{Non-Linear Constraints}
+Non linear constraints can be handled by the PTC Solver. However, unlike linear constraints, non-linear constraints typically do not get resolved immediately:
+ i.e. adding non-linear constraints delays the satisfiability check of the set of constraints posted so far. Typically, the satisfiability or otherwise of non-linear constraints is only resolved at the labelling stage. 
+ 
+In particular, note that inequalities are non-linear constraints: if you post \texttt{<>} constraints the satisfiability problem is usually delayed until the labelling step.   
+
+%%%
+\subsection{Randomness}
+
+As much as possible the PTC Solver behaves non-deterministically. Do not expect
+to get twice the same result on the same example on different runs. Labeling is non-deterministic, even the 'and' constraint will not
+behave always the same way as to the order of the sub-constraints that are submitted to the system.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interfacing}
+
+The PTC Solver is written in Prolog using the ECLiPSe programming environment.
+ECLiPSe has itself interfacing capabilities to C/C++ and Visual Basic.
+Therefore you can implement your application:
+
+\begin{itemize}
+\item in Prolog using ECLiPSe
+\item in C/C++
+\item in Visual Basic, Tcl/Tk or Java
+\end{itemize}
+
+The solver provides a number of Prolog predicates which
+defines its interface. These are detailed in the final
+section of this manual.
+
+%%%%%
+\subsection{Using the solver via ECLiPSe Prolog}
+
+This is probably the most straightforward way of using the solver as the
+interfacing is
+then seamless.
+
+As an example consider the following program compiled by Eclipse.
+
+\begin{verbatim}
+:- import ptc_solver.                               %the solver is compiled and imported
+
+example(A, B) :-
+        ptc_solver__clean_up,                       %to start in a clean environment
+        ptc_solver__default_declarations,           %solver initialisations
+        ptc_solver__variable([A, B], integer),      %A and B are declared as integers
+        ptc_solver__sdl(A>45 and B-5=A*A),          %constraints are imposed
+        ptc_solver__label_integers([A,B]).          %a unique random solution is generated
+\end{verbatim}
+
+ECLiPse typical answer:
+
+\begin{verbatim}
+?- example(A, B).
+A = 77
+B = 5934
+More (0.00s cpu)
+\end{verbatim}
+
+All labelling predicates generate alternative values on backtracking.
+
+%%%%%
+\subsection{Using the C/C++ Interface}
+
+Here we can write a C/C++ program and use the standard interfacing capabilities
+of ECLiPSe.
+In order to use this facility it is strongly recommended that you familiarise
+yourself
+with ECLiPSe's Embedding and Interfacing Manual.
+
+The examples given here are available in the \verb+ptc_embed_solver.cpp+ and
+\verb+ptc_embed_sessions.cpp+ files.
+
+What follows is only applicable to the Windows operating system. Embedding of
+the PTC Solver on a Unix platform has not been attempted. The reader is referred
+to the ECLiPSe's Embedding and Interfacing Manual for embedding in a C/C++
+application in a Unix environment.
+
+For Windows, and despite the official ECLiPSe documentation, it has proved
+impossible to embedded the PTC Solver in a C/C++ application other than by using
+the Visual C++ compiler. In particular the reader is to be warned that the
+embedding capabilities of ECLiPSe seem incompatible with the Borland family of
+compilers.
+
+The embedding examples given here are therefore to be compiled with a Visual C++
+compiler. If a different compiler is preferred for the development of the
+application then it is suggested that a simple Visual C++ interface be created
+and
+that a Windows DLL be generated. The application can then interact with the
+solver via this DLL compiled using Visual C++.
+
+The reader must refer to ECLiPSe's Embedding and Interfacing Manual to follow the
+examples
+given below. Other modes of interactions than given in the examples are feasible
+through the implementation of auxilliary C/C++ functions.
+
+%%%%%
+\subsubsection{Simple Example}
+
+To facilitate the submission of constraints to the PTC Solver from C/C++ a
+special predicate of the PTC Solver interface is available:
+\verb+ptc_solver__submit_string/1+. It allows the posting of constraints and
+declarations in a string format. Variables must be Prolog like (for example they
+must start with a uppercase letter). This predicate is easily called using the
+auxillary C function: \verb+submit_string+ whose code is given below.
+
+Note
+that the use of strings for constraints submission is not absolutely necessary:
+developpers can declare Prolog like variables in their C/C++ code and construct
+goals to be posted to the PTC Solver using ECLiPSe's interfacing \verb+term+
+function. Refer to ECLiPSe's Embedding and Interfacing Manual.
+
+\begin{verbatim}
+// adds a constraint in string format to the current store of
+//  constraints and returns EC_succeed on success and EC_fail otherwise
+int submit_string(char *s)
+{
+post_goal(term(EC_functor("ptc_solver__submit_string", 1), s));
+return EC_resume();
+}//submit_string
+\end{verbatim}
+
+A basic embedding example is then:
+
+\begin{verbatim}
+#include <eclipseclass.h> //necessary for embedding ECLiPSe into C/C++
+#include <stdio.h>
+void main()
+{
+ec_set_option_ptr(EC_OPTION_DEFAULT_MODULE, "ptc_solver"); // initialisation of
+ECLiPSe
+ec_init();
+
+post_goal(term(EC_functor("lib", 1), "ptc_solver")); // loading of the solver
+printf("ECLiPSe and the PTC Solver are being loaded ...\n");
+if (EC_resume()==EC_succeed) printf("The PTC Solver has been loaded\n");
+else printf("Error: The PTC Solver did not load properly\n");
+
+submit_string("ptc_solver__clean_up,
+               ptc_solver__default_declarations"); // initialisations of the
+solver
+printf("The PTC Solver is initialised\n");
+
+submit_string("ptc_solver__variable([A, B], integer),
+submit_string("ptc_solver__sdl(A>45 and B-5=A*A)");
+submit_string("ptc_solver__label_integers([A,B])");
+
+//auxillary C function to retrieve and display the values of all the variables
+display_all_vars();
+
+ec_cleanup(); //Unloading ECLiPSe and tidying up
+
+printf("ECLiPSe and the PTC Solver have been unloaded\n\n");
+}
+\end{verbatim}
+
+The auxillary \verb+display_all_vars()+ C function, retrieves and displays the
+value of
+all submitted variables. It should be modified to suit your application.
+
+%%%%%
+\subsubsection{Backtracking}
+
+Even when embedding the PTC Solver into a C/C++ application we can make the
+most of its backtracking capabilities. The following example illustrate this.
+
+Imagine that we want to generate tests to cover in its entirety the control flow
+graph of a simple program code fragment. Instead of submitting constraints
+individually we can undo the last constraint submission using the backtracking
+facility of the PTC Solver, which in this regard behaves in an ordinary Prolog
+program manner.
+
+It is however slightly more difficult than using Prolog
+directly. We use tell-tale variables to indicate whether a submitted constraint
+has failed or succeeded. If a constraint is submitted that fails then the solver
+backtracks automatically. The auxillary \verb+check_success+ C function has been
+especially written to check the values of those tell-tale variables.
+
+\begin{verbatim}
+//Demonstration of search in a control flow graph
+//Corresponds roughly to the code:
+// if X>2 or Y>2 then blah; //Condition 1
+//   else blah;
+// if X<2 then blah;        //Condition 2
+//   else blah;
+// where blah does not change the values of X and Y
+// we check the paths in the following order:
+//       1 true, 2 true
+//       1 true, 2 false
+//       1 false, 2 true
+//       1 false, 2 false
+void session3()
+{
+fprintf(log, "___STARTING SESSION 3___\n");
+
+  //X and Y are declared as integers
+submit_string("ptc_solver__variable([X, Y], integer)");
+
+  //The general format for constraints submission that can
+  // backtrack is "Si = 1, Constraint ; Si = 0"
+submit_string("S1 = 1, ptc_solver__sdl(X>2 or Y>2) ; S1 = 0");
+  //The values of the variables Si indicate if the constraint has
+  // been successful (1) or not (0)
+submit_string("S2 = 1, ptc_solver__sdl(X<2) ; S2 = 0");
+  //Check_success should return 1
+fprintf(log, "S2 is %i\n", check_success("S2"));
+  //Check_success will return -2 as S10 does not exist
+fprintf(log, "S10 is %i\n", check_success("S10"));
+  //A sample is generated for X and Y
+submit_string("ptc_solver__label_integers([X, Y]), !");
+  //The values of current variables are displayed. Should satisfy: X<2 and Y>2
+display_all_vars();
+
+  //We backtrack one level on purpose: the constraint X<2 is undone (S2 will now
+be 0)
+submit_string("fail");
+  //Check_success should return 0 for S2
+fprintf(log, "S2 is %i\n", check_success("S2"));
+submit_string("S3 = 1, ptc_solver__sdl(not(X<2)) ; S3 = 0");
+submit_string("ptc_solver__label_integers([X, Y]), !");
+display_all_vars(); //Should satisfy: X>2 or (X=2 and Y>2)
+
+submit_string("fail"); //We backtrack on purpose S3 = 0
+submit_string("fail"); //We backtrack on purpose S1 = 0
+  //S2 has fallen out of scope: check_success returns -2
+fprintf(log, "S2 is %i\n", check_success("S2"));
+submit_string("S4 = 1, ptc_solver__sdl(not(X>2 or Y>2)) ; S4 = 0");
+submit_string("S5 = 1, ptc_solver__sdl(X<2) ; S5 = 0");
+submit_string("ptc_solver__label_integers([X, Y]), !");
+display_all_vars(); //Should satisfy: X<2 and Y<=2
+
+submit_string("fail");  //S5 = 0
+submit_string("S6 = 1, ptc_solver__sdl(not(X<2)); S6 = 0");
+submit_string("ptc_solver__label_integers([X, Y]), !");
+display_all_vars(); //Should satisfy: X=2 and Y<=2
+
+fprintf(log, "___END SESSION 3___\n");
+}//session3
+\end{verbatim}
+
+%%%%%
+\subsubsection{Controlling Backtracking on Failure}
+
+Of course sometimes a submitted constraints will fail. Below is such an example
+and
+illustrates how to control the backtracking in this circumstance.
+
+\begin{verbatim}
+//Demonstration of search in a control flow graph with failure of
+// one of the path
+//Corresponds roughly to the code:
+// if X<=2 and Y<=2 then blah;
+//                  else blah;
+// if X<=2 then blah;
+//         else blah;
+// where blah does not change the values of X and Y
+void session4()
+{
+fprintf(log, "___STARTING SESSION 4___\n");
+submit_string("ptc_solver__variable([X, Y], integer)");
+
+submit_string("S1 = 1, ptc_solver__sdl(X<=2 and Y<=2) ; S1 = 0");
+submit_string("S2 = 1, ptc_solver__sdl(X<=2) ; S2 = 0");
+
+submit_string("ptc_solver__label_integers([X, Y]), !");
+display_all_vars();     //Should satisfy : X<=2 and Y<=2
+
+  //We backtrack one level on purpose: the constraint X<=2 is undone (S2 will now
+be 0)
+submit_string("fail");
+  //This should fail as (X<=2 and Y<=2) and X>2 is a contradiction;
+  // X>2 could not be added indicated by S3 = 0
+submit_string("S3 = 1, ptc_solver__sdl(not(X<=2)) ; S3 = 0");
+submit_string("ptc_solver__label_integers([X, Y]), !");
+display_all_vars(); //Should satisfy: X<=2 and Y<=2
+
+submit_string("fail");
+
+submit_string("S4 = 1, ptc_solver__sdl(not (X<=2 and Y<=2)) ; S4 = 0");
+submit_string("S5 = 1, ptc_solver__sdl(X<=2) ; S5 = 0");
+submit_string("ptc_solver__label_integers([X, Y]), !");
+display_all_vars(); //Should satisfy: X<=2 and Y>2
+
+submit_string("fail");
+submit_string("S6 = 1, ptc_solver__sdl(not(X<=2)); S6 = 0");
+submit_string("ptc_solver__label_integers([X, Y]), !");
+display_all_vars(); //Should satisfy: X>2
+
+fprintf(log, "___END SESSION 4___\n");
+}//session4
+\end{verbatim}
+
+
+%%%%%
+\subsubsection{Conclusion}
+
+The interactions described above are difficult to trace and therefore debug.
+
+If the behaviour is not as expected, an attentive manual trace of the posted
+goals and an examination of the tell-tale variables
+should be undertaken. For debugging interfacing using Prolog is probably the most
+effective solution.
+
+%%%%%
+\subsection{Using the Visual Basic, Tcl/Tk or Java interface}
+
+The reader is entirely referred to the ECLiPSe embedding manual for embedding
+the PTC Solver into those environments. This has not been attempted by
+the author of the PTC Solver.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Interface}
+
+\newcommand{\pro}[4]{\texttt{#1}          %comment
+
+        \hspace{5mm} \parbox[t]{15cm}{#2}
+
+        \vspace{\parskip}\hspace{5mm} \parbox[t]{15cm}{e.g. \texttt{#3} #4
+\vspace{5mm}}
+}
+
+Here we describe in full the Prolog predicate that can be called once the solver
+is loaded.
+
+\subsection{Terminology}
+
+\begin{description}
+  \item [Type\_mark] designate the name of a type definition (e.g. speed,
+  money), it should start with a lower case letter.
+  \item [Min, Max] expressions designating the minimum (resp. the maximum) in a
+range for inetgers or reals.
+  \item [Literal\_list] is an ordered Prolog list of literals for enumeration
+types (e.g. [mon, tue, wed, thu, fri, sat, sun])
+  \item [Field\_list] is an ordered Prolog list of elements of the form
+(Field\_name\_list, Type\_mark) and Field\_name\_list is a list of field\_names
+(e.g. [([father, mother], parent\_type), ([age], integer)]). field\_names
+should start with a lower case letter.
+  \item [Index\_list] is an ordered Prolog list of integer or enumeration
+Type\_marks or Subtype\_marks. The range of each element of the list designate
+the range of the corresponding index in the array (e.g. [name\_t] : implies one
+dimentional array index from ptc\_solver\_\_first(name\_t) to
+ptc\_solver\_\_last(name\_t). [name\_t, name\_t] implies a two dimentional
+array.)
+  \item [Component\_type\_mark] synonym of Type\_mark
+  \item [Subtype\_type\_mark] synonym of Type\_mark
+  \item [Identifier\_list] a list of identifiers. Identifiers must respect the
+following BNF format (taken from the Eclipse user manual): (UC $\mid$ UL) ALP*
+where UC denotes all upper case letters, UL is the underline charater, and ALP
+is (UC $\mid$ UL $\mid$ LC $\mid$ N) where LC denotes all lower case letters
+and N is any digits. (e.g. \_ry784A, A\_\_676, Money)
+\end{description}
+
+\subsection{Initialisations}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_clean\_up}
+    {Erases all previous declarations}
+    {ptc\_solver\_\_clean\_up.}
+    {}
+
+\pro    {ptc\_solver\_\_version(Ver)}
+    {Returns as a string the version of the PTC solver in use}
+    {ptc\_solver\_\_version(Ver) returns Ver = "2"}
+    {}
+
+\pro    {ptc\_solver\_\_default\_declarations}
+    {Declares the following default types:
+    integer : $-10 000 000..10 000 000$
+        float : $-10*10^{12} .. +10*10^{12}$
+    and Boolean}
+    {ptc\_solver\_\_default\_declarations.}
+    {}
+
+\pro    {ptc\_solver\_\_set\_flag(Flag, Value)}
+    {Allows the PTC Solver to be customised. The following flags are
+provided:
+     \begin{itemize}
+      \item {or\_constraint\_behaviour}, where Value must be 'choice' or 'pure',
+the default is 'pure'.
+      See the subsection on the 'or' constraint in the Limitations and Issues
+section. This flag should be set once and only once, after the call to ptc\_solver\_\_clean\_up but prior to anything else.
+      \item enumeration\_start, where Value is an integer, the default is 1. This flag indicates the starting point for the numbering of enumeration literals. It can be set as many times as wanted prior to the definition of an enumerated type.
+      \item debug\_mode, where Value is 'on' or 'off'. The defaul is 'off'. Enables the printing of verbose messages to stdout. 
+     \end{itemize}
+     }
+    {ptc\_solver\_\_set\_flag(or\_constraint\_behaviour, pure)}
+    {}
+
+%%%
+\subsection{Declarations}
+
+\subsubsection{Types}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_type(Type\_mark, real)}
+        {Declares a real type}
+        {ptc\_solver\_\_type(balance, real)}
+        {}
+
+\pro    {ptc\_solver\_\_type(Type\_mark, real, range\_bounds(Min, Max))}
+        {declares a real type bounded between Min and Max}
+        {ptc\_solver\_\_type(speed, real, range\_bounds(0.0, 165.0))}
+        {}
+
+\pro    {ptc\_solver\_\_type(Type\_mark, integer, range\_bounds(Min, Max))}
+        {declares an integer type bounded between Min and Max}
+        {ptc\_solver\_\_type(year\_t, integer, range\_bounds(1900, 3000))}
+        {}
+
+\pro    {ptc\_solver\_\_type(Type\_mark, enumeration, Literal\_list)}
+        {declares an enumeration type}
+        {ptc\_solver\_\_type(name\_t, enumeration, [mon, tue, wed, thu, fri, sat,
+sun]))}
+        {}
+
+\pro    {ptc\_solver\_\_type(Type\_mark, record, Field\_list)}
+        {declares a record type}
+        {ptc\_solver\_\_type(date\_t, record, [([name], name\_t), ([day],
+day\_t),
+    ([month], month\_t), ([year], year\_t)])}
+        {}
+
+\pro    {ptc\_solver\_\_type(Type\_mark, array, Index\_list,
+Component\_type\_mark)}
+        {declares an array type of dimensions determined by Index\_list and whose
+elements
+        are of type Component\_type\_mark}
+        {ptc\_solver\_\_type(week\_t, array, [name\_t], date\_t)}
+        {}
+
+\subsubsection{Subtypes}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_subtype(Subtype\_mark, Type\_mark)}
+    {Declares a subtype for the type\_mark}
+    {ptc\_solver\_\_subtype(argent, money)}
+        {}
+
+\pro    {ptc\_solver\_\_subtype(Subtype\_mark, Type\_mark, range\_bounds(Min,
+Max))}
+        {Declares a subtype of the type Type\_mark with new range Min, Max}
+    {ptc\_solver\_\_subtype(week\_day, name\_t, range\_bounds(mon, fri))}
+    {}
+
+\pro    {ptc\_solver\_\_subtype(Subtype\_mark, Type\_mark, range(\_))}
+    {TODO}
+    {}
+    {}
+
+\pro    {ptc\_solver\_\_subtype(Subtype\_mark, Type\_mark, range(\_, \_))}
+        {TODO}
+        {}
+        {}
+
+\subsubsection{Variables}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_variable(Identifier\_list,
+Type\_mark)}
+    {Declares all the variables in Identifier\_list to be of type Type\_mark}
+    {ptc\_solver\_\_variable([NEXT\_DATE, DATE], date\_t)}
+    {}
+
+
+%%%
+\subsection{Ranges}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_integer\_range(Identifier, Min, Max)}
+        {Returns the minimum and maximum of the range of an Integer variable.
+Based on the linear constraints imposed on the variable.}
+        {ptc\_solver\_\_integer\_range(Day, mon, fri)}
+        {}
+
+\pro    {ptc\_solver\_\_real\_min(Identifier, Inf, Taken)}
+        {Returns the minimum, Inf, of the range of a Real variable, Identifier.
+Taken is 'taken' if the lower bound is inclusive and not\_taken if it is
+exclusive}
+        {ptc\_solver\_\_real\_min(Speed, 0.0, taken) succeeds}
+        {}
+
+\pro    {ptc\_solver\_\_real\_max(Identifier, Sup, Taken)}
+        {Returns the maximum, Sup, of the range of a Real variable, Identifier.
+Taken is 'taken' if the upper bound is inclusive and not\_taken if it is
+exclusive}
+        {ptc\_solver\_\_real\_max(Speed, 165.0, taken) succeeds}
+        {}
+
+\pro    {ptc\_solver\_\_first(Type\_mark, Min)}
+        {Returns Min the smallest value defined by the type, Type\_mark}
+        {ptc\_solver\_\_first(day, mon)}
+        {}
+
+\pro    {ptc\_solver\_\_last(Type\_mark, Max)}
+        {Returns Min the largest value defined by the type, Type\_mark}
+        {ptc\_solver\_\_last(day, sun)}
+        {}
+
+%%%
+\subsection{Constraint Submission}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_sdl(Constraint)}
+    {Adds Constraint to the current constraint store. Fails if the constraint
+store
+    becomes unsatisfiable. A constraint is a Boolean expression which must
+respect
+    the syntax defined below.}
+    {ptc\_solver\_\_sdl(X > Y and X/2 = 5)}
+    {}
+
+\pro    {ptc\_solver\_\_arithmetic(Expression, Result, Type)}
+        {Expression is an arithmetic expression (without Boolean operators and
+relational operators), Result is a variable representing the operation denoted by
+Arithmetic, Type is r for real, i for integer, e
+for enumeration, record for record, array for array, boolean for Boolean}
+        {ptc\_solver\_\_arithmetic(X*Y, Z, Type)}
+        {Usage is not recommended in normal circumstances, use ptc\_solver\_\_sdl
+instead}
+
+\pro    {ptc\_solver\_\_relation(Relation, Left, Right)}
+        {Relation is a relational operator, Left is its left operand and Right is
+its right operand}
+        {ptc\_solver\_\_arithmetic(>, X*Y, Z)}
+        {Usage is not recommended in normal circumstances, use ptc\_solver\_\_sdl
+instead}
+
+
+%%%
+\subsection{Constraint Syntax}
+
+Expressions and Contraints must respect the following syntax.
+
+Note that the priority of the logical connectors is different than  what is
+commonly expected (it is in fact Ada-like here). In particular the operators
+\textbf{and}, \textbf{or} and \textbf{xor} have the same
+priority. Thus Boolean expressions must be written with brackets as in $A$
+\textbf{and} $(B$ \textbf{or} $C)$.
+
+Most of below is self explanatory for users with knowledge of programming.
+
+Mixed type arithmetic (i.e. expression involing reals and integers) is handled in
+C fashion. So an integer expression involving mixed arithmetic will evaluate to
+an expression of type real.
+
+To avoid mixed constraints the \texttt{conversion} constraint can be used to
+convert reals into integers (the value of the flag float\_to\_int\_convention
+controls the behaviour of this transformation), or to convert integers into
+reals. For example \texttt{ptc\_solver\_\_sdl(B = 2.6)} where \texttt{B} is an
+integer will fail but \texttt{ptc\_solver\_\_sdl(B = conversion(integer, 2.6))}
+results in \texttt{B} becoming \texttt{2} if the float\_to\_int\_convention flag
+is set to its default value : truncate.
+
+The constraint \texttt{eq\_cast} allows the modelling of C 'assignments' (but calling it an assignment is somewhat misleading). It is
+similar to the \texttt{=} constraint except whenever in C an integer is assigned
+a float. For example \texttt{ptc\_solver\_\_sdl(eq\_cast(B, 2.6))} where
+\texttt{B} is an integer results in in \texttt{B} becoming \texttt{2} if the
+float\_to\_int\_convention flag is set to its default value : truncate. In effect
+eq\_cast automatically performs the implicit type conversion from float to
+integer when necessary as would be performed during the assignment of a float
+expression to an integer variable in C. \texttt{eq\_cast(X, Y)} is to be
+interpreted as \texttt{X} is equal to \texttt{Y} with \texttt{Y} being implicitly
+converted to the type of \texttt{X}. Thus \texttt{eq\_cast(X, Y)} has not the
+same meaning as \texttt{eq\_cast(Y, X)}. In C, unless all implicit casting can be
+eliminated using the \texttt{conversion} constraint, assignements (\texttt{=})
+should be modelled using the \texttt{eq\_cast} constraint, while equality
+(\texttt{==}) should be modelled using the \texttt{=} constraint. Languages such
+as Ada, and Java Bytecode are more reasonable and do not allow implicit casting:
+there is no need to use \texttt{eq\_cast}.
+
+The \texttt{round} constraint rounds a real to its nearest integer so that
+\texttt{ptc\_solver\_\_sdl(B = round(2.6))} results in \texttt{B} becoming
+\texttt{3}.
+
+The \textbf{reif}
+constraint takes in a Boolean expression and a integer tell-tale variable betwen
+0 and 1.
+The tell-tale variable can be used to add the constraint itself to the current
+system of
+constraints (if set to 1) or its negation (if set to 0). If the constraint cannot
+be negated
+the tell-tale variable will be set to 1 automatically. If the constraint itself
+is not satisfiable
+ the tell-tale variable will be set to 0.
+
+Informally, the \textbf{cmp} constraint takes in two float expressions and an
+integer
+expression. The constraint behaves as follows: if the first argument is larger
+than the
+second then the third is 1, if the first argument is smaller than the second then
+the
+third is -1, if the first argument is equal to the second then the third is 0.
+
+ The
+\textbf{element} manipulator returns the element of an array as indexed by the
+expression.
+The \textbf{field} manipulator returns the element of a record as indicated by
+the field
+identifier. The \textbf{up\_arr} update, returns a new array with the element at
+the
+position indexed updated to the expression given. The \textbf{up\_rec} update,
+returns a
+new record with the indicated field updated by the expression given.
+
+
+\begin{tabbing}
+contraint : exp
+$\mid$ \textbf{reif(} exp \textbf{, } \textit{variable}\_identifier \textbf{)}
+$\mid$ \textbf{eq\_cast(} exp \textbf{, } exp \textbf{)}
+$\mid$ \textbf{cmp(} sum \textbf{, } sum \textbf{, } sum \textbf{)} \\
+exp : negation \{ (\textbf{and} $\mid$ \textbf{and\_then} $\mid$ \textbf{or}
+$\mid$ \textbf{or\_else} $\mid$ \textbf{xor}) negation \} \\
+negation : [ \textbf{not} ] relation \\
+relation : sum [( \textbf{\texttt{=}} $\mid$ \textbf{\texttt{<>}} $\mid$
+\textbf{\texttt{<}} $\mid$ \textbf{\texttt{>}} $\mid$ \textbf{\texttt{<=}} $\mid$
+\textbf{\texttt{>=}} ) sum ] \\
+sum : [ \textbf{-} ] term \{( \textbf{+} $\mid$ \textbf{-} ) term \} \\
+term : factor \{( \textbf{*} $\mid$ \textbf{/} $\mid$ \textbf{mod} $\mid$
+\textbf{rem}) factor \} \\
+factor : primary $\mid$ primary \textbf{**} primary \\
+primary : \= \textit{variable}\_identifier $\mid$ literal $\mid$ natural $\mid$
+float $\mid$ rational \\
+    \> $\mid$ \textit{constant}\_identifier $\mid$ function\_designator
+$\mid$ \textbf{\texttt{(}} exp \textbf{\texttt{)}}
+\end{tabbing}
+
+\begin{tabbing}
+natural : digit \{ digit \}
+\end{tabbing}
+
+\begin{tabbing}
+float : natural \textbf{.} natural [( e $\mid$ E ) natural ] \\
+rational : natural \textbf{\texttt{\_}} natural
+\end{tabbing}
+
+\begin{tabbing}
+function\_designator : attribute $\mid$ constructor $\mid$ manipulator $\mid$
+arithmetic\_function \\
+attribute : \= \textbf{first\texttt{(}} type\_mark \textbf{\texttt{)}} $\mid$
+\textbf{last\texttt{(}} type\_mark \textbf{\texttt{)}} \\
+    \> $\mid$ \textbf{succ\texttt{(}} exp \textbf{\texttt{)}} $\mid$
+\textbf{pred\texttt{(}} exp \textbf{\texttt{)}} \\
+    \> $\mid$ \textbf{pos\texttt{(}} type\_mark\textbf{,} exp
+\textbf{\texttt{)}} $\mid$ \textbf{val\texttt{(}} type\_mark\textbf{,}
+exp \textbf{\texttt{)}} \\
+arithmetic\_function : \= \textbf{conversion\texttt{(}} type\_mark \textbf{,} sum
+\textbf{\texttt{)}} $\mid$ \textbf{round\texttt{(}} sum \textbf{\texttt{)}}
+$\mid$ \textbf{abs\texttt{(}} sum \textbf{\texttt{)}} \\
+        \> $\mid$ \textbf{bw\_not\texttt{(}} exp \textbf{\texttt{,}}
+encoding\_length \textbf{\texttt{,}} encoding\_scheme
+        \textbf{\texttt{)}} \\
+        \> $\mid$ \textbf{bw\_and\texttt{(}} exp \textbf{\texttt{,}} exp
+\textbf{\texttt{,}} encoding\_length \textbf{\texttt{,}} encoding\_scheme
+        \textbf{\texttt{)}} \\
+        \> $\mid$ \textbf{bw\_or\texttt{(}} exp \textbf{\texttt{,}} exp
+\textbf{\texttt{,}} encoding\_length \textbf{\texttt{,}} encoding\_scheme
+        \textbf{\texttt{)}} \\
+        \> $\mid$ \textbf{bw\_xor\texttt{(}} exp \textbf{\texttt{,}} exp
+\textbf{\texttt{,}} encoding\_length \textbf{\texttt{,}} encoding\_scheme
+        \textbf{\texttt{)}} \\
+        \> $\mid$ \textbf{left\_shift\texttt{(}} exp \textbf{\texttt{,}}
+exp\textit{\_amount} \textbf{\texttt{,}} encoding\_length
+\textbf{\texttt{,}} encoding\_scheme
+        \textbf{\texttt{)}} \\
+        \> $\mid$ \textbf{right\_shift\texttt{(}} exp \textbf{\texttt{,}}
+exp\textit{\_amount} \textbf{\texttt{,}} encoding\_length
+\textbf{\texttt{,}} encoding\_scheme
+        \textbf{\texttt{)}} \\
+
+encoding\_length : \textbf{8} $\mid$ \textbf{16} $\mid$ \textbf{32} $\mid$
+\textbf{64} \\
+encoding\_scheme : \textbf{signed} $\mid$ \textbf{unsigned} \\
+constructor : mk\_record $\mid$ mk\_array \\
+
+mk\_record : \textbf{agg\texttt{(}}record\_type\_\textit{identifier}
+\textbf{\texttt{, [}}argument\_list\textbf{\texttt{])}} \\
+
+argument\_list : positional\_argument\_list $\mid$ named\_argument\_list \\
+positional\_argument\_list : exp \{ \textbf{\texttt{,}} exp \} \\
+named\_argument\_list : association \{ \textbf{\texttt{,}} association \} \\
+
+association : \textbf{\texttt{([}}field\_\textit{identifier}\textbf{\texttt{],
+}}exp\textbf{\texttt{)}} \\
+\\
+mk\_array :
+\textbf{agg\texttt{(}}array\_type\_\textit{identifier}\textbf{\texttt{,[}}element
+\_list\textbf{\texttt{])}} \\
+element\_list : positional\_element\_list $\mid$ named\_element\_list \\
+positional\_element\_list : \= exp \{ \textbf{\texttt{,}} exp \} \\
+                            \> $\mid$ exp \{ \textbf{\texttt{,}} exp \}
+\textbf{\texttt{, ([others], }} exp
+                            \textbf{\texttt{)}} \\
+named\_element\_list : \= \textbf{\texttt{([others], }} exp \textbf{\texttt{)}}
+\\
+                       \> $\mid$ assign\_list \\
+                       \> $\mid$ assign\_list \textbf{\texttt{, ([others], }} exp
+\textbf{\texttt{)}} \\
+assign\_list : assign \{\textbf{\texttt{,}} assign\} \\
+assign : \textbf{\texttt{(}}index\_list\textbf{\texttt{,}} exp\textbf{\texttt{)}}
+\\
+index\_list : \textbf{\texttt{[}}index \{\textbf{\texttt{,}}
+index\}\textbf{\texttt{]}} \\
+index : exp $\mid$ \textbf{\texttt{range\_bounds(}}exp\textbf{\texttt{,}}
+exp\textbf{\texttt{)}} $\mid$
+\textbf{\texttt{range(}}type\_\textit{mark}\textbf{\texttt{)}}\\
+\\
+
+manipulator : element $\mid$ field $\mid$ update \\
+element : \textbf{element\texttt{(}}\textit{array}\_expression\textbf{\texttt{,}}
+simple\_index\textbf{\texttt{)}} \\
+simple\_index : \textbf{\texttt{[}}exp \{ \textbf{\texttt{,}} exp \}
+\textbf{\texttt{]}} \\
+field : \textbf{field\texttt{(}}\textit{record}\_expression\textbf{\texttt{,}}
+\textit{field}\_identifier\textbf{\texttt{)}} \\
+\\
+update : array\_update $\mid$ record\_update \\
+array\_update :
+\textbf{up\_arr\texttt{(}}\textit{array}\_expression\textbf{\texttt{,
+}}simple\_index\textbf{\texttt{, }}exp\textbf{\texttt{)}} \\
+record\_update :
+\textbf{up\_rec\texttt{(}}\textit{record}\_expression\textbf{\texttt{,
+}}\textit{field}\_identifier\textbf{\texttt{, }}exp\textbf{\texttt{)}} \\
+
+
+\end{tabbing}
+
+
+%%%
+\subsection{labelling}
+Labelling strategies can make a dramatic difference in the time needed to label
+the variables according to the current system of constraints. Here are a few recommendations:
+\begin{itemize}
+\item It is essential that all variables of the same type be submitted all at
+once to the appropriate labelling predicate. This allows the predicate to select
+the most promising variables first.
+\item The labelling predicate implements some randomness, therefore different runs
+can yield vastly different runtimes. Sometime labelling can get lucky and return
+quickly. Sometime labelling will be bogged down.
+\item labelling of integer variable is exhaustive i.e. all integer values in the
+constrained range will be tried. If there is no solution to the current store of
+constraint (e.g. because of non-linear constraints) labelling will typically take
+a long time and eventually fail. If the integer labelling fails it is because
+there are no solution.
+\item labelling of real variables in non exhaustive (it couldn't be otherwise). If
+real labelling fails it does not follow that the system of constraint is
+unsatisfiable.
+\item It is impossible to decide without knowing the details of the current
+constraints the order in which labelling should be performed. Sometime labelling
+integers before reals will be optimal, at other time the inverse will be true.
+\item If your labelling gets bogged down there are a number of strategies you can
+use short of writing your own labelling predicates. First a timer can be set to
+stop a given labelling predicate and then start again. Another solution worth a
+try is to change the labelling order (e.g. try labelling reals first and then
+integers, or vice versa). A combination of both tips can also be implemented.
+\end{itemize}
+
+
+\pro    {ptc\_solver\_\_label\_integers(Identifier\_list)}
+    {Instantiate the integer variables in Identifier\_list to values
+consistent with
+    the current constraint store. Fails if no solution exist. An exhaustive
+search is performed so that on failure it can be concluded that the store
+of constraint was inconsistent.}
+    {ptc\_solver\_\_label\_integers([X, Y, Z])}
+    {}
+
+\pro    {ptc\_solver\_\_label\_reals(Identifier\_list)}
+    {Instantiate the float variables in Identifier\_list to values consistent
+with the
+    current constraint store. Can fail if no solution is found. The search is
+not exhaustive so that on failure it cannot be concluded that the store
+of constraint was inconsistent.}
+    {ptc\_solver\_\_label\_reals([Speed, Altitude])}
+    {}
+
+\pro    {ptc\_solver\_\_label\_enums(Identifier\_list)}
+    {Instantiate the enumeration variables in Identifier\_list to values
+consistent
+    with the current constraint store. Fails if no solution exist. An
+exhaustive search is performed so that on failure it can be concluded
+that the store of constraint was inconsistent. Boolean should be labelled
+using this predicate since Booleans are treated as enumeration
+variables.}
+    {ptc\_solver\_\_label\_enums([Next\_day, Today])}
+    {}
+
+\pro    {ptc\_solver\_\_sample\_enum(Identifier)}
+        {Instantiates Identitifer which is an enumeration variable to a sample
+value.}
+        {ptc\_solver\_\_sample\_enum(Day)}
+        {Usage is not recommended in normal circumstances, use
+ptc\_solver\_\_label\_enums([Indentifier]) instead}
+
+
+%%%
+\subsection{Useful for Embedding}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_submit\_string(String)}
+        {Allows the submission of goals using strings. See the embedding via
+C/C++ section of the user manual}
+        {ptc\_solver\_\_submit\_string("ptc\_solver\_\_sdl(X>Y*Y+Y and Y<5)")}
+        {}
+
+\pro    {ptc\_solver\_\_get\_single\_variable(String, Variable)}
+        {Retrieves the actual variable of a variable submitted in a string using
+ptc\_solver\_\_submit\_string(String)}
+        {ptc\_solver\_\_get\_single\_variable("S1", Value)}
+        {Returns -2 if the Identifier is out of scope}
+
+\pro    {ptc\_solver\_\_get\_all\_variables(Name\_variable\_list)}
+        {Retrieves the list of Name, Variable couples for all variable submitted
+via a string using  ptc\_solver\_\_submit\_string(String).
+         See the auxillary C function display\_all\_vars}
+        {ptc\_solver\_\_get\_all\_variables(Var\_list)}
+        {}
+
+%%%
+\subsection{Micellanous}
+
+%%%
+\subsubsection{Type testing}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_is\_enum(Identifier)}
+    {Succeeds if Identifier is an enumeration variable, fails otherwise}
+    {ptc\_solver\_\_is\_enum(Today)}
+    {}
+
+\pro    {ptc\_solver\_\_is\_record(Identifier)}
+    {Succeeds if Identifier is a record variable, fails otherwise}
+    {ptc\_solver\_\_is\_record(Date)}
+    {}
+
+\pro    {ptc\_solver\_\_is\_array(Identifier)}
+    {Succeeds if Identifier is an array variable, fails otherwise}
+    {ptc\_solver\_\_is\_array(Marks)}
+    {}
+
+\pro    {ptc\_solver\_\_is\_integer(Identifier)}
+    {Succeeds if Identifier is an integer variable, fails otherwise}
+    {ptc\_solver\_\_is\_integer(RPM)}
+    {}
+
+\pro    {ptc\_solver\_\_is\_real(Identifier)}
+    {Succeeds if Identifier is a float variable, fails otherwise.}
+    {ptc\_solver\_\_is\_real(Speed)}
+    {}
+
+%%%
+\subsubsection{Internal Declaration Manipulation}
+
+\hspace{\parindent}\pro {ptc\_solver\_\_get\_frame(Type\_mark, Basetype\_mark,
+Identifier)}
+{Given a Type\_mark, this predicate will return its basetype and a
+variable Identifier of type Type\_mark. Basetype is one of the following: real,
+integer, base\_enumeration, record,
+array(Component\_type\_mark) or Type\_mark which then denotes that Type\_mark is
+a subtype of Basetype\_mark. Note that this predicate is very slow whenever a lot
+of types have been declared.}
+{ptc\_solver\_\_get\_frame(money, B, Frame)}
+{}
+
+%%%
+\subsubsection{Retrieving components}
+
+\hspace{\parindent}\pro
+{ptc\_solver\_\_get\_array\_index\_elements(Identitifer, Index\_element\_list)}
+    {Given an array variable Identifier, returns its Index\_element\_list.
+Index\_element\_list for an array of dimension 1..3, 1..2 is of the form:
+ [([1,1], el1.1), ([1,2], el1.2), ([2,1], el2.1), ([2,2], el2.2), ([3,1], el3.1),
+([3,2],
+ el3.2)] where el*.* denotes the actual variables in the array}
+        {ptc\_solver\_\_get\_array\_index\_elements(Marks, List)}
+        {}
+
+\pro    {ptc\_solver\_\_get\_record\_field\_values(Identifier,
+Field\_value\_list)}
+    {Given a record variable Identifier, returns its Field\_value\_list.
+Field\_value\_list is of the form [(field1, value1), ..., (fieldn, valuen)]}
+        {ptc\_solver\_\_get\_record\_field\_values(Date, Fields)}
+        {}
+
+%%%
+\subsubsection{Enumeration Variables Manipulations}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_enum\_get\_literal(Type\_mark, Value,
+Literal)}
+        {Returns the Literal of a Type\_mark corresponding to Value}
+        {ptc\_solver\_\_enum\_get\_literal(week\_day, 2, tue) succeeds}
+        {}
+
+\pro    {ptc\_solver\_\_enum\_get\_position(Identifier, Value)}
+        {Returns the possible values of an enumeration variable without knowing
+its base type}
+        {ptc\_solver\_\_enum\_get\_position(Tommorow, Value)}
+        {Usage is not recommended in normal circumstances.}
+
+
+\pro    {ptc\_solver\_\_enum\_get\_basetype(Identifier, Basetype)}
+        {Returns the Basetype of an enumeration variable Identifier}
+        {ptc\_solver\_\_enum\_get\_basetype(Today, weekday) would succeed}
+        {}
+
+%%%
+\subsubsection{Error Messages}
+
+\hspace{\parindent}\pro    {ptc\_solver\_\_error(Message)}
+        {Outputs the string Message as an error message and aborts the solver}
+        {ptc\_solver\_\_error("problem line forty\_two/2")}
+        {Usage is not recommended in normal circumstances. Write your own error
+reporting predicate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\bibliographystyle{plain}
+% \nocite{*}
+%\bibliography{abrev,clp,wcet,thesis}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
