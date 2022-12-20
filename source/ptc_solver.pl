@@ -8,7 +8,7 @@
 %It could be simplified via syntactic rationalisation of the solver per se.
 %compile('//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_solver').
 %%%
-mytrace.    %call this to start debugging
+mytrace.            %call this to start debugging
 :- spy mytrace/0.
 %%%
 :- module(ptc_solver).
@@ -39,8 +39,8 @@ mytrace.    %call this to start debugging
 :- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
 :- include([ptc_solver_bitwise]).
 
-%:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
-:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
+:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
+%:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
 :- import ptc_enum__pred/2, ptc_enum__is_enum/1, ptc_enum__pos/3, ptc_enum__is_enum_type/1, ptc_enum__get_literal/3, ptc_enum__get_basetype/2 from ptc_enum.
@@ -61,20 +61,27 @@ mytrace.    %call this to start debugging
 :- dynamic or_constraint_behaviour/1.
 :- dynamic enumeration_start/1.
 :- dynamic float_to_int_convention/1.
+:- dynamic debug_mode/1.
 %%%
 ptc_solver__version("2").
+
 ptc_solver__error(Message) :-
-    writeln(stdout, "***PTC Solver error***"),
+    writeln(stdout, "***PTC Solver Fatal Error***"),
     writeln(stdout, Message),
     abort.
 
 ptc_solver__verbose(Message, Term) :-
-    (Term = [] ->
-        printf(stdout, "%w\n", Message)
+    (debug_mode('on') ->
+        ((Term = [] ->
+            printf(stdout, "%w\n", Message)
+        ;
+            printf(stdout, "%w: %w\n", [Message, Term])
+         ),
+         flush(stdout)
+        )
     ;
-        printf(stdout, "%w: %w\n", [Message, Term])
-    ),
-    flush(stdout).
+        true
+    ).
 
 %%%
 %useful for embedding
@@ -150,8 +157,10 @@ ptc_solver__clean_up :-
 	retractall(or_constraint_behaviour(_)),
 	retractall(enumeration_start(_)),
     retractall(float_to_int_convention(_)),
+    retractall(debug_mode(_)),
 	assert(enumeration_start(1)),
     assert(float_to_int_convention(truncate)),
+    assert(debug_mode('off')),
 	retractall(ptc_solver__first(_, _)),
 	retractall(ptc_solver__last(_, _)),
 	ptc_enum__clean_up.
@@ -205,20 +214,20 @@ ptc_solver__get_array_index_elements(Var, Index_elements) :-
 
 %%%
 ptc_solver__set_flag(Flag, Value) :-
-        (Flag == or_constraint_behaviour ->
-                (or_constraint_behaviour(_) ->
-                        ptc_solver__error("In ptc_solver_set_flag/2, the or_constraint_behaviour can only be set once")
-                ;
-                        ((Value = pure ; Value = choice) ->
-                                (retractall(or_constraint_behaviour(_)),
-                                 assert(or_constraint_behaviour(Value))
-                                )
-                        ;
-                                ptc_solver__verbose("In ptc_solver__set_flag/2, the or_constraint_behaviour flag can be 'pure' or 'choice' but the following is not allowed", Value)
-                        )
+    (Flag == or_constraint_behaviour ->
+        (or_constraint_behaviour(_) ->
+            ptc_solver__error("In ptc_solver_set_flag/2, the or_constraint_behaviour can only be set once")
+         ;
+            ((Value = pure ; Value = choice) ->
+                (retractall(or_constraint_behaviour(_)),
+                 assert(or_constraint_behaviour(Value))
                 )
+             ;
+                ptc_solver__verbose("In ptc_solver__set_flag/2, the or_constraint_behaviour flag can be 'pure' or 'choice' but the following is not allowed", Value)
+            )
+        )
 	;
-         Flag == enumeration_start ->
+     Flag == enumeration_start ->
 		(integer(Value) ->
 			(retractall(enumeration_start(_)),
                          assert(enumeration_start(Value))
@@ -226,22 +235,31 @@ ptc_solver__set_flag(Flag, Value) :-
 		;
 			ptc_solver__verbose("In ptc_solver__set_flag/2, the enumeration_start flag can be an integer but the following is not allowed", Value)
 		)
+    ;
+     Flag == float_to_int_convention ->
+        (float_to_int_convention(_) ->
+            ptc_solver__error("In ptc_solver_set_flag/2, the float_to_int_convention can only be set once")
         ;
-         Flag == float_to_int_convention ->
-                (float_to_int_convention(_) ->
-                        ptc_solver__error("In ptc_solver_set_flag/2, the float_to_int_convention can only be set once")
-                ;
-                        ((Value = truncate ; Value = nearest) ->
-                                (retractall(float_to_int_convention(_)),
-                                 assert(float_to_int_convention(Value))
-                                )
-                        ;
-                                ptc_solver__verbose("In ptc_solver__set_flag/2, the float_to_int_convention flag can be 'truncate' or 'nearest' but the following is not allowed", Value)
-                        )
-                )
-        ;
-                ptc_solver__verbose("In ptc_solver__set_flag/2, the following flag does not exist", Flag)
-        ).
+         ((Value = truncate ; Value = nearest) ->
+            (retractall(float_to_int_convention(_)),
+             assert(float_to_int_convention(Value))
+            )
+         ;
+            ptc_solver__verbose("In ptc_solver__set_flag/2, the float_to_int_convention flag can be 'truncate' or 'nearest' but the following is not allowed", Value)
+         )
+        )
+    ;
+     Flag == debug_mode ->
+        ((Value == 'on' ; Value == 'off') ->
+            (retractall(debug_mode(_)),
+             assert(debug_mode(Value))
+            )
+         ;
+            ptc_solver__verbose("In ptc_solver__set_flag/2, the debug_mode flag can be 'on' or 'off' but the following is not allowed", Value)
+        )
+    ;
+        ptc_solver__verbose("In ptc_solver__set_flag/2, the following flag does not exist", Flag)
+    ).
 
 %submits a constraint
 %sdl can set delayed constraints
