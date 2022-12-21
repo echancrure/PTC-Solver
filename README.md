@@ -16,6 +16,7 @@ TABLE OF CONTENTS
   7. RELEASES HISTORY
   8. CONTACT
 
+***********************************************************
 
 1. WHERE TO FIND INFORMATION
 
@@ -88,8 +89,7 @@ available.
 Version 1.2.2 is a patch release of the PTC solver. The /
 (division operator) was broken.
 
-Version 1.2.1 is a patch release of the PTC solver. The pure
-'or' constraint was broken.
+Version 1.2.1 is a patch release of the PTC solver. The pure 'or' constraint was broken.
 
 Version 1.2 is a major update of the PTC solver. Two versions
 of the 'or' constraint are now provided.
@@ -111,7 +111,7 @@ ptc_user_manual.pdf file for more details.
 
 3. INSTALLATION OVERVIEW
 
-You should have a working version of ECLiPSe 7.0 installed on your machine before proceeding further. ECLiPSe can be obtained from https://eclipseclp.org/ .
+You should have a working version of ECLiPSe 7.0 (the Constraint Programming System not the IDE...) installed on your machine before proceeding further. ECLiPSe can be obtained from https://eclipseclp.org/ .
 
 4. DOCUMENTATION
 
