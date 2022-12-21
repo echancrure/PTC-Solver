@@ -26,6 +26,8 @@ The author and contact person for the PTC solver is Dr Christophe Meudec echancr
 
 An informal brief introduction is available at See https://docs.google.com/document/d/121YIr-f-EwJ7aLwtxQoahjZ2XtOTJK6sdLUz0-SA2ig/edit?usp=sharing for further information where comments can be made.
 
+The repository master branch contains the latest stable version. The dev branch is work in progress.
+
 2. WHAT'S NEW IN THIS RELEASE
 
 Version 2.0 is a significant overhaul. The PTC Solver internal constraints
@@ -136,14 +138,14 @@ The PTC Solver handles many typical constraints suitable for the analysis of sof
 
 8. RELEASES HISTORY
 
-***** Version 2.0.1 *****
+*****Version 2.0.1*****
 December 2022
   Minor update
    - The labeling of reals has been improved by generating tighter real intervals in some circumstances. In addition a new version of the ptc_labeling__reals predicate is available which also outputs approximate float solutions suitable for printing;
    - The ptc_readme.txt file has been removed: GitGub README.md is used instead;
    - From this version onwards, pre-compiled solver modules will no longer be released as they served little purpose: the folder lib_public has been removed.
 
-***** Version 2.0 *****
+*****Version 2.0*****
 December 2022
   Significant overhaul
    - The PTC Solver internal constraints over integers and reals
@@ -176,19 +178,19 @@ December 2022
          float_to_int_convention flag has been deprecated. The PTC
          Solver now uses the C convention of truncating when rounding. 
 
-***** Version 1.7 *****
+*****Version 1.7*****
 June 2022
   Major update
    - The solver has been ported to ECLiPSe 7.0;
    - The labeling of rationals is more thorough and will take  longer in infeasible cases, it is still unsastifactory  in many instances.
 
-***** Version 1.6 *****
+*****Version 1.6*****
 June 2013
   Major update
    - The solver has been ported to ECLiPSe 6.0;
    - The solver is now open source.
 
-***** Version 1.5.3 *****
+*****Version 1.5.3*****
 February 2005 (internal release only)
   Minor update
    - In the very specific case of the conversion of an integral
@@ -197,14 +199,14 @@ February 2005 (internal release only)
      allowed. Note that limitations on the range of integer 
      expressions and variables remain.  
 
-***** Version 1.5.2 *****
+*****Version 1.5.2*****
 January 2005 (internal release only)
   Minor update
    - The pure version of the or_else constraint delays less
      often. This should improve efficiency.
    - The solver now works with ECLiPSe 5.8
 
-***** Version 1.5.1 *****
+*****Version 1.5.1*****
 April 2004 (internal release only)
   Minor update
    - The reif and the pure version of the or and or_else 
@@ -213,7 +215,7 @@ April 2004 (internal release only)
      versions of the or and or_else constraint should now be negligeable.
      Mentions of it in the user manual have been removed.
 
-***** Version 1.5 *****
+*****Version 1.5*****
 February 2004 (internal release only)
   Major update
    - Mixed arithmetic constraints has been completely overhauled.
@@ -234,7 +236,7 @@ February 2004 (internal release only)
      attempting sampling outside of the allowed range. Variable
      ordering has also been improved.
 
-***** Version 1.4 *****
+*****Version 1.4*****
 October 2003 (internal release only)
   Major update
    - Mixed arithmetic constraints has been overhauled. It now
@@ -251,7 +253,7 @@ October 2003 (internal release only)
      integers otherwise floating point division is performed.
    - Labeling tips have been included in the user manual.
 
-***** Version 1.3.6 *****
+*****Version 1.3.6*****
 September 2003 (internal release only)
   Minor update
    - The bitwise 'xor' constraint now behaves properly. It was 
@@ -270,20 +272,20 @@ September 2003 (internal release only)
      value. If wished, the flag can be set at different values for 
      different types.
 
-***** Version 1.3.5 *****
+*****Version 1.3.5*****
 June 2003 (internal release only)
   Minor update
    - The solver has been ported to ECLiPSe 5.6. The solver will not
      work with earlier versions ECLiPSe.
 
-***** Version 1.3.4 *****
+*****Version 1.3.4*****
 June 2003 (internal release only)
   Minor update
    - A bug in the handling of the first and last value of the float
      type has been corrected. This bug made the conversion constraint
      fail under some circumstances. 
 
-***** Version 1.3.3 *****
+*****Version 1.3.3*****
 May 2003 (internal release only)
   Minor update
    - The parsing speed of very large constraints has been improved.
@@ -292,12 +294,12 @@ May 2003 (internal release only)
      constraints (containing thousands of atomic constraints) speed
      ups of over 40% have been measured.
 
-***** Version 1.3.2 *****
+*****Version 1.3.2*****
 February 2003
   Minor update
    - A new constraint 'cmp' has been added. See user manual.
    
-***** Version 1.3.1 *****
+*****Version 1.3.1*****
 September 2002
   Minor update
    - A bug in the modulo constraint has been corrected. It was sometime
@@ -306,7 +308,7 @@ September 2002
      giving an error message.
    - Labeling of integers has changed.  
 
-***** Version 1.3 *****
+*****Version 1.3*****
 September 2002
   Major update
    - New bitwise constraints added. They work on decimal numbers, and the
@@ -315,7 +317,7 @@ September 2002
      manual for details and limitations.
    - Two new constraints for left and right shifting have been added. 
 
-***** Version 1.2.3 *****
+*****Version 1.2.3*****
 May 2002
   Minor update
    - The 'pure' version of the 'or' constraint has been improved in certain
@@ -328,13 +330,13 @@ May 2002
    - A new predicate, ptc_solver__version/1, allows to query the solver for
      its version number.   
 
-***** Version 1.2.2 *****
+*****Version 1.2.2*****
 April 2002
   Minor update
    - The / operator was not working properly whenever both operands were
      variables.
 
-***** Version 1.2.1 *****
+*****Version 1.2.1*****
 December 2001
   Minor update
    - The 'pure' version of the 'or' constraint was not working properly since
@@ -346,7 +348,7 @@ December 2001
    - The 'pure' version of the 'or else' constraint behaved as the 'or'
      constraint in certain circumstances.
 
-***** Version 1.2 *****
+*****Version 1.2*****
 December 2001
   Major update
    - Two versions of the 'or' constraint are now provided : a 'pure' version
@@ -363,7 +365,7 @@ December 2001
      this time], issues on floating point number precision etc.)  
    - Minor documentation corrections.
    
-***** Version 1.1.1 *****
+*****Version 1.1.1*****
 November 2001
   Minor update
    - Labeling of non-linear constraints over floats has been improved.
@@ -372,7 +374,7 @@ November 2001
      priorities of logical connectors).
    - The default range for integers has been widened to -65535 ... +65535.
 
-***** Version 1.1 *****
+*****Version 1.1*****
 October 2001
   Major update.
    - Bug in equality between enumeration expressions has been fixed.
