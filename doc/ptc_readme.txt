@@ -24,16 +24,14 @@ TABLE OF CONTENTS
 
 Apart from this file, ptc_readme.txt, the main source of
 information on the PTC Solver is its user manual given in
-the file ptc_user_manual.pdf and the document page at
-
-https://docs.google.com/document/d/121YIr-f-EwJ7aLwtxQoahjZ2XtOTJK6sdLUz0-SA2ig/edit?usp=sharing
+the file ptc_user_manual.pdf
 
 The author and contact person for the PTC solver is
 Dr Christophe Meudec echancrure@gmail.com
 
 2. WHAT'S NEW IN THIS RELEASE
 ===========================================================
-Version 2.0 is a major update. The PTC Solver internal constraints
+Version 2.0 is a significant overhaul. The PTC Solver internal constraints
 over integers and reals have been ported to the more powerful ECLiPSe
 IC library.
 
@@ -192,7 +190,7 @@ December 2022
            - ptc_solver__denominator/2
        - This new version of the PTC Solver is estimated to be 
          on average at least 10 times faster than the previous versions.
-         In particular labelling perfromance has been greatly improved;
+         In particular labelling performance has been greatly improved;
        - Labelling is less random than in previous versions: the PTC Solver
          now often returns identical solutions on different runs;
        - The PTC Solver runtime performance variability has been at 

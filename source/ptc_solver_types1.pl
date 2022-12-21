@@ -18,7 +18,7 @@ ptc_solver__default_declarations :-
 	%FLOAT_MAX $= 3.4028235*10^38,		%i.e. single precision 32 bits C float
 	%FLOAT_MAX $= (2^40)/3,				%i.e. previous solver version maximum under clpq, about 366 billions
 	FLOAT_MAX $= 10*10^12,				%for now: 10 trillions
-	FLOAT_MIN $= -FLOAT_MAX,			%i.e. single precision 32 bits C float
+	FLOAT_MIN $= -FLOAT_MAX,
 	R $:: FLOAT_MIN..FLOAT_MAX,
 	ptc_solver__set_frame(float, real, R),	%sometimes using float sometimes real...
 	asserta(ptc_solver__first(float, FLOAT_MIN)),
@@ -182,7 +182,7 @@ init_variables([Identifier|Rest], Type_mark) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % called from initialise_declarations/1 by extract_index(Index_list, Eval_index_list)
-% is recursif
+% is recursive
 % Index_list is the in list of type_marks
 % Eval_index_list is the out list of indexes of the form [(First0, Last0) ... (FirstN, LastN)] corresponding to Index_list
 extract_index([], []).
@@ -195,7 +195,7 @@ extract_index([Type_mark|Rest_index_list], [(First, Last)|Rest_eval_index_list])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % called from initialise_declarations/1 by extract_fields(Field_list, Field_values)
-% is recursif
+% is recursive
 % Field_list is the in list of ([Inner_field_list], Type_mark)
 % Field_values is the out list of (Field, Value) where Value is a variable of Type_mark corresponding to Index_list
 extract_fields([], []).
