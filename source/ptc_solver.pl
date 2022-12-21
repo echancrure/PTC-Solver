@@ -27,7 +27,7 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__enum_get_literal/3, ptc_solver__enum_get_position/2, ptc_solver__enum_get_basetype/2.
 :- export ptc_solver__get_record_field_values/2, ptc_solver__get_array_index_elements/2.
 :- export ptc_solver__integer_range/3, ptc_solver__is_integer/1, ptc_solver__is_real/1.
-:- export ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/1.
+:- export ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/2, ptc_solver__label_reals/1.
 :- export ptc_solver__submit_string/1.
 :- export ptc_solver__get_single_variable/2, ptc_solver__get_all_variables/1.
 :- export ptc_solver__create_record_from_agg/3, ptc_solver__create_array_from_agg/3.
@@ -49,7 +49,7 @@ mytrace.            %call this to start debugging
 :- import ptc_record__up_record/4, ptc_record__get_all_field_values/2 from ptc_record.
 :- import ptc_array__create_array/4, ptc_array__get_element/3, ptc_array__is_array/1, ptc_array__create_array_from_agg/3 from ptc_array.
 :- import ptc_array__up_array/4, ptc_array__get_all_index_elements/2 from ptc_array.
-:- import ptc_labeling__integers/1, ptc_labeling__enums/1, ptc_labeling__reals/1 from ptc_labeling.
+:- import ptc_labeling__integers/1, ptc_labeling__enums/1 from ptc_labeling.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % undoing the operators precedence of the solver prior to compilation
@@ -171,8 +171,10 @@ ptc_solver__label_integers(IL) :-
 ptc_solver__label_enums(IL) :-
     ptc_labeling__enums(IL).
 
-ptc_solver__label_reals(IL) :-
-    ptc_labeling__reals(IL).
+ptc_solver__label_reals(IL) :-  %legacy
+    ptc_solver__label_reals(IL, _FL). 
+ptc_solver__label_reals(IL, FL) :-
+    ptc_labeling:ptc_labeling__reals(IL, FL).
 
 ptc_solver__is_real(Var) :-
     var(Var),

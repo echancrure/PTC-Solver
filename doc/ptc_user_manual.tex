@@ -14,7 +14,7 @@
 
 \title{The PTC Solver\\
        User Manual\\
-       Version 2}
+       Version 2.0.1}
 \author{Dr. Christophe Meudec \\
         echancrure@gmail.com \\
         Ireland}
@@ -35,7 +35,7 @@ can be used for a variety of purposes in the area of software program analysis.
 The PTC Solver described here is primarily intended for program analysis
 purposes.
 It roughly covers types and expressions that can be encountered in the Pascal
-programming language (except pointers). Constraints over integers, rationals,
+programming language. Constraints over integers, rationals,
 enumerations, boolean organised into records and arrays can be submitted. The
 solver adds constraints to its own internal constraint store for evaluation. A
 satisfiable set on constraints can be sampled and the solver generates actual
@@ -65,24 +65,17 @@ the license agreement has been signed from
 \texttt{http://eclipseclp.org/}.
 ECLiPSe is available on the Windows and Unix platforms.
 
-The Zip file containing the PTC Solver you downloaded should be extracted in your
-ECLiPSe intallation directory. The
-PTC Solver will install itself in the \texttt{lib\_public} subdirectory of
-ECLiPSe.
-
 The way to load the solver depends on your programming
 environment (Prolog, C/C++, Tcl/Tk or Visual Basic) as explained in
 the relevant sections below.
 
 The PTC Solver has been primarily developed for the Windows family of operating
-systems. It should be
-directly portable to Unix platforms using the appropriate ECLiPSe Unix version.
+systems. It should be directly portable to Unix platforms using the appropriate ECLiPSe Unix version.
 However the embedding and interfacing issues discussed in this manual are mostly
-only
-applicable to Windows.
+only applicable to Windows.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{ATGen's Solver Basics}
+\section{PTC Solver Basics}
 
 Here we describe briefly the fundamental concepts of the solver by examining
  some of its most simple interface calls.
@@ -110,18 +103,11 @@ which reduces the set of constraints to true.
 We list here intrinsic limitations of the PTC solver as well as issues users should be aware of.
 
 %%%
-\subsection{Integer Overflowing}
+\subsection{Floating Point Numbers Imprecisions}
 
-The PTC solver is dependent on the ECLiPSe system for the manipulation constraints over integers. 
+Floating Point numbers are imprecise by nature and are prone to rounding errors. Internally the PTC Solver encode reals using floats: the usual limitations associated with floats apply.
 
-Integer overflow may occur in an uncontrolled maner in the solver. Large integer values may be encoded approximately.
- 
-Note that this limitation also applies to the operands of the bitwise and shifting constraints. Currently only 16 bits encoded decimals can be handled properly. Constraints on 32 bits and 64 bits encoded decimals currently  use only 16 bits in the solver. This limitation will often result in an unsound solver for these encodings.
-
-%%%
-\subsection{Numeric Precision Issues}
-
-Internally the PTC Solver encode reals using floats: the usual limitations associated with floats apply.
+For example, do not expect perfect arithmetic truth when manipulating floating point numbers. In practice, but depending on the context, the handling of small floating point numbers is accurate to many digits after the decimal point. Constraints over very large floating point numbers decrease their precision.
 
 %%%
 \subsection{Logical Connectors Priorities}
@@ -162,8 +148,7 @@ In particular, note that inequalities are non-linear constraints: if you post \t
 %%%
 \subsection{Randomness}
 
-As much as possible the PTC Solver behaves non-deterministically. Do not expect
-to get twice the same result on the same example on different runs. Labeling is non-deterministic, even the 'and' constraint will not
+As much as possible the PTC Solver behaves non-deterministically. You may notget twice the same result on the same example on different runs. Labeling is non-deterministic, even the 'and' constraint will not
 behave always the same way as to the order of the sub-constraints that are submitted to the system.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -916,11 +901,15 @@ of constraint was inconsistent.}
 
 \pro    {ptc\_solver\_\_label\_reals(Identifier\_list)}
     {Instantiate the float variables in Identifier\_list to values consistent
-with the
-    current constraint store. Can fail if no solution is found. The search is
+with the current constraint store. Can fail if no solution is found. The search is
 not exhaustive so that on failure it cannot be concluded that the store
-of constraint was inconsistent.}
+of constraint was inconsistent. Do note that the variables are unified with breals (which are encoded with a lower and upper bound). If you need actual floats to be outputed you may use the standard Prolog float/1 predicate or use the ptc\_solver\_\_label\_reals/2 predictae instead}
     {ptc\_solver\_\_label\_reals([Speed, Altitude])}
+    {}
+    
+\pro    {ptc\_solver\_\_label\_reals(Identifier\_list, Float\_list)}
+    {Identical to ptc\_solver\_\_label\_reals(Identifier\_list) but also outputs a corresponding list float solutions}
+    {ptc\_solver\_\_label\_reals([Speed, Altitude], [SpeedFloat, AltitudeFloat])}
     {}
 
 \pro    {ptc\_solver\_\_label\_enums(Identifier\_list)}
