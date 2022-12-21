@@ -1,12 +1,11 @@
 ***********************************************************
-PTC Solver Version 2.0
+PTC Solver Version 2.0.1
 December 2022, Christophe Meudec, echancrure@gmail.com
 ***********************************************************
 
 A Path Traversal Conditions solver to analyse imperative programs. It can solve constraints expressed using traditional programming language constructs. It is useful for symbolic execution, static analysis of code etc.
 
 TABLE OF CONTENTS
-===========================================================
 
   1. WHERE TO FIND INFORMATION
   2. WHAT'S NEW IN THIS RELEASE
@@ -19,7 +18,6 @@ TABLE OF CONTENTS
 
 
 1. WHERE TO FIND INFORMATION
-===========================================================
 
 Apart from this file the main source of information on the PTC Solver is its user manual given in the file ptc_user_manual.pdf in the doc folder.
 
@@ -28,7 +26,7 @@ The author and contact person for the PTC solver is Dr Christophe Meudec echancr
 An informal brief introduction is available at See https://docs.google.com/document/d/121YIr-f-EwJ7aLwtxQoahjZ2XtOTJK6sdLUz0-SA2ig/edit?usp=sharing for further information where comments can be made.
 
 2. WHAT'S NEW IN THIS RELEASE
-===========================================================
+
 Version 2.0 is a significant overhaul. The PTC Solver internal constraints
 over integers and reals have been ported to the more powerful ECLiPSe
 IC library.
@@ -112,40 +110,18 @@ traversal conditions. See the user manual in the
 ptc_user_manual.pdf file for more details. 
 
 3. INSTALLATION OVERVIEW
-===========================================================
 
 You should have a working version of ECLiPSe 7.0 installed on your machine before proceeding further. ECLiPSe can be obtained from https://eclipseclp.org/ .
 
-The PTC Solver installation zip file should be extracted in
-your ECLiPSe installation directory. The PTC Solver installs
-itself as a public library of ECLiPSe in the lib_public
-subdirectory of ECLiPSe.
-
-The released PTC Solver zip file contains the following files:
-
-doc\ptc_embed_sessions.cpp  %Examples of sessions for PTC solver embedding
-doc\ptc_embed_solver.cpp    %Auxillary C functions for PTC solver embedding
-doc\ptc_license.txt         %PTC Solver user license
-doc\ptc_readme.txt          %This file
-doc\ptc_user_manual.pdf     %The PTC Solver user manual
-lib_public\ptc_array.eco           %Solver library to deal with array types
-lib_public\ptc_enum.eco            %Solver library to deal with enumeration types
-lib_public\ptc_labeling.eco        %Solver library for labeling strategies      
-lib_public\ptc_record.eco          %Solver library to deal with record types
-lib_public\ptc_solver.eco          %The PTC Solver interface 
-
 4. DOCUMENTATION
-===========================================================  
 
 The documentation for the PTC Solver is contained in the doc\ptc_user_manual.pdf file. 
 
 5. KNOWN ISSUES
-===========================================================
 
 The solver limitations are described in the doc\ptc_user_manual.pdf file.
 
 6. BUG REPORTS
-===========================================================  
 
 You can send a bug report to the author.
 Make sure to give as many details as possible including:
@@ -155,18 +131,17 @@ posted, description of the problem, full error messages issued
 (including provenance: OS, Interface, ECLiPSe or PTC Solver).
 
 7. REQUESTS
-=========================================================== 
 
 The PTC Solver handles many typical constraints suitable for the analysis of software code. However if you feel it is missing something please contact the author with a request for extension.
 
 8. RELEASES HISTORY
-===========================================================  
+
 ***** Version 2.0.1 *****
 December 2022
   Minor update
-   - The labeling of reals has been improved by generating tighter real intervals in some circumstances. In addition a new version of the ptc_labeling__reals predicate is available which also outputs approximate float solutions suitable for printing.
-   - The ptc_readme.txt file has been removed: GitGub README.md is used instead
-   - From this version onwards, pre-compiled solver modules will no longer be released as they served little purpose: the folder lib_public has been removed 
+   - The labeling of reals has been improved by generating tighter real intervals in some circumstances. In addition a new version of the ptc_labeling__reals predicate is available which also outputs approximate float solutions suitable for printing;
+   - The ptc_readme.txt file has been removed: GitGub README.md is used instead;
+   - From this version onwards, pre-compiled solver modules will no longer be released as they served little purpose: the folder lib_public has been removed.
 
 ***** Version 2.0 *****
 December 2022
@@ -205,9 +180,7 @@ December 2022
 June 2022
   Major update
    - The solver has been ported to ECLiPSe 7.0;
-   - The labeling of rationals is more thorough and will take 
-     longer in infeasible cases, it is still unsastifactory 
-     in many instances.
+   - The labeling of rationals is more thorough and will take  longer in infeasible cases, it is still unsastifactory  in many instances.
 
 ***** Version 1.6 *****
 June 2013
@@ -428,7 +401,6 @@ March 2001
   Initial release
 
 9. CONTACT
-===========================================================  
 
 Dr Christophe Meudec
 South East Technological University
@@ -441,4 +413,4 @@ echancrure@gmail.com
 
 http://www.echancrure.eu/
 
-========================== END ============================
+============================= END ===============================
