@@ -69,8 +69,7 @@ Version 1.3.4 is a minor update of the PTC solver. A bug in
 the handling of the first and last value of the float type
 has been corrected.
 
-Version 1.3.3 is a minor update of the PTC solver. The parsing
-speed of very large constraints has been improved.
+Version 1.3.3 is a minor update of the PTC solver. The parsing speed of very large constraints has been improved.
 
 Version 1.3.2 is a minor update of the PTC solver. A new
 constraint 'cmp' has been added.
