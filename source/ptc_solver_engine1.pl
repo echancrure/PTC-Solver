@@ -54,7 +54,7 @@ apply_relation(_, X, XT, Fun, _, Y, YT) :-
 		     ptc_enum__get_position(PredY, Pos_predY),
 		     ptc_enum__get_position(X, PosX),
 		     !,
-		     PosX #=< Pos_predY
+			 PosX #=< Pos_predY
 		 	)
 		;
 		    (ptc_enum__get_position(X, PosX),
@@ -64,18 +64,18 @@ apply_relation(_, X, XT, Fun, _, Y, YT) :-
 		     Constraint
 		    )
 		)
-	;
-	 (XT == i, YT == i) ->          % an integer constraint
-		(Constraint =.. [Rel_int, X, Y],    % build the constraint
-		 !,
-		 Constraint                         %finaly apply the constraint
-		)
-	 ;
-		(Constraint =.. [Rel_rea, X, Y], %build the constraint
-		 !,
-		 Constraint                    %finally apply the constraint
-		)
-	),
+	;	%can only involve integer or real expressions from here
+	 (evalWrap(X, Xeval),
+	  evalWrap(Y, Yeval),
+	  ((XT == i, YT == i) ->          % a pure integer constraint
+			Constraint =.. [Rel_int, Xeval, Yeval]    	% build the constraint
+	   ;
+			Constraint =.. [Rel_rea, Xeval, Yeval] 		% build the constraint
+	  ), 
+	  !,
+	  Constraint                    %finally apply the constraint
+	 )
+	), 
 	!.
 
 %Fun is a SDL relational operator
@@ -87,7 +87,19 @@ get_integer_real_relation(<, #<, $<).
 get_integer_real_relation(>, #>, $>).
 get_integer_real_relation(<=, #=<, $=<).
 get_integer_real_relation(>=, #>=, $>=).
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\
+% January 2023
+% evalWrap wraps a dynamically created ic expressions (integer or real) with eval/1 to keep the IC library happy.
+% This is was not necessary previously because we systematically used intermediate ic variables everywhere (see diary)
+% This way of doing things should be more efficient (fewer variables means, fewer delayed goals and fewer wakes) and also immediate detections
+%   of failure in some cases(e.g. X = X+1 )
+% Should only be called on integer or real IC expressions
+evalWrap(X, Xeval) :-
+	(var(X) ->
+		Xeval = X
+	;
+		Xeval = eval(X)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % is recursive; can fail
 % X is an arithmetic expression in Ada syntax (without relational operators which are treated by relation/3)
@@ -129,81 +141,54 @@ arithmetic(X, X, T):-
 	).
 
 % arithmetic/3 for operators
-% check operands and apply the correct operator depending on whether dealing
-%  with an integer expression or a potentially mixed real expression
-arithmetic(*(Le, Ri), R, T):-
+% check operands and apply the correct operator depending on whether dealing with an integer expression or a potentially mixed real expression
+arithmetic(*(Le, Ri), X * Y, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
 	((XT == i, YT == i) ->
-	    (R #= X * Y,
-	     T = i
-	    )
+	    T = i
     ;
-	    (R $= X * Y,
-	     T = r
-	    )
+	    T = r
 	).
 
-arithmetic(+(Le, Ri), R, T):-
+arithmetic(+(Le, Ri), X + Y, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
 	((XT == i, YT == i) ->
-	    (R #= X+Y,
-	     T = i
-	    )
+	    T = i
 	;
-	    (R $= X + Y,
-	     T = r
-	    )
+	    T = r
 	).
 
-arithmetic(-(Le, Ri), R, T):-
+arithmetic(-(Le, Ri), X - Y, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
 	((XT == i, YT == i) ->
-	    (R #= X-Y,
-	     T = i
-	    )
+	    T = i
 	;
-	    (R $= X - Y,
-	     T = r
-	    )
+	    T = r
 	).
 
-arithmetic(-(Ri), R, T) :-
+arithmetic(-(Ri), -Y, T) :-
 	!,
-	arithmetic(Ri, Y, T), %the type of -(Ri) is the type of Ri, T.
-	(T == i ->
-	    R #= -Y
-    ;
-	    R $= -Y
-    ).
-%removed my custom abs operator: perhaps it used to deal with holes better than ic's abs 
-arithmetic(abs(Ri), R, T) :-
+	arithmetic(Ri, Y, T).
+
+arithmetic(abs(Ri), abs(X), T) :-
 	!,
-	arithmetic(Ri, X, T), %the type of abs(Ri) is the type of Ri, T.
-	(T == i ->
-		R #= abs(X)
-    ;
-	    R $= abs(X)
-    ).
+	arithmetic(Ri, X, T).
 
 %removed my custom power operator 
-arithmetic(**(Le, Ri), R, T):-
+arithmetic(**(Le, Ri), X^Y, T):-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
-	((XT == i, YT == i) ->	%so even 1^(0.1) will be treated as a real expression even though 1 is  the result 
-	    (R #= X^Y,
-	     T = i
-	    )
+	((XT == i, YT == i) ->	%so even 1^(0.1) will be treated as a real expression even though 1 is the result 
+	    T = i
     ;
-	    (R $= X^Y,
-	     T = r
-	    )
+	    T = r
 	).
 
 %'/' can apply to real or integer operands
@@ -217,7 +202,7 @@ arithmetic(/(Le, Ri), R, T) :-
 	    )
 	;
 	    (T = r,
-	     R $= X / Y
+	     R = X / Y
 	    )
 	).
 
@@ -257,7 +242,7 @@ arithmetic(conversion(Type_mark, From_exp), R, To_type) :-
         s_cast_to_int(From_exp_eval, R)
     ;
      (From_type == i, To_type == r) ->
-	    R $= From_exp_eval
+		R $= eval(From_exp_eval)
     ;
         R = From_exp_eval     %ie. From_type = To_type no conversion necessary
     ).
@@ -288,8 +273,16 @@ arithmetic(agg(Type, AsgL), R, array) :-
 arithmetic(up_arr(Array, Index, Exp), R, array) :-
 	!,
 	arithmetic(Array, Up_array, array),
-    arithmetic(Exp, R_exp, _),
-	ptc_array__up_array(Up_array, Index, R_exp, R).
+    arithmetic(Exp, R_exp, T),
+	(T == i ->
+     	Reval #= eval(R_exp)
+	;
+	 T == r ->
+		Reval $= eval(R_exp)
+	;
+		Reval = R_exp 
+	),
+	ptc_array__up_array(Up_array, Index, Reval, R).
 
 %the type of the result is the type of the field
 %arithmetic is not called on Record here because simplifications are performed within ptc_record__get_field
@@ -301,8 +294,16 @@ arithmetic(field(Record, Field), R, T) :-
 arithmetic(up_rec(Record, Field, Exp), R, record) :-
 	!,
 	arithmetic(Record, Up_record, record),
-	arithmetic(Exp, R_exp, _),
-	ptc_record__up_record(Up_record, Field, R_exp, R).
+	arithmetic(Exp, R_exp, T),
+	(T == i ->
+     	Reval #= eval(R_exp)
+	;
+	 T == r ->
+		Reval $= eval(R_exp)
+	;
+		Reval = R_exp 
+	),
+	ptc_record__up_record(Up_record, Field, Reval, R).
 
 arithmetic(first(Discrete_type), R, T) :-
 	!,
@@ -317,21 +318,21 @@ arithmetic(last(Discrete_type), R, T) :-
 %succ works on the base type of X
 arithmetic(succ(X), R, T) :-
 	!,
-	arithmetic(X, Xeval, T),
+	arithmetic(X, X_exp, T),
 	(T == i ->
-	    R #= Xeval + 1
+		R = X_exp + 1
 	;                   %X is an enumeration variable or a literal (i.e. T = e)
-	    ptc_enum__succ(Xeval, R)
+	    ptc_enum__succ(X_exp, R)
 	).
 
 %pred works on the base type of X
 arithmetic(pred(X), R, T) :-
 	!,
-	arithmetic(X, Xeval, T),
+	arithmetic(X, X_exp, T),
 	(T == i ->
-	    R #= Xeval - 1
+		R #= eval(X_exp - 1)
 	;                   %X is an enumeration variable or a literal (i.e. T = e)
-	    ptc_enum__pred(Xeval, R)
+	    ptc_enum__pred(X_exp, R)
 	).
 
 %the basetype is always returned by the examiner
@@ -350,7 +351,7 @@ arithmetic(val(Basetype, Ri), R, T) :-
 	arithmetic(Ri, X, i),           %must always be an integer
 	(ptc_enum__is_enum_type(Basetype) ->      %Basetype is an enumeration type
 	    (T = e,
-	     Xeval #= X + 0,            %evaluate X
+	     Xeval #= eval(X),            %evaluate X
 	     ptc_enum__val(Basetype, Xeval, R)
 	    )
 	;                                %Basetype must be an integer type
@@ -414,7 +415,7 @@ eq_cast(Le, Ri) :-
         s_cast_to_int(R_eval, L_eval)  	%as is done in conversion constraint
     ;
      (L_type == r, R_type == i) ->    	%from int to real
-        L_eval $= R_eval
+		L_eval $= eval(R_eval)
     ;
         ptc_solver__error("Failed eq_cast/2 in ptc_solver_engine1 file the types are different and not real nor integer")
     ).

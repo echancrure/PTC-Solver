@@ -88,8 +88,13 @@ gen1([(Min, Max)|Rest], In, Out) :-
 %gen_single_list(1, 4, [1, 2, 3, 4]).
 gen_single_list(Max, Max, [Max]).
 gen_single_list(Min, Max, [Min|Rest]) :-
-	ptc_solver__arithmetic(succ(Min), Next, _),
-	gen_single_list(Next, Max, Rest).
+	ptc_solver__arithmetic(succ(Min), Next, T),
+	(T == i ->
+		NextEval #= eval(Next)
+	;
+		NextEval = Next
+	),
+	gen_single_list(NextEval, Max, Rest).
 
 %combine a list of index with a list of indices
 combine([], _, []).
@@ -253,14 +258,14 @@ eval_index(Index, Eval_index, Ground) :-
 	).
 
 eval_index2([], []).
-eval_index2([Index|Rest_indexes], [I|Rest_I]) :-
-	ptc_solver__arithmetic(Index, Ieval, T),	%can be an integer or an enumeration
+eval_index2([Index|Rest_indexes], [Ieval|RestI]) :-
+	ptc_solver__arithmetic(Index, Iexp, T),	%can be an integer or an enumeration expression
 	(T = i ->
-        Ieval #= I
+		Ieval #= eval(Iexp)
 	;
-	    Ieval = I	%an enum
+	    Ieval = Iexp	%can only be an enum
     ),
-	eval_index2(Rest_indexes, Rest_I).
+	eval_index2(Rest_indexes, RestI).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %find the correct element corresponding to index in an aggregate (represented as a list of pairs (Indexes, Exp))

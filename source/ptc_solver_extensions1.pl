@@ -8,7 +8,7 @@
 %I is an integer expression
 %custom defined casting constraint using C convention of truncating
 s_cast_to_int(R, I) :-
-	Ieval #= I+0,
+	Ieval #= eval(I),
 	s_cast_to_int2(R, Ieval).
 
 %called from s_round/2 by s_round2(R, Ieval)
@@ -56,13 +56,12 @@ round_inverse(MinI, MaxI, R) :-
 	    R $=< MaxI
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   S_DIV/3   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%called from arithmetic/3 by s_div(X, Y, Z)
 %X, Y and Z are integer expressions
 %user defined integer div constraint, remark: X div Y = truncate(X / Y)
 s_div(X, Y, Z) :-
-	Xeval #= X+0,                %evaluate X
-	Yeval #= Y+0,                %evaluate Y
-	Zeval #= Z+0,                %evaluate Z
+	Xeval #= eval(X),                %evaluate X
+	Yeval #= eval(Y),                %evaluate Y
+	Zeval #= eval(Z),                %evaluate Z
 	Yeval #\= 0,                  %Y \= 0 always hold
 	s_div2(Xeval, Yeval, Zeval).
 
@@ -145,9 +144,9 @@ mum(Op, [I|IL], M, Res) :-
 	    ;
 	     Op = < ->
 	       	((I \= nc, I < M) ->
-		   	 	mum(Op, IL, I, Res)
+		   		mum(Op, IL, I, Res)
 	        ;
-	           mum(Op, IL, M, Res)
+	           	mum(Op, IL, M, Res)
 	        )
 	   )
     ;
@@ -202,13 +201,12 @@ dom_near_0(Var, Max_neg, Min_pos) :-
 	    true
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   S_MOD/3   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%called from arithmetic/3 by s_mod(X, Y, R)
 %X, Y and R are integer expressions
 %constraint: R = X mod Y  'modulo'
 s_mod(X, Y, Z) :-
-	Xeval #= X+0,                  %evaluate X
-	Yeval #= Y+0,                  %evaluate Y
-	Zeval #= Z+0,                  %evaluate Z
+	Xeval #= eval(X),                  %evaluate X
+	Yeval #= eval(Y),                  %evaluate Y
+	Zeval #= eval(Z),                  %evaluate Z
 	cons_same_sign(Yeval, Zeval),  %constrain Y and Z to be of the same sign (always hold)
 	s_mod2(Xeval, Yeval, Zeval).
 
@@ -275,15 +273,14 @@ extract_sign(X, SignX) :-
 		fail
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   S_REM/3   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%called from arithmetic/3 by s_rem(X, Y, R)
 %X, Y and R are integer expressions
 %constraint: R = X rem Y  'remainder'
 %also called from s_mod2/3 twice
 %constraint:  X rem Y = Z is equivalent to X - (X div Y)*Y = Z
 s_rem(X, Y, Z) :-
-	Xeval #= X+0,                  %evaluate X
-	Yeval #= Y+0,                  %evaluate Y
-	Zeval #= Z+0,                  %evaluate Z
+	Xeval #= eval(X),                  %evaluate X
+	Yeval #= eval(Y),                  %evaluate Y
+	Zeval #= eval(Z),                  %evaluate Z
 	cons_same_sign(Xeval, Zeval),  %constrain X and Z to be of the same sign (always hold)
 	s_div(Xeval, Yeval, XDivY),
 	Zeval #= Xeval - XDivY*Yeval.
