@@ -198,7 +198,7 @@ arithmetic(/(Le, Ri), R, T) :-
 	arithmetic(Ri, Y, YT),
 	((XT == i, YT == i) ->
 	    (T = i,
-	     s_div(X, Y, R)     %custom defined operator for integer division: no equivalent in ic
+		 R = X // Y
 	    )
 	;
 	    (T = r,
@@ -214,11 +214,10 @@ arithmetic(mod(Le, Ri), R, i) :-
 	s_mod(X, Y, R). 	%custom defined operator for modulo: no equivalent in ic
 
 %rem can only apply to integer operands and the resulting type is always integer
-arithmetic(rem(Le, Ri), R, i) :-
+arithmetic(rem(Le, Ri), X rem Y, i) :-
 	!,
 	arithmetic(Le, X, i),
-	arithmetic(Ri, Y, i),
-	s_rem(X, Y, R). %user defined operator
+	arithmetic(Ri, Y, i).
 
 %type conversion of an expression
 %float and integer conversions only

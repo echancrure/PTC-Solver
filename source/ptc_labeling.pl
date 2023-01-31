@@ -14,6 +14,7 @@
 %can fail, leave choice points
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
+	%the choice method could also be indomain_random (and use seed for reproducible choices)
 	ic:search(L, 0, most_constrained, indomain_middle, complete, []).	%exhaustive search
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points

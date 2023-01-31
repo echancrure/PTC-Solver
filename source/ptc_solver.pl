@@ -1,12 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 23/06/00
-% Eclipse 7.0 program
+% Eclipse 7.1 program
 % ptc_solver.pl
 % ptc_solver module
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This module is a little bit messy. Its function is to provide an interface for the solver.
 %It could be simplified via syntactic rationalisation of the solver per se.
 %compile('//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_solver').
+%%%
+:- get_flag(version, '7.1').    %check for valid ECLiPSe version: issue warning only if not 
 %%%
 mytrace.            %call this to start debugging
 :- spy mytrace/0.
@@ -63,7 +65,7 @@ mytrace.            %call this to start debugging
 :- dynamic float_to_int_convention/1.
 :- dynamic debug_mode/1.
 %%%
-ptc_solver__version("2").
+ptc_solver__version("2.1").
 
 ptc_solver__error(Message) :-
     writeln(stdout, "***PTC Solver Fatal Error***"),

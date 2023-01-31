@@ -1,6 +1,6 @@
 ***********************************************************
-PTC Solver Version 2.0.2
-January 2023, Christophe Meudec, echancrure@gmail.com
+PTC Solver Version 2.1
+February 2023, Dr Christophe Meudec, echancrure@gmail.com
 ***********************************************************
 
 A Path Traversal Conditions solver to analyse imperative programs. It can solve constraints expressed using traditional programming language constructs. It is useful for symbolic execution, static analysis of code etc.
@@ -29,6 +29,8 @@ An informal brief introduction is available at See https://docs.google.com/docum
 The repository master branch contains the latest stable version. The dev branch is work in progress.
 
 2. WHAT'S NEW IN THIS RELEASE
+
+Version 2.1 is a port update. The PTC Solver now requires ECLiPSE 7.1.
 
 Version 2.0.2 is a minor update. The handling of arithmetic expressions should be faster.
 
@@ -141,11 +143,17 @@ posted, description of the problem, full error messages issued
 The PTC Solver handles many typical constraints suitable for the analysis of software code. However if you feel it is missing something please contact the author with a request for extension.
 
 8. RELEASES HISTORY
+*****Version 2.1*****
+February 2023
+  Port update
+   - The PTC Solver now requires ECLiPSE 7.1;
+   - A warning is ussed if the wrong version of ECLiPSe is used;
+   - Internally, the constraints integer division and remainder are now handled by the IC library: this may, or may not be an improvement.
 
 *****Version 2.0.2*****
 January 2023
   Minor update
-   - Performance of handling of arithmetic expressions over integers and/or reals should be improved, especially in some circumstances where direct failure could not detected previously without enumerating the entire domain of integer variables.  
+   - Performance of handling of arithmetic expressions over integers and/or reals should be improved, especially in some circumstances where direct failure could not be detected previously without enumerating the entire domain of integer variables.  
 
 *****Version 2.0.1*****
 December 2022
