@@ -143,11 +143,13 @@ posted, description of the problem, full error messages issued
 The PTC Solver handles many typical constraints suitable for the analysis of software code. However if you feel it is missing something please contact the author with a request for extension.
 
 8. RELEASES HISTORY
+
 *****Version 2.1*****
 February 2023
   Port update
    - The PTC Solver now requires ECLiPSE 7.1;
-   - A warning is ussed if the wrong version of ECLiPSe is used;
+   - A warning is issued if the wrong version of ECLiPSe is used;
+   - A new predicate for labelling integer variables using a random method is provided ptc_solver__label_integers/2;
    - Internally, the constraints integer division and remainder are now handled by the IC library: this may, or may not be an improvement.
 
 *****Version 2.0.2*****

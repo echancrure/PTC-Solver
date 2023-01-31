@@ -14,7 +14,7 @@
 
 \title{The PTC Solver\\
        User Manual\\
-       Version 2.0.1}
+       Version 2.1}
 \author{Dr. Christophe Meudec \\
         echancrure@gmail.com \\
         Ireland}
@@ -99,8 +99,8 @@ A satisfiable system of constraints can be sampled to generate actual values
 which reduces the set of constraints to true.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Limitations and Issues}
-We list here intrinsic limitations of the PTC solver as well as issues users should be aware of.
+\section{Limitations, Issues and Characteristics}
+We list here intrinsic limitations of the PTC solver as well as issues and characteristics all users should be aware of.
 
 %%%
 \subsection{Floating Point Numbers Imprecisions}
@@ -148,8 +148,10 @@ In particular, note that inequalities are non-linear constraints: if you post \t
 %%%
 \subsection{Randomness}
 
-As much as possible the PTC Solver behaves non-deterministically. You may notget twice the same result on the same example on different runs. Labeling is non-deterministic, even the 'and' constraint will not
-behave always the same way as to the order of the sub-constraints that are submitted to the system.
+As much as possible the PTC Solver behaves non-deterministically. You may not get twice the same result on the same example on different runs. Labelling may be non-deterministic, even the 'and' constraint will not
+behave always the same way as to the order of the sub-constraints that are submitted to the system. 
+
+For debugging and traceability purposes the ECLiPSe Prolog seed/1 predicate maybe used to impose determinism.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Interfacing}
@@ -868,16 +870,16 @@ the variables according to the current system of constraints. Here are a few rec
 \item It is essential that all variables of the same type be submitted all at
 once to the appropriate labelling predicate. This allows the predicate to select
 the most promising variables first.
-\item The labelling predicate implements some randomness, therefore different runs
-can yield vastly different runtimes. Sometime labelling can get lucky and return
-quickly. Sometime labelling will be bogged down.
-\item labelling of integer variable is exhaustive i.e. all integer values in the
+\item The default labelling predicate for integer is deterministic, its variant may be non-deterministic (although this may be controled using ECLiPSe Prolog seed/1 predicate for debugging and traceability purposes). 
+In its random version it can yield vastly different runtimes on different runs: sometime random-based labelling can get lucky and return
+quickly, sometime it will get bogged down and take many order of magnitude longer to return.
+\item Labelling of integer variable is exhaustive i.e. all integer values in the
 constrained range will be tried. If there is no solution to the current store of
 constraint (e.g. because of non-linear constraints) labelling will typically take
 a long time and eventually fail. If the integer labelling fails it is because
 there are no solution.
-\item labelling of real variables in non exhaustive (it couldn't be otherwise). If
-real labelling fails it does not follow that the system of constraint is
+\item Labelling of real variables in non exhaustive (it couldn't be otherwise), thus, if
+real labelling fails it does not follow that the system of constraints is
 unsatisfiable.
 \item It is impossible to decide without knowing the details of the current
 constraints the order in which labelling should be performed. Sometime labelling
@@ -891,12 +893,17 @@ integers, or vice versa). A combination of both tips can also be implemented.
 
 
 \pro    {ptc\_solver\_\_label\_integers(Identifier\_list)}
-    {Instantiate the integer variables in Identifier\_list to values
-consistent with
-    the current constraint store. Fails if no solution exist. An exhaustive
-search is performed so that on failure it can be concluded that the store
-of constraint was inconsistent.}
+    {Shortcut for ptc\_solver\_\_label\_integers(Identifier\_list, 'indomain\_middle')}
     {ptc\_solver\_\_label\_integers([X, Y, Z])}
+    {}
+    
+\pro    {ptc\_solver\_\_label\_integers(Identifier\_list, ChoicePoint)}
+    {Instantiate the integer variables in Identifier\_list to values consistent with the current constraint store according to the choice method ChoicePoint. 
+    ChoicePoint can be 'indomain\_middle' (which is the default used in ptc\_solver\_\_label\_integers/1) in which case the behaviour is determnistic and labelling starts in the middle of the domain (which is 0 for signed variables centred on 0).
+    or 'indomain\_random' in which case labelling is random (this may lead to vastly different runtimes depending on how lucky labelling gets). The randomness can be tamed and become deterministic through the use ECLiPSe Prolog seed/1 predicate. 
+ Fails if no solution exist. 
+ An exhaustive search is performed so that on failure it can be concluded that the store of constraint was inconsistent.}
+    {ptc\_solver\_\_label\_integers([X, Y, Z], 'indomain\_random')}
     {}
 
 \pro    {ptc\_solver\_\_label\_reals(Identifier\_list)}
