@@ -1,5 +1,4 @@
-%:- import ptc_solver.                      %compile from source files: good for development and debugging
-:- lib(ptc_solver).                         %use precompiled library
+:- use_module([ptc_solver]).	            %the solver is compiled and imported
 example(A, B) :-
     ptc_solver__clean_up,                   %to start in a clean environment
     ptc_solver__default_declarations,       %solver initialisations

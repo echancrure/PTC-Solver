@@ -6,7 +6,7 @@
 %  see Eclipse sample programs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- module(ptc_labeling).
-:- export ptc_labeling__integers/1, ptc_labeling__enums/1, ptc_labeling__reals/2.
+:- export ptc_labeling__integers/2, ptc_labeling__integers/1, ptc_labeling__enums/1, ptc_labeling__reals/2.
 :- import ptc_enum__sample/1 from ptc_enum.
 :- lib(ic).
 
@@ -14,7 +14,15 @@
 %can fail, leave choice points
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
-	ic:search(L, 0, most_constrained, indomain_middle, complete, []).	%exhaustive search
+	ptc_labeling__integers(L, 'indomain_middle').	%this is the default
+
+ptc_labeling__integers(L, ChoiceMethod) :-
+	%the choice method could also be indomain_random (and use seed for reproducible choices)
+	((ChoiceMethod == 'indomain_middle' ; ChoiceMethod == 'indomain_random') ->
+		ic:search(L, 0, most_constrained, ChoiceMethod, complete, [])	%exhaustive search
+	;
+		ptc_solver:ptc_solver__error("ChoiceMethod argument in ptc_solver__label_integers/2 is invalid")
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points
 %EL is the in list of original enumeration variables

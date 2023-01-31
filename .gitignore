@@ -7,3 +7,4 @@ source/solver_demos.pl
 ptc_user_manual.synctex.gz
 doc/PTC Solver's Page (1).gdoc
 *.rar
+source/regression.pl

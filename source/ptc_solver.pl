@@ -1,12 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec - started 23/06/00
-% Eclipse 7.0 program
+% Eclipse 7.1 program
 % ptc_solver.pl
 % ptc_solver module
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This module is a little bit messy. Its function is to provide an interface for the solver.
 %It could be simplified via syntactic rationalisation of the solver per se.
 %compile('//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_solver').
+%%%
+:- get_flag(version, '7.1').    %check for valid ECLiPSe version: issue warning only if not 
 %%%
 mytrace.            %call this to start debugging
 :- spy mytrace/0.
@@ -27,7 +29,7 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__enum_get_literal/3, ptc_solver__enum_get_position/2, ptc_solver__enum_get_basetype/2.
 :- export ptc_solver__get_record_field_values/2, ptc_solver__get_array_index_elements/2.
 :- export ptc_solver__integer_range/3, ptc_solver__is_integer/1, ptc_solver__is_real/1.
-:- export ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/2, ptc_solver__label_reals/1.
+:- export ptc_solver__label_integers/2, ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/2, ptc_solver__label_reals/1.
 :- export ptc_solver__submit_string/1.
 :- export ptc_solver__get_single_variable/2, ptc_solver__get_all_variables/1.
 :- export ptc_solver__create_record_from_agg/3, ptc_solver__create_array_from_agg/3.
@@ -49,7 +51,7 @@ mytrace.            %call this to start debugging
 :- import ptc_record__up_record/4, ptc_record__get_all_field_values/2 from ptc_record.
 :- import ptc_array__create_array/4, ptc_array__get_element/3, ptc_array__is_array/1, ptc_array__create_array_from_agg/3 from ptc_array.
 :- import ptc_array__up_array/4, ptc_array__get_all_index_elements/2 from ptc_array.
-:- import ptc_labeling__integers/1, ptc_labeling__enums/1 from ptc_labeling.
+:- import ptc_labeling__integers/2, ptc_labeling__enums/1 from ptc_labeling.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % undoing the operators precedence of the solver prior to compilation
@@ -63,7 +65,7 @@ mytrace.            %call this to start debugging
 :- dynamic float_to_int_convention/1.
 :- dynamic debug_mode/1.
 %%%
-ptc_solver__version("2").
+ptc_solver__version("2.1").
 
 ptc_solver__error(Message) :-
     writeln(stdout, "***PTC Solver Fatal Error***"),
@@ -167,6 +169,9 @@ ptc_solver__clean_up :-
 
 ptc_solver__label_integers(IL) :-
     ptc_labeling__integers(IL).
+
+ptc_solver__label_integers(IL, ChoiceMethod) :-
+    ptc_labeling__integers(IL, ChoiceMethod).
 
 ptc_solver__label_enums(IL) :-
     ptc_labeling__enums(IL).
