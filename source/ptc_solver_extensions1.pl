@@ -74,7 +74,7 @@ s_mod2(X, Y, Z) :-
 			Z #= X rem Y                 %X mod Y = X rem Y
 	    ;
 	        (%below is only true if Z1 <> 0 otherwise the result is 0
-	         Z1 #= X rem Y                   %X mod Y = X rem Y + Y
+	         Z1 #= X rem Y,                   %X mod Y = X rem Y + Y
 	         (ground(Z1) ->
 	            (Z1 == 0 ->
 	                Z #= 0
