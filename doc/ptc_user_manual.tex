@@ -141,15 +141,15 @@ and 'not(A) and B'.
 %%%
 \subsection{Non-Linear Constraints}
 Non linear constraints can be handled by the PTC Solver. However, unlike linear constraints, non-linear constraints typically do not get resolved immediately:
- i.e. adding non-linear constraints delays the satisfiability check of the set of constraints posted so far. Typically, the satisfiability or otherwise of non-linear constraints is only resolved at the labelling stage. 
- 
-In particular, note that inequalities are non-linear constraints: if you post \texttt{<>} constraints the satisfiability problem is usually delayed until the labelling step.   
+ i.e. adding non-linear constraints delays the satisfiability check of the set of constraints posted so far. Typically, the satisfiability or otherwise of non-linear constraints is only resolved at the labelling stage.
+
+In particular, note that inequalities are non-linear constraints: if you post \texttt{<>} constraints the satisfiability problem is usually delayed until the labelling step.
 
 %%%
 \subsection{Randomness}
 
 As much as possible the PTC Solver behaves non-deterministically. You may not get twice the same result on the same example on different runs. Labelling may be non-deterministic, even the 'and' constraint will not
-behave always the same way as to the order of the sub-constraints that are submitted to the system. 
+behave always the same way as to the order of the sub-constraints that are submitted to the system.
 
 For debugging and traceability purposes the ECLiPSe Prolog seed/1 predicate maybe used to impose determinism.
 
@@ -234,7 +234,7 @@ solver via this DLL compiled using Visual C++.
 The reader must refer to ECLiPSe's Embedding and Interfacing Manual to follow the
 examples
 given below. Other modes of interactions than given in the examples are feasible
-through the implementation of auxilliary C/C++ functions.
+through the implementation of auxiliary C/C++ functions.
 
 %%%%%
 \subsubsection{Simple Example}
@@ -248,7 +248,7 @@ auxillary C function: \verb+submit_string+ whose code is given below.
 
 Note
 that the use of strings for constraints submission is not absolutely necessary:
-developpers can declare Prolog like variables in their C/C++ code and construct
+developers can declare Prolog like variables in their C/C++ code and construct
 goals to be posted to the PTC Solver using ECLiPSe's interfacing \verb+term+
 function. Refer to ECLiPSe's Embedding and Interfacing Manual.
 
@@ -471,7 +471,7 @@ is loaded.
   \item [Type\_mark] designate the name of a type definition (e.g. speed,
   money), it should start with a lower case letter.
   \item [Min, Max] expressions designating the minimum (resp. the maximum) in a
-range for inetgers or reals.
+range for integers or reals.
   \item [Literal\_list] is an ordered Prolog list of literals for enumeration
 types (e.g. [mon, tue, wed, thu, fri, sat, sun])
   \item [Field\_list] is an ordered Prolog list of elements of the form
@@ -481,14 +481,14 @@ should start with a lower case letter.
   \item [Index\_list] is an ordered Prolog list of integer or enumeration
 Type\_marks or Subtype\_marks. The range of each element of the list designate
 the range of the corresponding index in the array (e.g. [name\_t] : implies one
-dimentional array index from ptc\_solver\_\_first(name\_t) to
-ptc\_solver\_\_last(name\_t). [name\_t, name\_t] implies a two dimentional
+dimensional array index from ptc\_solver\_\_first(name\_t) to
+ptc\_solver\_\_last(name\_t). [name\_t, name\_t] implies a two dimensional
 array.)
   \item [Component\_type\_mark] synonym of Type\_mark
   \item [Subtype\_type\_mark] synonym of Type\_mark
   \item [Identifier\_list] a list of identifiers. Identifiers must respect the
 following BNF format (taken from the Eclipse user manual): (UC $\mid$ UL) ALP*
-where UC denotes all upper case letters, UL is the underline charater, and ALP
+where UC denotes all upper case letters, UL is the underline character, and ALP
 is (UC $\mid$ UL $\mid$ LC $\mid$ N) where LC denotes all lower case letters
 and N is any digits. (e.g. \_ry784A, A\_\_676, Money)
 \end{description}
@@ -522,7 +522,7 @@ the default is 'pure'.
       See the subsection on the 'or' constraint in the Limitations and Issues
 section. This flag should be set once and only once, after the call to ptc\_solver\_\_clean\_up but prior to anything else.
       \item enumeration\_start, where Value is an integer, the default is 1. This flag indicates the starting point for the numbering of enumeration literals. It can be set as many times as wanted prior to the definition of an enumerated type.
-      \item debug\_mode, where Value is 'on' or 'off'. The defaul is 'off'. Enables the printing of verbose messages to stdout. 
+      \item debug\_mode, where Value is 'on' or 'off'. The default is 'off'. Enables the printing of verbose messages to stdout.
      \end{itemize}
      }
     {ptc\_solver\_\_set\_flag(or\_constraint\_behaviour, pure)}
@@ -666,7 +666,7 @@ instead}
 %%%
 \subsection{Constraint Syntax}
 
-Expressions and Contraints must respect the following syntax.
+Expressions and Constraints must respect the following syntax.
 
 Note that the priority of the logical connectors is different than  what is
 commonly expected (it is in fact Ada-like here). In particular the operators
@@ -676,7 +676,7 @@ priority. Thus Boolean expressions must be written with brackets as in $A$
 
 Most of below is self explanatory for users with knowledge of programming.
 
-Mixed type arithmetic (i.e. expression involing reals and integers) is handled in
+Mixed type arithmetic (i.e. expression involving reals and integers) is handled in
 C fashion. So an integer expression involving mixed arithmetic will evaluate to
 an expression of type real.
 
@@ -699,7 +699,7 @@ expression to an integer variable in C. \texttt{eq\_cast(X, Y)} is to be
 interpreted as \texttt{X} is equal to \texttt{Y} with \texttt{Y} being implicitly
 converted to the type of \texttt{X}. Thus \texttt{eq\_cast(X, Y)} has not the
 same meaning as \texttt{eq\_cast(Y, X)}. In C, unless all implicit casting can be
-eliminated using the \texttt{conversion} constraint, assignements (\texttt{=})
+eliminated using the \texttt{conversion} constraint, assignments (\texttt{=})
 should be modelled using the \texttt{eq\_cast} constraint, while equality
 (\texttt{==}) should be modelled using the \texttt{=} constraint. Languages such
 as Ada, and Java Bytecode are more reasonable and do not allow implicit casting:
@@ -710,7 +710,7 @@ The \texttt{round} constraint rounds a real to its nearest integer so that
 \texttt{3}.
 
 The \textbf{reif}
-constraint takes in a Boolean expression and a integer tell-tale variable betwen
+constraint takes in a Boolean expression and a integer tell-tale variable between
 0 and 1.
 The tell-tale variable can be used to add the constraint itself to the current
 system of
@@ -741,7 +741,7 @@ new record with the indicated field updated by the expression given.
 
 
 \begin{tabbing}
-contraint : exp
+constraint : exp
 $\mid$ \textbf{reif(} exp \textbf{, } \textit{variable}\_identifier \textbf{)}
 $\mid$ \textbf{eq\_cast(} exp \textbf{, } exp \textbf{)}
 $\mid$ \textbf{cmp(} sum \textbf{, } sum \textbf{, } sum \textbf{)} \\
@@ -870,7 +870,7 @@ the variables according to the current system of constraints. Here are a few rec
 \item It is essential that all variables of the same type be submitted all at
 once to the appropriate labelling predicate. This allows the predicate to select
 the most promising variables first.
-\item The default labelling predicate for integer is deterministic, its variant may be non-deterministic (although this may be controled using ECLiPSe Prolog seed/1 predicate for debugging and traceability purposes). 
+\item The default labelling predicate for integer is deterministic, its variant may be non-deterministic (although this may be controled using ECLiPSe Prolog seed/1 predicate for debugging and traceability purposes).
 In its random version it can yield vastly different runtimes on different runs: sometime random-based labelling can get lucky and return
 quickly, sometime it will get bogged down and take many order of magnitude longer to return.
 \item Labelling of integer variable is exhaustive i.e. all integer values in the
@@ -896,12 +896,12 @@ integers, or vice versa). A combination of both tips can also be implemented.
     {Shortcut for ptc\_solver\_\_label\_integers(Identifier\_list, 'indomain\_middle')}
     {ptc\_solver\_\_label\_integers([X, Y, Z])}
     {}
-    
+
 \pro    {ptc\_solver\_\_label\_integers(Identifier\_list, ChoicePoint)}
-    {Instantiate the integer variables in Identifier\_list to values consistent with the current constraint store according to the choice method ChoicePoint. 
+    {Instantiate the integer variables in Identifier\_list to values consistent with the current constraint store according to the choice method ChoicePoint.
     ChoicePoint can be 'indomain\_middle' (which is the default used in ptc\_solver\_\_label\_integers/1) in which case the behaviour is determnistic and labelling starts in the middle of the domain (which is 0 for signed variables centred on 0).
-    or 'indomain\_random' in which case labelling is random (this may lead to vastly different runtimes depending on how lucky labelling gets). The randomness can be tamed and become deterministic through the use ECLiPSe Prolog seed/1 predicate. 
- Fails if no solution exist. 
+    or 'indomain\_random' in which case labelling is random (this may lead to vastly different runtimes depending on how lucky labelling gets). The randomness can be tamed and become deterministic through the use ECLiPSe Prolog seed/1 predicate.
+ Fails if no solution exist.
  An exhaustive search is performed so that on failure it can be concluded that the store of constraint was inconsistent.}
     {ptc\_solver\_\_label\_integers([X, Y, Z], 'indomain\_random')}
     {}
@@ -913,7 +913,7 @@ not exhaustive so that on failure it cannot be concluded that the store
 of constraint was inconsistent. Do note that the variables are unified with breals (which are encoded with a lower and upper bound). If you need actual floats to be outputed you may use the standard Prolog float/1 predicate or use the ptc\_solver\_\_label\_reals/2 predictae instead}
     {ptc\_solver\_\_label\_reals([Speed, Altitude])}
     {}
-    
+
 \pro    {ptc\_solver\_\_label\_reals(Identifier\_list, Float\_list)}
     {Identical to ptc\_solver\_\_label\_reals(Identifier\_list) but also outputs a corresponding list float solutions}
     {ptc\_solver\_\_label\_reals([Speed, Altitude], [SpeedFloat, AltitudeFloat])}
@@ -931,11 +931,11 @@ variables.}
     {}
 
 \pro    {ptc\_solver\_\_sample\_enum(Identifier)}
-        {Instantiates Identitifer which is an enumeration variable to a sample
+        {Instantiates Identifier which is an enumeration variable to a sample
 value.}
         {ptc\_solver\_\_sample\_enum(Day)}
         {Usage is not recommended in normal circumstances, use
-ptc\_solver\_\_label\_enums([Indentifier]) instead}
+ptc\_solver\_\_label\_enums([Identifier]) instead}
 
 
 %%%
@@ -961,7 +961,7 @@ via a string using  ptc\_solver\_\_submit\_string(String).
         {}
 
 %%%
-\subsection{Micellanous}
+\subsection{Miscellaneous}
 
 %%%
 \subsubsection{Type testing}
@@ -1009,7 +1009,7 @@ of types have been declared.}
 \subsubsection{Retrieving components}
 
 \hspace{\parindent}\pro
-{ptc\_solver\_\_get\_array\_index\_elements(Identitifer, Index\_element\_list)}
+{ptc\_solver\_\_get\_array\_index\_elements(Identifier, Index\_element\_list)}
     {Given an array variable Identifier, returns its Index\_element\_list.
 Index\_element\_list for an array of dimension 1..3, 1..2 is of the form:
  [([1,1], el1.1), ([1,2], el1.2), ([2,1], el2.1), ([2,2], el2.2), ([3,1], el3.1),
@@ -1037,7 +1037,7 @@ Literal)}
 \pro    {ptc\_solver\_\_enum\_get\_position(Identifier, Value)}
         {Returns the possible values of an enumeration variable without knowing
 its base type}
-        {ptc\_solver\_\_enum\_get\_position(Tommorow, Value)}
+        {ptc\_solver\_\_enum\_get\_position(Tomorrow, Value)}
         {Usage is not recommended in normal circumstances.}
 
 
