@@ -151,9 +151,9 @@ ptc_solver__subtype(Subtype_mark, Type_mark, range_bounds(Min, Max)) :-
 	ptc_solver__verbose("*END Subtype", Subtype_mark).
 
 ptc_solver__subtype(_Subtype_mark, _Type_mark, range(_)) :-           %todo
-	ptc_solver__error("Subtype with range not yet implemented").
+	ptc_solver__error("Subtype with range not yet implemented", []).
 ptc_solver__subtype(_Subtype_mark, _Type_mark, range(_, _)) :-        %todo
-	ptc_solver__error("Subtype with range not yet implemented").
+	ptc_solver__error("Subtype with range not yet implemented", []).
 
 %are those ever called by ATGEN?
 %variable declarations

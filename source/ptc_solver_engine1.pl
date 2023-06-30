@@ -68,9 +68,9 @@ apply_relation(_, X, XT, Fun, _, Y, YT) :-
 	 (evalWrap(X, Xeval),
 	  evalWrap(Y, Yeval),
 	  ((XT == i, YT == i) ->          % a pure integer constraint
-			Constraint =.. [Rel_int, Xeval, Yeval]    	% build the constraint
+			Constraint =.. [Rel_int, Xeval, Yeval]    	% build the integer constraint
 	   ;
-			Constraint =.. [Rel_rea, Xeval, Yeval] 		% build the constraint
+			Constraint =.. [Rel_rea, Xeval, Yeval] 		% build the breal constraint
 	  ), 
 	  !,
 	  Constraint                    %finally apply the constraint
@@ -79,8 +79,8 @@ apply_relation(_, X, XT, Fun, _, Y, YT) :-
 	!.
 
 %Fun is a SDL relational operator
-%Rel_int is the out fd (integer) equivalent
-%Rel_rea is the out clpq (real) equivalent
+%Rel_int is the out ic (integer) equivalent
+%Rel_rea is the out ic (real) equivalent
 get_integer_real_relation(=, #=, $=).
 get_integer_real_relation(<>, #\=, $\=).
 get_integer_real_relation(<, #<, $<).
@@ -230,12 +230,12 @@ arithmetic(conversion(Type_mark, From_exp), R, To_type) :-
 	(apply_relation(From_exp, From_exp_eval, From_type, >=, first(Type_mark), Min, To_type) ->
 	    true
     ;
-        ptc_solver__error("Failed type conversion: systematic run-time error in your code")
+        ptc_solver__error("Failed type conversion in greater or equal: systematic run-time error in your code", [])
     ),
 	(apply_relation(From_exp, From_exp_eval, From_type, <=, last(Type_mark), Max, To_type) ->
 	    true
     ;
-        ptc_solver__error("Failed type conversion: systematic run-time error in your code")
+        ptc_solver__error("Failed type conversion in less or equal: systematic run-time error in your code", [])
     ),
 	((From_type == r, To_type == i) ->
         s_cast_to_int(From_exp_eval, R)
@@ -416,7 +416,7 @@ eq_cast(Le, Ri) :-
      (L_type == r, R_type == i) ->    	%from int to real
 		L_eval $= eval(R_eval)
     ;
-        ptc_solver__error("Failed eq_cast/2 in ptc_solver_engine1 file the types are different and not real nor integer")
+        ptc_solver__error("Failed eq_cast/2 in ptc_solver_engine1 file the types are different and not real nor integer", [])
     ).
 %%%%%%%%%%%%%%%%%%%%%sdl/3, boolean/3, negate/3%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A single, simpler, predicate can be (and originally was) written to replace the three given below,

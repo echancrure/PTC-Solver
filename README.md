@@ -1,6 +1,6 @@
 ***********************************************************
-PTC Solver Version 2.1
-February 2023, Dr Christophe Meudec, echancrure@gmail.com
+PTC Solver Version 2.1.1
+June 2023, Dr Christophe Meudec, echancrure@gmail.com
 ***********************************************************
 
 A Path Traversal Conditions solver to analyse imperative programs. It can solve constraints expressed using traditional programming language constructs. It is useful for symbolic execution, static analysis of code etc.
@@ -28,7 +28,10 @@ An informal brief introduction is available at See https://docs.google.com/docum
 
 The repository master branch contains the latest stable version. The dev branch is work in progress.
 
-2. WHAT'S NEW IN THIS RELEASE
+2. RELEASES OVERVIEW
+The RELEASES HISTORY section further down in this document contains more details.
+
+Version 2.1.1 is a minor update. 
 
 Version 2.1 is a port update. The PTC Solver now requires ECLiPSE 7.1.
 
@@ -118,7 +121,7 @@ ptc_user_manual.pdf file for more details.
 
 3. INSTALLATION OVERVIEW
 
-You should have a working version of ECLiPSe 7.0 (the Constraint Programming System not the IDE...) installed on your machine before proceeding further. ECLiPSe can be obtained from https://eclipseclp.org/ .
+You should have a working version of ECLiPSe 7.1 (the Constraint Programming System, not the IDE...) installed on your machine before proceeding further. ECLiPSe can be obtained from https://eclipseclp.org/ .
 
 4. DOCUMENTATION
 
@@ -132,7 +135,7 @@ The solver limitations are described in the doc\ptc_user_manual.pdf file.
 
 You can send a bug report to the author.
 Make sure to give as many details as possible including:
-PTC Solver version, platform, ECLiPSE version, interfacing
+PTC Solver version, platform, ECLiPSe version, interfacing
 method (Prolog, C/C++ ...), script of the constraints
 posted, description of the problem, full error messages issued
 (including provenance: OS, Interface, ECLiPSe or PTC Solver).
@@ -142,6 +145,17 @@ posted, description of the problem, full error messages issued
 The PTC Solver handles many typical constraints suitable for the analysis of software code. However if you feel it is missing something please contact the author with a request for extension.
 
 8. RELEASES HISTORY
+
+*****Version 2.1.1*****
+June 2023
+  Minor Update
+   - The user manual has been modified:
+      - the predicates ptc_solver__real_min/2 and ptc_solver__real_max/2 have been removed from the documentation as they are redundant and were not supported;
+      - the predicate ptc_solver__integer_range/3 has been renamed ptc_solver__variable_range/3 as it works both on integer and real variables;
+      - some spelling mistakes have been corrected.
+   - The predicate ptc_solver__is_real/1 now only succeeds on real variables and fails otherwise.
+   - The desired precision for the labelling of floats can be specified using ptc_solver__set_flag(epsilon, Value): to be used with care as described in the user manual.
+   - The solver now issues more fatal error (especially when using improper Flag values) rather than ignoring them unless in debug mode. 
 
 *****Version 2.1*****
 February 2023

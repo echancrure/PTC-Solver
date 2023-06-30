@@ -24,11 +24,11 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__sample_enum/1.
 :- dynamic ptc_solver__first/2, ptc_solver__last/2.
 :- export ptc_solver__first/2, ptc_solver__last/2.
-:- export ptc_solver__error/1.
+:- export ptc_solver__error/2.
 :- export ptc_solver__get_frame/3.
 :- export ptc_solver__enum_get_literal/3, ptc_solver__enum_get_position/2, ptc_solver__enum_get_basetype/2.
 :- export ptc_solver__get_record_field_values/2, ptc_solver__get_array_index_elements/2.
-:- export ptc_solver__integer_range/3, ptc_solver__is_integer/1, ptc_solver__is_real/1.
+:- export ptc_solver__variable_range/3, ptc_solver__is_integer/1, ptc_solver__is_real/1.
 :- export ptc_solver__label_integers/2, ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/2, ptc_solver__label_reals/1.
 :- export ptc_solver__submit_string/1.
 :- export ptc_solver__get_single_variable/2, ptc_solver__get_all_variables/1.
@@ -65,11 +65,16 @@ mytrace.            %call this to start debugging
 :- dynamic float_to_int_convention/1.
 :- dynamic debug_mode/1.
 %%%
-ptc_solver__version("2.1").
+ptc_solver__version("2.1.1").
 
-ptc_solver__error(Message) :-
-    writeln(stdout, "***PTC Solver Fatal Error***"),
-    writeln(stdout, Message),
+ptc_solver__error(Message, Term) :-
+    printf(stdout, "***PTC Solver Fatal Error***\n", []),
+    (Term == [] ->
+        printf(stdout, "%w\n", Message)
+    ;
+        printf(stdout, "%w: %w\n", [Message, Term])
+    ),
+    flush(stdout),
     abort.
 
 ptc_solver__verbose(Message, Term) :-
@@ -182,14 +187,14 @@ ptc_solver__label_reals(IL, FL) :-
     ptc_labeling:ptc_labeling__reals(IL, FL).
 
 ptc_solver__is_real(Var) :-
-    var(Var),
+    ic:is_solver_var(Var),  %ensure it is an IC variable
     ic:get_solver_type(Var, 'real').
 
 ptc_solver__is_integer(Var) :-
-    var(Var),
+    ic:is_solver_var(Var),  %ensure it is an IC variable
     ic:get_solver_type(Var, 'integer').
 
-ptc_solver__integer_range(Integer_var, Min, Max) :-
+ptc_solver__variable_range(Integer_var, Min, Max) :-
     ic:get_bounds(Integer_var, Min, Max).
 
 ptc_solver__is_enum(Var) :-
@@ -223,14 +228,14 @@ ptc_solver__get_array_index_elements(Var, Index_elements) :-
 ptc_solver__set_flag(Flag, Value) :-
     (Flag == or_constraint_behaviour ->
         (or_constraint_behaviour(_) ->
-            ptc_solver__error("In ptc_solver_set_flag/2, the or_constraint_behaviour can only be set once")
+            ptc_solver__error("In ptc_solver_set_flag/2, the or_constraint_behaviour can only be set once", [])
          ;
             ((Value = pure ; Value = choice) ->
                 (retractall(or_constraint_behaviour(_)),
                  assert(or_constraint_behaviour(Value))
                 )
              ;
-                ptc_solver__verbose("In ptc_solver__set_flag/2, the or_constraint_behaviour flag can be 'pure' or 'choice' but the following is not allowed", Value)
+                ptc_solver__error("In ptc_solver__set_flag/2, the or_constraint_behaviour flag can be 'pure' or 'choice' but the following is not allowed", Value)
             )
         )
 	;
@@ -240,19 +245,19 @@ ptc_solver__set_flag(Flag, Value) :-
                          assert(enumeration_start(Value))
 			)
 		;
-			ptc_solver__verbose("In ptc_solver__set_flag/2, the enumeration_start flag can be an integer but the following is not allowed", Value)
+            ptc_solver__error("In ptc_solver__set_flag/2, the enumeration_start flag can be an integer but the following is not allowed", Value)
 		)
     ;
      Flag == float_to_int_convention ->
         (float_to_int_convention(_) ->
-            ptc_solver__error("In ptc_solver_set_flag/2, the float_to_int_convention can only be set once")
+            ptc_solver__error("In ptc_solver_set_flag/2, the float_to_int_convention can only be set once", [])
         ;
          ((Value = truncate ; Value = nearest) ->
             (retractall(float_to_int_convention(_)),
              assert(float_to_int_convention(Value))
             )
          ;
-            ptc_solver__verbose("In ptc_solver__set_flag/2, the float_to_int_convention flag can be 'truncate' or 'nearest' but the following is not allowed", Value)
+            ptc_solver__error("In ptc_solver__set_flag/2, the float_to_int_convention flag can be 'truncate' or 'nearest' but the following is not allowed", Value)
          )
         )
     ;
@@ -262,10 +267,13 @@ ptc_solver__set_flag(Flag, Value) :-
              assert(debug_mode(Value))
             )
          ;
-            ptc_solver__verbose("In ptc_solver__set_flag/2, the debug_mode flag can be 'on' or 'off' but the following is not allowed", Value)
+            ptc_solver__error("In ptc_solver__set_flag/2, the debug_mode flag can be 'on' or 'off' but the following is not allowed", Value)
         )
     ;
-        ptc_solver__verbose("In ptc_solver__set_flag/2, the following flag does not exist", Flag)
+     Flag == epsilon ->
+        ptc_labeling:ptc_labeling__set_flag(Flag, Value)
+    ;
+        ptc_solver__error("In ptc_solver__set_flag/2, the following flag does not exist", Flag)
     ).
 
 %submits a constraint

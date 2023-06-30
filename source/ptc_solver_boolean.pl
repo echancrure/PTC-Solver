@@ -224,14 +224,14 @@ s_reif(Constraint, R) :-
             (sdl(Constraint, _, _) ->         %should never fail
                 R #= 1
             ;
-                ptc_solver__error("Constraint can only be true but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
+                ptc_solver__error("Constraint can only be true but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl)", [])
             )
         ;
          KC == false ->        %the constraint can only be false
             (sdl(not(Constraint), _, _) ->    %should never fail
                 R #= 0
             ;
-                ptc_solver__error("Constraint can only be false but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
+                ptc_solver__error("Constraint can only be false but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl)", [])
             )
         )
      )
@@ -311,7 +311,7 @@ known(Constraint, KC) :-
         KC = false              %the constraint can only be false
     ;
      (ST == no, SF == no) ->
-        ptc_solver__error("Constraint cannot be true nor false: systematic error (from known/2 in ptc_solver_boolean.pl")
+        ptc_solver__error("Constraint cannot be true nor false: systematic error (from known/2 in ptc_solver_boolean.pl)", [])
     ).
 
 %%%

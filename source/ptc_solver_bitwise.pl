@@ -40,7 +40,7 @@ bitwise_check(L, Len, Sign) :-
         ),
         !.
 bitwise_check(_, Len, Sign) :-
-    ptc_solver__verbose("Invalid Length or Sign in bitwise_check: ", [Len, Sign]).
+    ptc_solver__error("Invalid Length or Sign in bitwise_check: ", [Len, Sign]).
 
 all([], _, _) :-
         !.

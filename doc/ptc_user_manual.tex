@@ -14,7 +14,7 @@
 
 \title{The PTC Solver\\
        User Manual\\
-       Version 2.1}
+       Version 2.1.1}
 \author{Dr. Christophe Meudec \\
         echancrure@gmail.com \\
         Ireland}
@@ -523,6 +523,7 @@ the default is 'pure'.
 section. This flag should be set once and only once, after the call to ptc\_solver\_\_clean\_up but prior to anything else.
       \item enumeration\_start, where Value is an integer, the default is 1. This flag indicates the starting point for the numbering of enumeration literals. It can be set as many times as wanted prior to the definition of an enumerated type.
       \item debug\_mode, where Value is 'on' or 'off'. The default is 'off'. Enables the printing of verbose messages to stdout.
+      \item epsilon, where Value must be an integer between 0 and 1. The default is 0.001. This is used during the labeling of floats and indicates the minimum precision required. This is a very technical area and users are warned that requiring a very low minimum precision may drastically increase run time. This value is directly used by the underlying ECLiPSe IC library and works with the propagation treshold.  
      \end{itemize}
      }
     {ptc\_solver\_\_set\_flag(or\_constraint\_behaviour, pure)}
@@ -604,24 +605,10 @@ Type\_mark)}
 %%%
 \subsection{Ranges}
 
-\hspace{\parindent}\pro    {ptc\_solver\_\_integer\_range(Identifier, Min, Max)}
-        {Returns the minimum and maximum of the range of an Integer variable.
+\hspace{\parindent}\pro    {ptc\_solver\_\_variable\_range(Identifier, Min, Max)}
+        {Returns the minimum and maximum of the range of an Integer or Real variable.
 Based on the linear constraints imposed on the variable.}
-        {ptc\_solver\_\_integer\_range(Day, mon, fri)}
-        {}
-
-\pro    {ptc\_solver\_\_real\_min(Identifier, Inf, Taken)}
-        {Returns the minimum, Inf, of the range of a Real variable, Identifier.
-Taken is 'taken' if the lower bound is inclusive and not\_taken if it is
-exclusive}
-        {ptc\_solver\_\_real\_min(Speed, 0.0, taken) succeeds}
-        {}
-
-\pro    {ptc\_solver\_\_real\_max(Identifier, Sup, Taken)}
-        {Returns the maximum, Sup, of the range of a Real variable, Identifier.
-Taken is 'taken' if the upper bound is inclusive and not\_taken if it is
-exclusive}
-        {ptc\_solver\_\_real\_max(Speed, 165.0, taken) succeeds}
+        {ptc\_solver\_\_variable\_range(Child, 0, 21)}
         {}
 
 \pro    {ptc\_solver\_\_first(Type\_mark, Min)}

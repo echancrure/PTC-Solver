@@ -25,7 +25,7 @@
 :- import ptc_solver__arithmetic/3 from ptc_solver.
 :- import ptc_solver__relation/3 from ptc_solver.
 :- import ptc_solver__get_frame/3 from ptc_solver.
-:- import ptc_solver__error/1 from ptc_solver.
+:- import ptc_solver__error/2 from ptc_solver.
 %:- ensure_loaded(ptc_enum).
 :- import ptc_enum__get_position/2 from ptc_enum.
 %:- ensure_loaded(ptc_record).
@@ -312,7 +312,7 @@ eq_index(range_bounds(Min, Max), I) :-
 	ptc_solver__relation(<=, I, Max).
 eq_index(range(_), _) :-          %range attribute
     !,
-    ptc_solver__error("range attribute not dealt with yet").
+    ptc_solver__error("range attribute not dealt with yet", []).
 eq_index(A, I) :-                   %exp
 	!,
 	ptc_solver__relation(=, A, I).

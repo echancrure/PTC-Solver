@@ -1,15 +1,27 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec
-% Eclipse 7.0 program
+% Eclipse 7.1 program
 % takes care of the labelling of variables in the solver's format
 % various strategy could be implemented including the use of local search algorithms (Hill climbing, Tabu Search etc.)
 %  see Eclipse sample programs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- module(ptc_labeling).
-:- export ptc_labeling__integers/2, ptc_labeling__integers/1, ptc_labeling__enums/1, ptc_labeling__reals/2.
+:- export ptc_labeling__integers/2, ptc_labeling__integers/1, ptc_labeling__enums/1, ptc_labeling__reals/2, ptc_labeling__set_flag/2.
 :- import ptc_enum__sample/1 from ptc_enum.
 :- lib(ic).
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- setval(epsilon, 0.001).	%precision wanted during labeling of breals
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ptc_labeling__set_flag(Flag, Value) :-
+    (Flag == epsilon -> %the ic library also allows to set the intervals propagation threshold see the ic:set_threshold/1 predicate
+        ((Value>0, Value<1) ->
+            setval(epsilon, Value)
+         ;
+			ptc_solver:ptc_solver__error("In ptc_labeling__set_flag/2, the epsilon flag must be a decimal between 0 and 1 (e.g. 0.001) so the following is not allowed", Value)
+        )
+	;
+		ptc_solver:ptc_solver__error("In ptc_labeling__set_flag/2, the following flag does not exist", Flag)
+	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points
 %make take a long time to complete on integers with very large intervals: may need a timeout
@@ -21,7 +33,7 @@ ptc_labeling__integers(L, ChoiceMethod) :-
 	((ChoiceMethod == 'indomain_middle' ; ChoiceMethod == 'indomain_random') ->
 		ic:search(L, 0, most_constrained, ChoiceMethod, complete, [])	%exhaustive search
 	;
-		ptc_solver:ptc_solver__error("ChoiceMethod argument in ptc_solver__label_integers/2 is invalid")
+		ptc_solver:ptc_solver__error("ChoiceMethod argument in ptc_solver__label_integers/2 is invalid", ChoiceMethod)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points
@@ -41,8 +53,9 @@ ptc_labeling__enums([E|EL]) :-
 %returns as FL a list corresponding floats as approximation
 %make take a long time to complete on reals with very large intervals: may need a timeout
 ptc_labeling__reals(VL, FL) :-
-	ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given
-									%the outcome is a list of breals or IC real vars: both representations are interval based
+	getval(epsilon, Precision),
+	ic:locate(VL, VL, Precision, log),	%reduce the intervals of the vars in L, down to less than the precision given
+										%the outcome is a list of breals or IC real vars: both representations are interval based
 	force_instantiation(VL, FL).
 
 %force the breals and IC Vars to become ground and returns a list corresponding floats as approximation
