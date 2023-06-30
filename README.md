@@ -8,7 +8,7 @@ A Path Traversal Conditions solver to analyse imperative programs. It can solve 
 TABLE OF CONTENTS
 
   1. WHERE TO FIND INFORMATION
-  2. WHAT'S NEW IN THIS RELEASE
+  2. RELEASES OVERVIEW
   3. INSTALLATION DIRECTORY OVERVIEW
   4. DOCUMENTATION
   5. KNOWN ISSUES
