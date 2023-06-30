@@ -29,6 +29,7 @@ An informal brief introduction is available at See https://docs.google.com/docum
 The repository master branch contains the latest stable version. The dev branch is work in progress.
 
 2. RELEASES OVERVIEW
+
 The RELEASES HISTORY section further down in this document contains more details.
 
 Version 2.1.1 is a minor update. 
