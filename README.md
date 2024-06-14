@@ -124,7 +124,7 @@ ptc_user_manual.pdf file for more details.
 
 You should have a working version of ECLiPSe 7.1 (the Constraint Programming System, not the IDE...) installed on your machine before proceeding further. ECLiPSe can be obtained from https://eclipseclp.org/. 
 
-Copy all the .pl files from the PTC-Solver source folder, and place them into your ECLiPSe’s ‘lib’ folder.
+Download the repository zip file and extract all the .pl files from the PTC-Solver source folder into your ECLiPSe’s ‘lib_public’ folder.
 
 4. DOCUMENTATION
 
