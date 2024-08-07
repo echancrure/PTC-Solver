@@ -155,7 +155,6 @@ ptc_solver__subtype(_Subtype_mark, _Type_mark, range(_)) :-           %todo
 ptc_solver__subtype(_Subtype_mark, _Type_mark, range(_, _)) :-        %todo
 	ptc_solver__error("Subtype with range not yet implemented").
 
-%are those ever called by ATGEN?
 %variable declarations
 ptc_solver__variable(Identifier_list, Type_mark) :-
 	ptc_solver__verbose("*START Variables", Identifier_list),

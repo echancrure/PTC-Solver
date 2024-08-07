@@ -10,8 +10,8 @@
 %%%
 :- get_flag(version, '7.1').    %check for valid ECLiPSe version: issue warning only if not 
 %%%
-mytrace.            %call this to start debugging
-:- spy mytrace/0.
+%mytrace.            %call this to start debugging
+%:- spy mytrace/0.
 %%%
 :- module(ptc_solver).
 
