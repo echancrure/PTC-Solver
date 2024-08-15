@@ -466,7 +466,7 @@ sdl(Cond, CLi, CLo) :-
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %called from sdl/3 by boolean(Cond, CLi, CLo) and also by negate/3
-%recursif; choice points; can fail
+%recursive; choice points; can fail
 boolean(true, Cli, Cli).
 boolean(false, Cli, Cli) :-
 	fail.
