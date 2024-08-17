@@ -108,7 +108,7 @@ s_or_choice(A, B) :-
             sdl(and(not(A), B), _, _)
 	    )
     ).
-
+/*
 s_or_else_choice(A, B) :-
     sdl(A, _, _),
     frandom(N),
@@ -125,7 +125,22 @@ s_or_else_choice(A, B) :-
             sdl(B, _ , _)
         )
     ).
-
+*/
+s_or_else_choice(A, B) :-
+    frandom(N),
+    N2 is fix(N*2),
+    (N2 = 0 ->
+        (   sdl(A, _ , _)
+        ;
+            sdl(and(not(A), B), _, _)
+        )
+    ;
+     N2 = 1 ->
+        (   sdl(and(not(A), B), _, _)
+        ;
+            sdl(A, _ , _)
+        )
+    ).
 %%%%%%%%%%%%%%%%%%%%%%%  PURE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 s_or_pure(A, B) :-
     known(A, KCA),
