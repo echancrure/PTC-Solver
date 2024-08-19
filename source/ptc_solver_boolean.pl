@@ -59,6 +59,29 @@ s_or_else(A, B) :-
 %truly random!
 s_or_choice(A, B) :-
     frandom(N),
+    N2 is fix(N*2),
+    (N2 = 0 ->
+        (   sdl(A, _, _)
+        ;
+            sdl(B, _, _)
+        )
+    ;
+        (   sdl(B, _, _)
+        ;
+            sdl(A, _, _)
+        )
+    ).
+/*    (sdl(and(A, not(B)), _, _) ->
+        true
+    ;
+     sdl(and(A, B), _, _) ->
+        true
+    ;
+        sdl(and(not(A), B), _, _)
+    ).
+*/
+/*
+    frandom(N),
     N6 is fix(N*6),
 	(N6 = 0 ->
 	    (   sdl(and(A, not(B)), _, _)
@@ -108,9 +131,10 @@ s_or_choice(A, B) :-
             sdl(and(not(A), B), _, _)
 	    )
     ).
+*/
 /*
 s_or_else_choice(A, B) :-
-    sdl(A, _, _),
+    sdl(A, _, _),       %won't work must allow not A and B too
     frandom(N),
     N2 is fix(N*2),
     (N2 = 0 ->
@@ -126,7 +150,44 @@ s_or_else_choice(A, B) :-
         )
     ).
 */
+/*
 s_or_else_choice(A, B) :-
+    (sdl(A, _ , _) ->   %won't work must also allow not A and B
+        true
+    ;
+        sdl(and(not(A), B), _, _)
+    ).
+*/
+s_or_else_choice(A, B) :-
+    frandom(N),
+    N2 is fix(N*2),
+    (N2 = 0 ->
+        (   sdl(A, _, _)
+        ;
+            sdl(B, _, _)
+        )
+    ;
+        (   sdl(B, _, _)
+        ;
+            sdl(A, _, _)
+        )
+    ).
+/*
+    frandom(N),
+    N2 is fix(N*2),
+    (N2 = 0 ->
+        (   sdl(A, _, _)
+        ;
+            sdl(and(not(A), B), _, _)
+        )
+    ;
+        (   sdl(and(not(A), B), _, _)
+        ;
+            sdl(A, _, _)
+        )
+    ).
+*/
+/*
     frandom(N),
     N2 is fix(N*2),
     (N2 = 0 ->
@@ -141,6 +202,7 @@ s_or_else_choice(A, B) :-
             sdl(A, _ , _)
         )
     ).
+*/
 %%%%%%%%%%%%%%%%%%%%%%%  PURE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 s_or_pure(A, B) :-
     known(A, KCA),
@@ -191,11 +253,13 @@ s_or_else_pure(A, B) :-
           KCB == true ->        %unsure here, in pure logic we should sdl(B, _, _) but what about A? in C code this will only happen if A is false
                                 % but in ordinary logic the value of A does not matter ...                                    
                                 % so for safety we delay just as above
-            (term_variables(dummy(A), VarsA),
+            (/*mytrace,term_variables(dummy(A), VarsA),
              get_atomics(VarsA, AtomicsA),
              term_variables(dummy(B), VarsB),
              get_atomics(VarsB, AtomicsB),
              suspend(s_or_else_pure(A, B), 3, [AtomicsA, AtomicsB]->inst)
+             */
+                sdl(B, _, _)    %should never fail
 	        )
          ;
           KCB == false ->        %here A must be true

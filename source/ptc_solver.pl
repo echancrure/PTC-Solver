@@ -10,11 +10,11 @@
 %%%
 :- get_flag(version, '7.1').    %check for valid ECLiPSe version: issue warning only if not 
 %%%
-%mytrace.            %call this to start debugging
-%:- spy mytrace/0.
+
 %%%
 :- module(ptc_solver).
-
+mytrace.            %call this to start debugging
+:- spy mytrace/0.
 :- export ptc_solver__version/1.
 :- export ptc_solver__clean_up/0, ptc_solver__default_declarations/0.
 :- export ptc_solver__sdl/1, ptc_solver__arithmetic/3, ptc_solver__relation/3.
