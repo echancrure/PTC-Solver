@@ -56,11 +56,49 @@ s_or_else(A, B) :-
     ).
 
 %%%%%%%%%%%%%%%%%%%%%%%  CHOICE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%truly random!
 s_or_choice(A, B) :-
-    frandom(N),
-    N2 is fix(N*2),
-    (N2 = 0 ->
+    error. 
+
+s_or_else_choice(Le, Ri) :-
+    random(1, R2),
+    (R2 == 0 ->
+        (A = Le,
+         B = Ri
+        )
+    ;
+        (A = Ri,
+         B = Le
+       )    
+    ),
+    (ground(A) ->
+        (sdl(A, _, _) ->
+            true
+        ;
+            sdl(B, _, _)
+        )
+    ;
+     ground(B) ->
+        (sdl(B, _, _) ->
+            true
+        ;
+            sdl(A, _, _)
+        )
+    ;
+        (%A and B are both not ground: we could delay or create choice points
+            %mytrace,
+            (   
+                sdl(A, _, _)
+            ;                   %deliberate choice point
+                sdl(B, _, _)
+            )
+            %suspend(s_or_else_choice(Le, Ri), 4, [s_or_else_choice(Le, Ri)]->inst)
+        )     
+    ).
+
+/*s_or_choice(A, B) :-
+    Random(2, R2), mytrace,
+
+    (R2 == 0 ->
         (   sdl(A, _, _)
         ;
             sdl(B, _, _)
@@ -70,7 +108,7 @@ s_or_choice(A, B) :-
         ;
             sdl(A, _, _)
         )
-    ).
+    ).*/
 /*    (sdl(and(A, not(B)), _, _) ->
         true
     ;
@@ -81,9 +119,8 @@ s_or_choice(A, B) :-
     ).
 */
 /*
-    frandom(N),
-    N6 is fix(N*6),
-	(N6 = 0 ->
+    Random(7, R6)
+	(R6 = 0 ->
 	    (   sdl(and(A, not(B)), _, _)
 	    ;
 	        sdl(and(A, B), _, _)
@@ -91,7 +128,7 @@ s_or_choice(A, B) :-
 	        sdl(and(not(A), B), _, _)
 	    )
     ;
-	 N6 = 1 ->
+	 R6 = 1 ->
 	    (   sdl(and(A, not(B)), _, _)
 	    ;
 	        sdl(and(not(A), B), _, _)
@@ -99,7 +136,7 @@ s_or_choice(A, B) :-
 	        sdl(and(A, B), _, _)
 	    )
     ;
-     N6 = 2 ->
+     R6 = 2 ->
         (   sdl(and(not(A), B), _, _)
 	    ;
 	        sdl(and(A, not(B)), _, _)
@@ -107,7 +144,7 @@ s_or_choice(A, B) :-
 	        sdl(and(A, B), _, _)
 	    )
     ;
-     N6 = 3 ->
+     R6 = 3 ->
         (   sdl(and(not(A), B), _, _)
 	    ;
 	        sdl(and(A, B), _, _)
@@ -115,7 +152,7 @@ s_or_choice(A, B) :-
 	        sdl(and(A, not(B)), _, _)
 	    )
     ;
-     N6 = 4 ->
+     R6 = 4 ->
         (   sdl(and(A, B), _, _)
         ;
             sdl(and(not(A), B), _, _)
@@ -123,7 +160,7 @@ s_or_choice(A, B) :-
 	        sdl(and(A, not(B)), _, _)
 	    )
     ;
-     N6 = 5 ->
+     R6 = 5 ->
         (   sdl(and(A, B), _, _)
         ;
             sdl(and(A, not(B)), _, _)
@@ -135,8 +172,7 @@ s_or_choice(A, B) :-
 /*
 s_or_else_choice(A, B) :-
     sdl(A, _, _),       %won't work must allow not A and B too
-    frandom(N),
-    N2 is fix(N*2),
+    Random(2, N2)
     (N2 = 0 ->
         (   sdl(B, _ , _)
         ;
@@ -158,10 +194,9 @@ s_or_else_choice(A, B) :-
         sdl(and(not(A), B), _, _)
     ).
 */
-s_or_else_choice(A, B) :-
-    frandom(N),
-    N2 is fix(N*2),
-    (N2 = 0 ->
+/*s_or_else_choice(A, B) :-
+    Random(2, N2)
+    (N2 == 0 ->
         (   sdl(A, _, _)
         ;
             sdl(B, _, _)
@@ -171,10 +206,9 @@ s_or_else_choice(A, B) :-
         ;
             sdl(A, _, _)
         )
-    ).
+    ).*/
 /*
-    frandom(N),
-    N2 is fix(N*2),
+    Random(2, N2)
     (N2 = 0 ->
         (   sdl(A, _, _)
         ;
@@ -188,8 +222,7 @@ s_or_else_choice(A, B) :-
     ).
 */
 /*
-    frandom(N),
-    N2 is fix(N*2),
+    Random(2, R2)
     (N2 = 0 ->
         (   sdl(A, _ , _)
         ;
@@ -447,5 +480,4 @@ partition_component_vars([V|Rest], List) :-
             )
 	),
 	partition_component_vars(Rest, List1).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%END%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -471,8 +471,8 @@ boolean(true, Cli, Cli).
 boolean(false, Cli, Cli) :-
 	fail.
 boolean(and(L, R), CLi, CLo) :-
-	frandom(N),
-    (N >= 0.5 ->
+	random(2, R2),
+    (R2 == 0 ->
         (sdl(L, CLi, CLo1),
          sdl(R, CLo1, CLo)
         )

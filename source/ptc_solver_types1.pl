@@ -10,6 +10,7 @@ ptc_solver__default_declarations :-
 	%LONG_MAX #= 2^31-1,				%i.e. 2147483647, C long, about 2 billions
 	%LONG_MAX #= 65535,					%i.e. previous solver version maximum under fd
 	LONG_MAX #= 10*10^6,				%for now. Note larger may fail regression tests with stack overflow
+	%LONG_MAX #= 100,
 	LONG_MIN #= -LONG_MAX,
 	I #:: LONG_MIN..LONG_MAX,
 	ptc_solver__set_frame(integer, integer, I),

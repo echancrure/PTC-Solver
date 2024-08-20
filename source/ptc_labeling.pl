@@ -14,15 +14,8 @@
 %can fail, leave choice points
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
-	ptc_labeling__integers(L, 'indomain_middle').	%this is the default
+	ic:search(L, 0, most_constrained, 'indomain_random', complete, []).	%exhaustive search
 
-ptc_labeling__integers(L, ChoiceMethod) :-
-	%the choice method could also be indomain_random (and use seed for reproducible choices)
-	((ChoiceMethod == 'indomain_middle' ; ChoiceMethod == 'indomain_random') ->
-		ic:search(L, 0, most_constrained, ChoiceMethod, complete, [])	%exhaustive search
-	;
-		ptc_solver:ptc_solver__error("ChoiceMethod argument in ptc_solver__label_integers/2 is invalid")
-	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points
 %EL is the in list of original enumeration variables
