@@ -30,6 +30,8 @@
 % we give here both constraints controlled by an asserted fact
 
 s_or(A, B) :-
+    mytrace,
+    ptc_solver__error("s_or should no longer be used"),
     (or_constraint_behaviour(V) ->
         true
     ;
@@ -43,6 +45,7 @@ s_or(A, B) :-
     ).
 
 s_or_else(A, B) :-
+    ptc_solver__error("s_or_else should no longer be used"),
     (or_constraint_behaviour(V) ->
         true
     ;
@@ -56,20 +59,10 @@ s_or_else(A, B) :-
     ).
 
 %%%%%%%%%%%%%%%%%%%%%%%  CHOICE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-s_or_choice(A, B) :-
-    error. 
+s_or_choice(_, _) :-
+    ptc_solver__error("s_or_choice should no longer be used").
 
-s_or_else_choice(Le, Ri) :-
-    random(1, R2),
-    (R2 == 0 ->
-        (A = Le,
-         B = Ri
-        )
-    ;
-        (A = Ri,
-         B = Le
-       )    
-    ),
+s_or_else_choice(A, B) :-
     (ground(A) ->
         (sdl(A, _, _) ->
             true
