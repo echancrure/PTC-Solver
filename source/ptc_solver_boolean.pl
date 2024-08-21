@@ -30,7 +30,7 @@
 % we give here both constraints controlled by an asserted fact
 
 s_or(A, B) :-
-    mytrace,
+    %mytrace,
     ptc_solver__error("s_or should no longer be used"),
     (or_constraint_behaviour(V) ->
         true
