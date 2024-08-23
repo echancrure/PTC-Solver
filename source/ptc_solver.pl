@@ -283,7 +283,7 @@ ptc_solver__relation(Comparator, Left, Right) :-
 %%%%
 ptc_solver__create_record_from_agg(A,B,C) :-
     ptc_record__create_record_from_agg(A,B,C).
-
+%%%%
 ptc_solver__create_array_from_agg(A,B,C) :-
     ptc_array__create_array_from_agg(A,B,C).
 
