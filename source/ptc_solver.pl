@@ -269,10 +269,8 @@ ptc_solver__set_flag(Flag, Value) :-
     ).
 
 %submits a constraint
-%sdl can set delayed constraints
-%sdl can have choice points (e.g. A or B conditions).
 ptc_solver__sdl(Cond) :-
-    sdl(Cond, [], _).
+    sdl(Cond).
 
 ptc_solver__arithmetic(Exp, Eval, T) :-
     arithmetic(Exp, Eval, T).

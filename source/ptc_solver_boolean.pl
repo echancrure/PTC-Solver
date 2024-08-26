@@ -64,171 +64,29 @@ s_or_choice(_, _) :-
 
 s_or_else_choice(A, B) :-
     (ground(A) ->
-        (sdl(A, _, _) ->
+        (sdl(A) ->
             true
         ;
-            sdl(B, _, _)
+            sdl(B)
         )
     ;
      ground(B) ->
-        (sdl(B, _, _) ->
+        (sdl(B) ->
             true
         ;
-            sdl(A, _, _)
+            sdl(A)
         )
     ;
         (%A and B are both not ground: we could delay or create choice points
             %mytrace,
             (   
-                sdl(A, _, _)
+                sdl(A)
             ;                   %deliberate choice point
-                sdl(B, _, _)
+                sdl(B)
             )
             %suspend(s_or_else_choice(Le, Ri), 4, [s_or_else_choice(Le, Ri)]->inst)
         )     
     ).
-
-/*s_or_choice(A, B) :-
-    Random(2, R2), mytrace,
-
-    (R2 == 0 ->
-        (   sdl(A, _, _)
-        ;
-            sdl(B, _, _)
-        )
-    ;
-        (   sdl(B, _, _)
-        ;
-            sdl(A, _, _)
-        )
-    ).*/
-/*    (sdl(and(A, not(B)), _, _) ->
-        true
-    ;
-     sdl(and(A, B), _, _) ->
-        true
-    ;
-        sdl(and(not(A), B), _, _)
-    ).
-*/
-/*
-    Random(7, R6)
-	(R6 = 0 ->
-	    (   sdl(and(A, not(B)), _, _)
-	    ;
-	        sdl(and(A, B), _, _)
-        ;
-	        sdl(and(not(A), B), _, _)
-	    )
-    ;
-	 R6 = 1 ->
-	    (   sdl(and(A, not(B)), _, _)
-	    ;
-	        sdl(and(not(A), B), _, _)
-        ;
-	        sdl(and(A, B), _, _)
-	    )
-    ;
-     R6 = 2 ->
-        (   sdl(and(not(A), B), _, _)
-	    ;
-	        sdl(and(A, not(B)), _, _)
-        ;
-	        sdl(and(A, B), _, _)
-	    )
-    ;
-     R6 = 3 ->
-        (   sdl(and(not(A), B), _, _)
-	    ;
-	        sdl(and(A, B), _, _)
-        ;
-	        sdl(and(A, not(B)), _, _)
-	    )
-    ;
-     R6 = 4 ->
-        (   sdl(and(A, B), _, _)
-        ;
-            sdl(and(not(A), B), _, _)
-	    ;
-	        sdl(and(A, not(B)), _, _)
-	    )
-    ;
-     R6 = 5 ->
-        (   sdl(and(A, B), _, _)
-        ;
-            sdl(and(A, not(B)), _, _)
-	    ;
-            sdl(and(not(A), B), _, _)
-	    )
-    ).
-*/
-/*
-s_or_else_choice(A, B) :-
-    sdl(A, _, _),       %won't work must allow not A and B too
-    Random(2, N2)
-    (N2 = 0 ->
-        (   sdl(B, _ , _)
-        ;
-            boolean(not(B), _, _)
-        )
-    ;
-     N2 = 1 ->
-        (   sdl(not(B), _, _)
-        ;
-            sdl(B, _ , _)
-        )
-    ).
-*/
-/*
-s_or_else_choice(A, B) :-
-    (sdl(A, _ , _) ->   %won't work must also allow not A and B
-        true
-    ;
-        sdl(and(not(A), B), _, _)
-    ).
-*/
-/*s_or_else_choice(A, B) :-
-    Random(2, N2)
-    (N2 == 0 ->
-        (   sdl(A, _, _)
-        ;
-            sdl(B, _, _)
-        )
-    ;
-        (   sdl(B, _, _)
-        ;
-            sdl(A, _, _)
-        )
-    ).*/
-/*
-    Random(2, N2)
-    (N2 = 0 ->
-        (   sdl(A, _, _)
-        ;
-            sdl(and(not(A), B), _, _)
-        )
-    ;
-        (   sdl(and(not(A), B), _, _)
-        ;
-            sdl(A, _, _)
-        )
-    ).
-*/
-/*
-    Random(2, R2)
-    (N2 = 0 ->
-        (   sdl(A, _ , _)
-        ;
-            sdl(and(not(A), B), _, _)
-        )
-    ;
-     N2 = 1 ->
-        (   sdl(and(not(A), B), _, _)
-        ;
-            sdl(A, _ , _)
-        )
-    ).
-*/
 %%%%%%%%%%%%%%%%%%%%%%%  PURE   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 s_or_pure(A, B) :-
     known(A, KCA),
@@ -243,21 +101,21 @@ s_or_pure(A, B) :-
 	        )
          ;
             KCB == true ->
-                sdl(B, _, _)            %should never fail
+                sdl(B)            %should never fail
          ;
             KCB == false ->
-                (sdl(not(B), _, _),     %not really necessary but should never fail
-                 sdl(A, _, _)           %determine the outcome of the  'A or B'
+                (sdl(not(B)),     %not really necessary but should never fail
+                 sdl(A)           %determine the outcome of the  'A or B'
                 )
          )
         )
         ;
          KCA == true ->
-            sdl(A, _, _)                    %should never fail
+            sdl(A)                    %should never fail
         ;
          KCA == false ->
-            (sdl(not(A), _, _),             %not really necessary but should never fail
-             sdl(B, _, _)                   %determine the outcome of the  'A or B'
+            (sdl(not(A)),             %not really necessary but should never fail
+             sdl(B)                   %determine the outcome of the  'A or B'
             )
         ).
 
@@ -285,22 +143,22 @@ s_or_else_pure(A, B) :-
              get_atomics(VarsB, AtomicsB),
              suspend(s_or_else_pure(A, B), 3, [AtomicsA, AtomicsB]->inst)
              */
-                sdl(B, _, _)    %should never fail
+                sdl(B)    %should never fail
 	        )
          ;
           KCB == false ->        %here A must be true
-            (sdl(not(B), _, _),     %not really necessary but should never fail
-             sdl(A, _, _)           %determine the outcome of the  'A or B'
+            (sdl(not(B)),     %not really necessary but should never fail
+             sdl(A)           %determine the outcome of the  'A or B'
             )
          )
         )
     ;
      KCA == true ->
-        sdl(A, _, _)    %should never fail
+        sdl(A)    %should never fail
     ;
      KCA == false ->
-        (sdl(not(A), _, _),     %should never fail
-         sdl(B, _, _)
+        (sdl(not(A)),     %should never fail
+         sdl(B)
         )
     ).
 
@@ -313,10 +171,10 @@ s_or_else_pure(A, B) :-
 %R must be an fd constraint between with domain 0..1 only
 s_reif(Constraint, R) :-
 	(R == 1 ->
-		sdl(Constraint, _, _)
+		sdl(Constraint)
 	;
      R == 0 ->
-		sdl(not(Constraint), _, _)
+		sdl(not(Constraint))
 	;                               %R in unknown
 	 (known(Constraint, KC),
         (KC == no ->           %the constraint is unknown : we must delay
@@ -326,14 +184,14 @@ s_reif(Constraint, R) :-
 	        )
         ;
          KC == true ->         %the constraint can only be true
-            (sdl(Constraint, _, _) ->         %should never fail
+            (sdl(Constraint) ->         %should never fail
                 R #= 1
             ;
                 ptc_solver__error("Constraint can only be true but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
             )
         ;
          KC == false ->        %the constraint can only be false
-            (sdl(not(Constraint), _, _) ->    %should never fail
+            (sdl(not(Constraint)) ->    %should never fail
                 R #= 0
             ;
                 ptc_solver__error("Constraint can only be false but fails: systematic error (from s_reif/2 in ptc_solver_boolean.pl")
@@ -360,13 +218,13 @@ s_cmp(Exp1, Exp2, R) :-
 s_cmp2(D1, D2, R) :-
     (ground(R) ->
         (R == -1 ->
-            sdl(D1 < D2, _, _)
+            sdl(D1 < D2)
         ;
          R == 0 ->
-            sdl(D1 = D2, _, _)
+        sdl(D1 = D2)
         ;
          R == 1 ->
-            sdl(D1 > D2, _, _)
+            sdl(D1 > D2)
         )
     ;
      %crude constraint here only
@@ -387,12 +245,12 @@ s_cmp2(D1, D2, R) :-
 
 %%%%
 successT(Constraint) :-
-    sdl(Constraint, _, _),
+    sdl(Constraint),
     getval(entail_stack, [es(no, F)|ES]),
     setval(entail_stack, [es(yes, F)|ES]),  %Constraint can be true
     fail.
 successF(Constraint) :-
-    sdl(not(Constraint), _, _),
+    sdl(not(Constraint)),
     getval(entail_stack, [es(T, no)|ES]),
     setval(entail_stack, [es(T, yes)|ES]),  %not Constraint can be true
     fail.

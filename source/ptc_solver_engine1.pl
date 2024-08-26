@@ -432,18 +432,18 @@ eq_cast(Le, Ri) :-
 % backtracking generate different classes throught the choice points
 % failure denotes overall inconsistency or no more classes possible
 % boolean constraints are processed first then arithmetics through relation/3
-sdl(Cond, CLi, CLo) :-
+sdl(Cond) :-
 	(var(Cond) ->                    %Cond must be a boolean variable that must be true
-        boolean(=(Cond, true), CLi, CLo)
+        boolean(=(Cond, true))
 	;
 	 Cond = element(_, _) ->         %an array element which is a boolean
 	    (ptc_array__get_element(Cond, Elem, e),	%booleans are enumerations
-	     sdl(Elem, CLi, CLo)
+	     sdl(Elem)
 	    )
 	;
 	 Cond = field(_, _) ->
 		(ptc_record__get_field(Cond, Elem, e),	%booleans are enumerations
-		 sdl(Elem, CLi, CLo)
+		 sdl(Elem)
 		)
 	;
 	 Cond = reif(Constraint, R) ->
@@ -455,103 +455,100 @@ sdl(Cond, CLi, CLo) :-
      Cond = eq_cast(Exp1, Exp2) ->
         eq_cast(Exp1, Exp2)     %see above
 	;
-		boolean(Cond, CLi, CLo)
+		boolean(Cond)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%called from sdl/3 by boolean(Cond, CLi, CLo) and also by negate/3
 %recursive; choice points; can fail
-boolean(true, Cli, Cli).
-boolean(false, Cli, Cli) :-
+boolean(true).
+boolean(false) :-
 	fail.
-boolean(and(L, R), CLi, CLo) :-
+boolean(and(L, R)) :-
 	random(2, R2),
     (R2 == 0 ->
-        (sdl(L, CLi, CLo1),
-         sdl(R, CLo1, CLo)
+        (sdl(L),
+         sdl(R)
         )
     ;
-	    (sdl(R, CLi, CLo1),
-	     sdl(L, CLo1, CLo)
+	    (sdl(R),
+	     sdl(L)
         )
     ).
 
-boolean(and_then(L, R), CLi, CLo) :-
-	sdl(L, CLi, CLo1),
-    sdl(R, CLo1, CLo).
+boolean(and_then(L, R)) :-
+	sdl(L),
+    sdl(R).
 
-boolean(or(L, R), _, _) :-
+boolean(or(L, R)) :-
     s_or(L, R).             %see ptc_solver_boolean
 
-boolean(or_else(L, R), _, _) :-
+boolean(or_else(L, R)) :-
     s_or_else(L, R).        %see ptc_solver_boolean
 
-boolean(xor(L, R), CLi, CLo) :-
-    boolean(or(and(L, not(R)), and(not(L), R)), CLi, CLo).
+boolean(xor(L, R)) :-
+    boolean(or(and(L, not(R)), and(not(L), R))).
 
 %not can be over an array of Booleans
 %see initial call to sdl as it is similar
-boolean(not(Bool), CLi, CLo) :-
+boolean(not(Bool)) :-
 	(var(Bool) ->            %Cond must be a boolean variable that must be true
-        boolean(=(Bool, false), CLi, CLo)
+        boolean(=(Bool, false))
 	;
 	 Bool = element(_, _) ->
 	    (ptc_array__get_element(Bool, Elem, e),	%booleans are enumerations
-	     boolean(not(Elem), CLi, CLo)
+	     boolean(not(Elem))
 	    )
 	;
 	 Bool = field(_, _) ->
 		(ptc_record__get_field(Bool, Elem, e),	%booleans are enumerations
-		 boolean(not(Elem), CLi, CLo)
+		 boolean(not(Elem))
 		)
 	;
-	    negate(Bool, CLi, CLo)
+	    negate(Bool)
 	).
 
-boolean(=(X, Y), CLi, [=(X, Y)|CLi]) :-
+boolean(=(X, Y)) :-
 	relation(=, X, Y).
-boolean(<>(X, Y), CLi, [<>(X, Y)|CLi]) :-
+boolean(<>(X, Y)) :-
 	relation(<>, X, Y).
-boolean(<(X, Y), CLi, [<(X, Y)|CLi]) :-
+boolean(<(X, Y)) :-
 	relation(<, X, Y).
-boolean(>(X, Y), CLi, [>(X, Y)|CLi]) :-
+boolean(>(X, Y)) :-
 	relation(>, X, Y).
-boolean(<=(X, Y), CLi, [<=(X, Y)|CLi]) :-
+boolean(<=(X, Y)) :-
 	relation(<=, X, Y).
-boolean(>=(X, Y), CLi, [>=(X, Y)|CLi]) :-
+boolean(>=(X, Y)) :-
 	relation(>=, X, Y).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%called from boolean/3 by negate(Bool, Cli, Clo)
-%indirectly recursif; choice point; can fail
 %negate the boolean expression Bool by calling
 %  * relation/3 if an arithmetic relation
 %  * boolean /3 if a boolean expression which is not a boolean variable
 %  * sdl/3 if a boolean expression which could be a boolean variable
-negate(false, _, _).        %not false
-negate(true, _, _) :-       %not true
+negate(false).        %not false
+negate(true) :-       %not true
 	fail.
-negate(not(Rel), CLi, CLo) :-                 %not not Rel == Rel
-	sdl(Rel, CLi, CLo).
-negate(=(X, Y), CLi, [<>(X, Y)|CLi]) :-
+negate(not(Rel)) :-                 %not not Rel == Rel
+	sdl(Rel).
+negate(=(X, Y)) :-
 	relation(<>, X, Y).
-negate(<>(X, Y), CLi, [=(X, Y)|CLi]) :-
+negate(<>(X, Y)) :-
 	relation(=, X, Y).
-negate(<(X, Y), CLi, [>=(X, Y)|CLi]) :-
+negate(<(X, Y)) :-
 	relation(>=, X, Y).
-negate(>(X, Y), CLi, [<=(X, Y)|CLi]) :-
+negate(>(X, Y)) :-
 	relation(<=, X, Y).
-negate(<=(X, Y), CLi, [>(X, Y)|CLi]) :-
+negate(<=(X, Y)) :-
 	relation(>, X, Y).
-negate(>=(X, Y), CLi, [<(X, Y)|CLi]) :-
+negate(>=(X, Y)) :-
 	relation(<, X, Y).
-negate(and(X, Y), CLi, CLo) :-
-	boolean(or(not(X), not(Y)), CLi, CLo).
-negate(and_then(X, Y), CLi, CLo) :-
-	boolean(or_else(not(X), not(Y)), CLi, CLo).
-negate(or(X, Y), CLi, CLo) :-
-	boolean(and(not(X), not(Y)), CLi, CLo).
-negate(or_else(X, Y), CLi, CLo) :-
-	boolean(and_then(not(X), not(Y)), CLi, CLo).
-negate(xor(X, Y), CLi, CLo) :-
-    boolean(or(and(X, Y), and(not(X), not(Y))), CLi, CLo).
+negate(and(X, Y)) :-
+	boolean(or(not(X), not(Y))).
+negate(and_then(X, Y)) :-
+	boolean(or_else(not(X), not(Y))).
+negate(or(X, Y)) :-
+	boolean(and(not(X), not(Y))).
+negate(or_else(X, Y)) :-
+	boolean(and_then(not(X), not(Y))).
+negate(xor(X, Y)) :-
+    boolean(or(and(X, Y), and(not(X), not(Y)))).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
