@@ -140,8 +140,7 @@ arithmetic(X, X, T):-
 	    T = array
 	).
 
-% arithmetic/3 for operators
-% check operands and apply the correct operator depending on whether dealing with an integer expression or a potentially mixed real expression
+%C checked
 arithmetic(*(Le, Ri), X * Y, T):-
 	!,
 	arithmetic(Le, X, XT),
@@ -151,7 +150,7 @@ arithmetic(*(Le, Ri), X * Y, T):-
     ;
 	    T = r
 	).
-
+%C checked
 arithmetic(+(Le, Ri), X + Y, T):-
 	!,
 	arithmetic(Le, X, XT),
@@ -161,7 +160,7 @@ arithmetic(+(Le, Ri), X + Y, T):-
 	;
 	    T = r
 	).
-
+%C checked
 arithmetic(-(Le, Ri), X - Y, T):-
 	!,
 	arithmetic(Le, X, XT),
@@ -171,7 +170,7 @@ arithmetic(-(Le, Ri), X - Y, T):-
 	;
 	    T = r
 	).
-
+%C checked
 arithmetic(-(Ri), -Y, T) :-
 	!,
 	arithmetic(Ri, Y, T).
@@ -180,7 +179,6 @@ arithmetic(abs(Ri), abs(X), T) :-
 	!,
 	arithmetic(Ri, X, T).
 
-%removed my custom power operator 
 arithmetic(**(Le, Ri), X^Y, T):-
 	!,
 	arithmetic(Le, X, XT),
@@ -191,30 +189,25 @@ arithmetic(**(Le, Ri), X^Y, T):-
 	    T = r
 	).
 
-%'/' can apply to real or integer operands
-arithmetic(/(Le, Ri), R, T) :-
+%C checked
+%'/' can apply to floats or integer operands, in C trunk towards 0 (e.g. -5/3 = -1)
+%ic: // "Integer division, rounding towards zero. This is only defined over integral arguments and yields an integral result."
+%ic: / "Division. Inside #-constraints, this only has a solution if the result is integral."
+%so I think safe to use ic / and if integers are involved it will evalaate to integer so no need for type checking
+arithmetic(/(Le, Ri), X / Y, T) :-
 	!,
 	arithmetic(Le, X, XT),
 	arithmetic(Ri, Y, YT),
 	((XT == i, YT == i) ->
-	    (T = i,
-		 R = X // Y
-	    )
+	    T = i
 	;
-	    (T = r,
-	     R = X / Y
-	    )
+	    T = r
 	).
 
+%C checked
 %mod can only apply to integer operands and the resulting type is always integer
-arithmetic(mod(Le, Ri), R, i) :-
-	!,
-	arithmetic(Le, X, i),
-	arithmetic(Ri, Y, i),
-	s_mod(X, Y, R). 	%custom defined operator for modulo: no equivalent in ic
-
-%rem can only apply to integer operands and the resulting type is always integer
-arithmetic(rem(Le, Ri), X rem Y, i) :-
+%actually behave the same as ic:rem (even for negatives: takes the sign of the numerator)
+arithmetic(mod_op(Le, Ri), X rem Y, i) :-
 	!,
 	arithmetic(Le, X, i),
 	arithmetic(Ri, Y, i).
