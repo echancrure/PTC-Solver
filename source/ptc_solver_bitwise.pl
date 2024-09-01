@@ -10,7 +10,7 @@
 % Eclipse 's binary representation cannot be used as it deletes leading zeros
 %  and therefore the length of the encoding cannot be detected
 %%%
-%I must be an integer decimal number including, possibly, a minus sign for negative numbers
+%L must be a list of integer decimal number including, possibly, a minus sign for negative numbers
 %Len must be one of : 8, 16, 32 or 64
 %Sign must be one of : signed or unsigned
 bitwise_check(L, Len, Sign) :-
@@ -26,7 +26,7 @@ bitwise_check(L, Len, Sign) :-
         (Len == 16, Sign == unsigned) ->
                 all(L, 0, 65535)
         ;
-        (Len == 32 , Sign == signed) ->         %!!!loss
+        (Len == 32 , Sign == signed) ->         %!!!loss %todo review these limitations
                 all(L, -65535, 65535)
         ;
         (Len == 32, Sign == unsigned) ->        %!!!loss
@@ -199,7 +199,7 @@ list_right_shift(Z2, S, V, Result) :-
     simple_right_shift(S1, Z3, Result).
 
 %%%
-%Bitwise negation
+%Bitwise negation, unary C operator ~
 s_bwnot(X, Len, Sign, Z) :-
     Xeval #= X+0,
     bitwise_check([Xeval], Len, Sign),
@@ -217,11 +217,10 @@ s_bwnot2(X, Len, Sign, Z) :-
     ;
         suspend(s_bwnot2(X, Len, Sign, Z), 3, [X, Z]->inst)
     ).
-
 %%%
 %There is a lot of repeat code below refactoring should be performed
 %%%
-%Bitwise and
+%Bitwise and, binary C operator &
 s_bwand(X, Y, Len, Sign, Z) :-
     Xeval #= X+0,
     Yeval #= Y+0,
@@ -240,7 +239,7 @@ s_bwand2(X, Y, Len, Sign, Z) :-
     ).
 
 %%%
-%Bitwise or
+%Bitwise or, binary C operator |
 s_bwor(X, Y, Len, Sign, Z) :-
     Xeval #= X+0,
     Yeval #= Y+0,
@@ -259,7 +258,7 @@ s_bwor2(X, Y, Len, Sign, Z) :-
     ).
 
 %%%
-%Bitwise xor
+%Bitwise xor, binary C operator ^
 s_bwxor(X, Y, Len, Sign, Z) :-
     Xeval #= X+0,
     Yeval #= Y+0,
@@ -284,7 +283,7 @@ s_bwxor2(X, Y, Len, Sign, Z) :-
     ).
 
 %%%
-%left shift, S is the amount of shifting
+%left shift, S is the amount of shifting, binary C operator <<
 %new bits coming from the right are zeros
 s_left_shift(X, S, Len, Sign, Z) :-
     Xeval #= X+0,
@@ -305,7 +304,7 @@ s_left_shift2(X, S, Len, Sign, Z) :-
     ).
 
 %%%
-%right shift, S is the amount of shifting
+%right shift, S is the amount of shifting, binary C operator >>
 %new bits coming from the right are zeros if unsigned or the sign bit otherwise if signed
 s_right_shift(X, S, Len, Sign, Z) :-
     Xeval #= X+0,
