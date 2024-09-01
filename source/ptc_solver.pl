@@ -57,7 +57,6 @@ mytrace.            %call this to start debugging
 % undoing the operators precedence of the solver prior to compilation
 :- include([util__pre_precedence]).
 
-:- local reference(current_vars).
 :- local variable(entail_stack).        %used for entail check within reif in ptc_solver_boolean.pl file
 %%%
 :- dynamic or_constraint_behaviour/1.
@@ -84,64 +83,6 @@ ptc_solver__verbose(Message, Term) :-
     ;
         true
     ).
-
-%%%
-%useful for embedding
-ptc_solver__submit_string(String) :-
-        ((getval(current_vars, V), V \= 0) ->
-                true
-        ;
-                setval(current_vars, [])
-        ),
-        term_string(Goal, String),
-        term_variables(Goal, Var_list),
-        getval(current_vars, Name_value_list_in),
-        match(Var_list, Name_value_list_in, New_list),
-        append(Name_value_list_in, New_list, Name_value_list_new),
-        call(Goal),     %may fail
-        setval(current_vars, Name_value_list_new).
-
-%vars, in_list, new_ones
-match([], _, []).
-match([V|Rest], Var_list, Out) :-
-        (get_var_info(V, name, Name) ->
-                (match2((Name, V), Var_list) ->
-                        Rest_new = Out
-                 ;
-                        append([(Name, V)], Rest_new, Out)
-                )
-        ;
-                Rest_new = Out %failed because anonymous var
-        ),
-        match(Rest, Var_list, Rest_new).
-
-
-match2(_, []) :-
-        fail.
-match2((Name, V), [(Name, V)|_]) :-
-        !.
-match2(In, [_|Rest]) :-
-        match2(In, Rest).
-
-%%%
-%given a string denoting a variable returns the variable
-ptc_solver__match_variable(String, Ref) :-
-    getval(current_vars, V),
-    atom_string(Name, String),
-    match2((Name, Ref), V).
-
-%useful for embedding
-ptc_solver__get_single_variable(String, Value) :-
-    atom_string(Name, String),
-    getval(current_vars, Name_value_list_in),
-    (match2((Name, Value), Name_value_list_in) ->
-        true
-    ;
-        Value = -2
-    ).
-
-ptc_solver__get_all_variables(V) :-
-    getval(current_vars, V).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %2 important clauses that record the entire type system
