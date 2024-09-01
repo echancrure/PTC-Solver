@@ -9,6 +9,9 @@ ptc_solver__default_declarations(Memory_model) :-
 	(Memory_model == 'ILP32' ->
 		include(['ptc_solver_memory_model_ilp32'])
 	;
+	 Memory_model == 'ILP64' ->
+		include(['ptc_solver_memory_model_ilp64'])
+	;	
 		(concat_string(["Memory Model: ", Memory_model, " is not valid"], Error_message),
 		 ptc_solver__error(Error_message)
 		)
@@ -19,22 +22,20 @@ create_all_types :-
 	c_type_declaration(Type_name, Base_type, Size, First, Last),
 	(Base_type == 'integer' ->
 		(I #:: First..Last,
-		 ptc_solver__set_frame(Type_name, 'integer', I),
-		 asserta(ptc_solver__first(Type_name, First)),
-		 asserta(ptc_solver__last(Type_name, Last)),
+		 ptc_solver__set_frame(Type_name, 'integer', I)
 		)
 	;
 	 Base_type == 'floating_point' ->
 	 	(FP #:: First..Last,
-		 ptc_solver__set_frame(Type_name, 'real', FP),
-		 asserta(ptc_solver__first(Type_name, First)),
-		 asserta(ptc_solver__last(Type_name, Last)),
+		 ptc_solver__set_frame(Type_name, 'real', FP)
 	   )
 	;
 		(concat_string(["Base type: ", Base_type, " is not valid"], Error_message),
 		 ptc_solver__error(Error_message)
 		)
 	),
+	asserta(ptc_solver__first(Type_name, First)),
+	asserta(ptc_solver__last(Type_name, Last)),
 	fail.
 create_all_types :-
 	!.
