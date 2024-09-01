@@ -14,7 +14,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(library(ic)).
-%:- ensure_loaded(ptc_solver).
+
 :- import ptc_solver__get_frame/3, ptc_solver__first/2, ptc_solver__last/2, ptc_solver__arithmetic/3 from ptc_solver.
 
 :- meta_attribute(ptc_enum, [unify: unify_enum/2, print:print_enum/2]).

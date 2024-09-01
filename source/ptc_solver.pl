@@ -6,17 +6,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %This module is a little bit messy. Its function is to provide an interface for the solver.
 %It could be simplified via syntactic rationalisation of the solver per se.
-%compile('//C/Users/Chris2/GoogleDrive/ATGen/ptcSolver/source/ptc_solver').
 %%%
 :- get_flag(version, '7.1').    %check for valid ECLiPSe version: issue warning only if not 
+:- on_first_use.
 %%%
+on_first_use :-
+
+
+
 
 %%%
 :- module(ptc_solver).
 mytrace.            %call this to start debugging
 :- spy mytrace/0.
 :- export ptc_solver__version/1.
-:- export ptc_solver__clean_up/0, ptc_solver__default_declarations/0.
+:- export ptc_solver__clean_up/0, ptc_solver__default_declarations/1.
 :- export ptc_solver__sdl/1, ptc_solver__arithmetic/3, ptc_solver__relation/3.
 :- export ptc_solver__type/2, ptc_solver__type/3, ptc_solver__type/4, ptc_solver__subtype/2, ptc_solver__subtype/3.
 :- export ptc_solver__variable/2.
@@ -41,8 +45,7 @@ mytrace.            %call this to start debugging
 :- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
 :- include([ptc_solver_bitwise]).
 
-:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).        %use this line for development
-%:- lib(ptc_array), lib(ptc_record), lib(ptc_enum), lib(ptc_labeling).   %use this line to produce binaries using new_version/0 in ptc_solver_update.pl
+:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
 :- import ptc_enum__pred/2, ptc_enum__is_enum/1, ptc_enum__pos/3, ptc_enum__is_enum_type/1, ptc_enum__get_literal/3, ptc_enum__get_basetype/2 from ptc_enum.
@@ -64,7 +67,7 @@ mytrace.            %call this to start debugging
 :- dynamic float_to_int_convention/1.
 :- dynamic debug_mode/1.
 %%%
-ptc_solver__version("2.1").
+ptc_solver__version("C 2.1").
 
 ptc_solver__error(Message) :-
     writeln(user_error, "***PTC Solver Fatal Error***"),

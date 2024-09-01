@@ -1,30 +1,43 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Christophe Meudec -  - started 22/10/99
-% Eclipse 7.0 program
+% ECLiPSe 7.1
 % ptc_solver_types1.pl
 % part of the ptc_solver module : variables declaration matters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%default declarations for booleans, integers, floating numbers without range
-ptc_solver__default_declarations :-
-	%LONG_MAX #= 2^31-1,				%i.e. 2147483647, C long, about 2 billions
-	%LONG_MAX #= 65535,					%i.e. previous solver version maximum under fd
-	LONG_MAX #= 10*10^6,				%for now. Note larger may fail regression tests with stack overflow
-	%LONG_MAX #= 100,
-	LONG_MIN #= -LONG_MAX,
-	I #:: LONG_MIN..LONG_MAX,
-	ptc_solver__set_frame(integer, integer, I),
-	asserta(ptc_solver__first(integer, LONG_MIN)),
-	asserta(ptc_solver__last(integer, LONG_MAX)),
-	%FLOAT_MAX $= 3.4028235*10^38,		%i.e. single precision 32 bits C float
-	%FLOAT_MAX $= (2^40)/3,				%i.e. previous solver version maximum under clpq, about 366 billions
-	FLOAT_MAX $= 10*10^12,				%for now: 10 trillions
-	FLOAT_MIN $= -FLOAT_MAX,
-	R $:: FLOAT_MIN..FLOAT_MAX,
-	ptc_solver__set_frame(float, real, R),	%sometimes using float sometimes real...
-	asserta(ptc_solver__first(float, FLOAT_MIN)),
-	asserta(ptc_solver__last(float, FLOAT_MAX)),
-	ptc_solver__type(boolean, enumeration, [false, true]).
+ptc_solver__default_declarations(Memory_model) :-
+	(Memory_model == 'ILP32' ->
+		include(['ptc_solver_memory_model_ilp32'])
+	;
+		(concat_string(["Memory Model: ", Memory_model, " is not valid"], Error_message),
+		 ptc_solver__error(Error_message)
+		)
+	),
+	create_all_types.
+
+create_all_types :-
+	c_type_declaration(Type_name, Base_type, Size, First, Last),
+	(Base_type == 'integer' ->
+		(I #:: First..Last,
+		 ptc_solver__set_frame(Type_name, 'integer', I),
+		 asserta(ptc_solver__first(Type_name, First)),
+		 asserta(ptc_solver__last(Type_name, Last)),
+		)
+	;
+	 Base_type == 'floating_point' ->
+	 	(FP #:: First..Last,
+		 ptc_solver__set_frame(Type_name, 'real', FP),
+		 asserta(ptc_solver__first(Type_name, First)),
+		 asserta(ptc_solver__last(Type_name, Last)),
+	   )
+	;
+		(concat_string(["Base type: ", Base_type, " is not valid"], Error_message),
+		 ptc_solver__error(Error_message)
+		)
+	),
+	fail.
+create_all_types :-
+	!.
 
 %%%%%%%%%%
 %a real type without range constraint
