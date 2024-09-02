@@ -27,19 +27,19 @@ int main(void) {
     fprintf(file, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
 
     fprintf(file, "c_type_declaration('char', 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(char), CHAR_MIN, CHAR_MAX);
-    fprintf(file, "c_type_declaration('unsigned(char), 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned char), UCHAR_MAX);
+    fprintf(file, "c_type_declaration('unsigned(char)', 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned char), UCHAR_MAX);
 
     fprintf(file, "c_type_declaration('short', 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(short), SHRT_MIN, SHRT_MAX);
-    fprintf(file, "c_type_declaration('unsigned_short', 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned short), USHRT_MAX);
+    fprintf(file, "c_type_declaration('unsigned(short)', 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned short), USHRT_MAX);
 
     fprintf(file, "c_type_declaration('int', 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(int), INT_MIN, INT_MAX);
-    fprintf(file, "c_type_declaration('unsigned_int', 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned int), UINT_MAX);
+    fprintf(file, "c_type_declaration('unsigned(int)', 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned int), UINT_MAX);
 
     fprintf(file, "c_type_declaration('long', 'integer', %lu, %ld, %ld).\n", (unsigned long)sizeof(long), LONG_MIN, LONG_MAX);
-    fprintf(file, "c_type_declaration('unsigned_long', 'integer', %lu, 0, %lu).\n", (unsigned long)sizeof(unsigned long), ULONG_MAX);
+    fprintf(file, "c_type_declaration('unsigned(long)', 'integer', %lu, 0, %lu).\n", (unsigned long)sizeof(unsigned long), ULONG_MAX);
 
     fprintf(file, "c_type_declaration('long_long', 'integer', %lu, %lld, %lld).\n", (unsigned long)sizeof(long long), LLONG_MIN, LLONG_MAX);
-    fprintf(file, "c_type_declaration('unsigned_long_long', 'integer', %lu, 0, %llu).\n", (unsigned long)sizeof(unsigned long long), ULLONG_MAX);
+    fprintf(file, "c_type_declaration('unsigned(long_long)', 'integer', %lu, 0, %llu).\n", (unsigned long)sizeof(unsigned long long), ULLONG_MAX);
 
     fprintf(file, "c_type_declaration('float', 'floating_point', %lu, %g, %g).\n", (unsigned long)sizeof(float), FLT_MIN, FLT_MAX);
     fprintf(file, "c_type_declaration('double', 'floating_point', %lu, %g, %g).\n", (unsigned long)sizeof(double), DBL_MIN, DBL_MAX);
