@@ -42,7 +42,7 @@ mytrace.            %call this to start debugging
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(library(ic)).
 
-:- include([ptc_solver_types1, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions1]).
+:- include([ptc_solver_types, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions]).
 :- include([ptc_solver_bitwise]).
 
 :- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).
