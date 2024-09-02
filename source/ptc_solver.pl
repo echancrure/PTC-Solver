@@ -8,19 +8,12 @@
 %It could be simplified via syntactic rationalisation of the solver per se.
 %%%
 :- get_flag(version, '7.1').    %check for valid ECLiPSe version: issue warning only if not 
-:- on_first_use.
-%%%
-on_first_use :-
-
-
-
-
 %%%
 :- module(ptc_solver).
 mytrace.            %call this to start debugging
 :- spy mytrace/0.
 :- export ptc_solver__version/1.
-:- export ptc_solver__clean_up/0, ptc_solver__default_declarations/1.
+:- export ptc_solver__clean_up/0, ptc_solver__default_declarations/2.
 :- export ptc_solver__sdl/1, ptc_solver__arithmetic/3, ptc_solver__relation/3.
 :- export ptc_solver__type/2, ptc_solver__type/3, ptc_solver__type/4, ptc_solver__subtype/2, ptc_solver__subtype/3.
 :- export ptc_solver__variable/2.
@@ -34,10 +27,7 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__get_record_field_values/2, ptc_solver__get_array_index_elements/2.
 :- export ptc_solver__integer_range/3, ptc_solver__is_integer/1, ptc_solver__is_real/1.
 :- export ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/2, ptc_solver__label_reals/1.
-:- export ptc_solver__submit_string/1.
-:- export ptc_solver__get_single_variable/2, ptc_solver__get_all_variables/1.
 :- export ptc_solver__create_record_from_agg/3, ptc_solver__create_array_from_agg/3.
-:- export ptc_solver__match_variable/2.
 :- export ptc_solver__set_flag/2.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(library(ic)).

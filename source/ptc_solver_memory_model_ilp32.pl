@@ -15,7 +15,7 @@ c_type_declaration('unsigned(long_long)', 'integer', 8, 0, 18446744073709551615)
 c_type_declaration('float', 'floating_point', 4, 1.17549e-38, 3.40282e+38).
 c_type_declaration('double', 'floating_point', 8, 2.22507e-308, 1.79769e+308).
 c_type_declaration('long_double', 'floating_point', 12, 3.3621e-4932, 1.18973e+4932).
-c_type_declaration('pointer', 'integer', 4, 'rubbish', 'rubbish').
 c_type_declaration('boolean', 'integer', 1, 0, 1).
 c_type_declaration('enum', 'integer', 4, -2147483648, 2147483647).
+c_type_declaration('pointer', 'integer', 4).   %has no first nor last
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

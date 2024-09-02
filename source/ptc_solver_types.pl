@@ -4,28 +4,26 @@
 % part of the ptc_solver module : variables declaration matters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ptc_solver__default_declarations(Memory_model) :-
-	(Memory_model == 'ILP32' ->
-		include(['ptc_solver_memory_model_ilp32'])
-	;
-	 Memory_model == 'ILP64' ->
-		include(['ptc_solver_memory_model_ilp64'])
+ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
+	concat_string([Solver_install_dir, "ptc_solver_memory_model_", Memory_model], Default_type_file),
+	(compile([Default_type_file]) ->
+		ptc_solver__verbose("Compiled default C declarations from file", Default_type_file)
 	;	
-		(concat_string(["Memory Model: ", Memory_model, " is not valid"], Error_message),
+		(concat_string(["Memory Model in file: ", Default_type_file, " is not valid"], Error_message),
 		 ptc_solver__error(Error_message)
 		)
 	),
 	create_all_types.
 
 create_all_types :-
-	c_type_declaration(Type_name, Base_type, Size, First, Last),
+	c_type_declaration(Type_name, Base_type, _Size, First, Last),	%todo Size is not currently recorded
 	(Base_type == 'integer' ->
 		(I #:: First..Last,
 		 ptc_solver__set_frame(Type_name, 'integer', I)
 		)
 	;
 	 Base_type == 'floating_point' ->
-	 	(FP #:: First..Last,
+	 	(FP $:: First..Last,		%unsound? very wide floating point numbers (e.g. of long double type with upper bound to 1.18973e+4932) will have their bounds 'approximated' to infinity by the IC library
 		 ptc_solver__set_frame(Type_name, 'real', FP)
 	   )
 	;
@@ -37,8 +35,10 @@ create_all_types :-
 	asserta(ptc_solver__last(Type_name, Last)),
 	fail.
 create_all_types :-
+	c_type_declaration(Type_name, Base_type, _Size),	%todo Size is not currently recorded
+	fail.
+create_all_types :-
 	!.
-
 %%%%%%%%%%
 %a real type without range constraint
 ptc_solver__type(Type_mark, real) :-
