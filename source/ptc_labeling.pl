@@ -17,13 +17,13 @@ ptc_labeling__integers(L) :-
 	mytrace,
 	ptc_solver__first('int', First),
 	ptc_solver__last('int', Last),
-	impose_domain(L, First, Last),
-	ic:search(L, 0, most_constrained, 'indomain_random', bbs(5), []).	
+	impose_domain(L, First, Last),		%a possible optimisation is to start with much smaller domains
+	ic:search(L, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite
 
 impose_domain([], _, _).
 impose_domain([Var|R], First, Last) :-
-	impose_min(Var, First), 
-	impose_max(Var, Last),
+	impose_min(Var, First), 	%has no effect if existing lower bound is higher 
+	impose_max(Var, Last),		%has no effect if existing higher bound is lower 
 	impose_domain(R, First, Last).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points
