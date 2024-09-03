@@ -3,6 +3,7 @@
 % ECLiPSe 7.1
 % part of the ptc_solver module : variables declaration matters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dynamic c_type_declaration/5, c_type_declaration/3.
 
 ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
 	concat_string([Solver_install_dir, "ptc_solver_memory_model_", Memory_model], Default_type_file),
@@ -35,7 +36,7 @@ create_all_types :-
 	asserta(ptc_solver__last(Type_name, Last)),
 	fail.
 create_all_types :-
-	c_type_declaration(Type_name, Base_type, _Size),	%todo Size is not currently recorded
+	c_type_declaration(_Type_name, _Base_type, _Size),	%todo Size is not currently recorded
 	fail.
 create_all_types :-
 	!.
