@@ -19,7 +19,8 @@ ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
 create_all_types :-
 	c_type_declaration(Type_name, Base_type, _Size, First, Last),	%todo Size is not currently recorded
 	(Base_type == 'integer' ->
-		(I #:: First..Last,
+		(%I #:: First..Last,
+		 integers([I]),		%integer with infinite domain
 		 ptc_solver__set_frame(Type_name, 'integer', I)
 		)
 	;

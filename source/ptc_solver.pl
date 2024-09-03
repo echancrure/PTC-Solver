@@ -33,9 +33,9 @@ mytrace.            %call this to start debugging
 :- use_module(library(ic)).
 
 :- include([ptc_solver_types, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions]).
-:- include([ptc_solver_bitwise]).
+:- include([ptc_solver_bitwise, ptc_labeling]).
 
-:- use_module([ptc_array, ptc_record, ptc_enum, ptc_labeling]).
+:- use_module([ptc_array, ptc_record, ptc_enum]).
 
 :- import ptc_enum__clean_up/0, ptc_enum__record_enum/2, ptc_enum__create_enum/5, ptc_enum__get_position/2, ptc_enum__get_position/3, ptc_enum__succ/2 from ptc_enum.
 :- import ptc_enum__pred/2, ptc_enum__is_enum/1, ptc_enum__pos/3, ptc_enum__is_enum_type/1, ptc_enum__get_literal/3, ptc_enum__get_basetype/2 from ptc_enum.
@@ -44,7 +44,6 @@ mytrace.            %call this to start debugging
 :- import ptc_record__up_record/4, ptc_record__get_all_field_values/2 from ptc_record.
 :- import ptc_array__create_array/4, ptc_array__get_element/3, ptc_array__is_array/1, ptc_array__create_array_from_agg/3 from ptc_array.
 :- import ptc_array__up_array/4, ptc_array__get_all_index_elements/2 from ptc_array.
-:- import ptc_labeling__enums/1 from ptc_labeling.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % undoing the operators precedence of the solver prior to compilation
@@ -104,16 +103,13 @@ ptc_solver__clean_up :-
 ptc_solver__label_integers(IL) :-
     ptc_labeling__integers(IL).
 
-/*ptc_solver__label_integers(IL, ChoiceMethod) :-
-    ptc_labeling__integers(IL, ChoiceMethod).
-*/
 ptc_solver__label_enums(IL) :-
     ptc_labeling__enums(IL).
 
 ptc_solver__label_reals(IL) :-  %legacy
     ptc_solver__label_reals(IL, _FL). 
 ptc_solver__label_reals(IL, FL) :-
-    ptc_labeling:ptc_labeling__reals(IL, FL).
+    ptc_labeling__reals(IL, FL).
 
 ptc_solver__is_real(Var) :-
     var(Var),

@@ -10,7 +10,7 @@ c_type_declaration('char', 'integer', 1, -128, 127).
 c_type_declaration('unsigned(char)', 'integer', 1, 0, 255).
 c_type_declaration('short', 'integer', 2, -32768, 32767).
 c_type_declaration('unsigned(short)', 'integer', 2, 0, 65535).
-c_type_declaration('int', 'integer', 4, -1000000, 1000000).
+c_type_declaration('int', 'integer', 4, -10000, 10000).
 c_type_declaration('unsigned(int)', 'integer', 4, 0, 2000000).
 c_type_declaration('long', 'integer', 8, -1000000, 1000000).
 c_type_declaration('unsigned(long)', 'integer', 8, 0, 2000000).
