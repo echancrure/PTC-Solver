@@ -19,7 +19,7 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__variable/2.
 :- export ptc_solver__is_enum/1, ptc_solver__is_record/1, ptc_solver__is_array/1.
 :- export ptc_solver__sample_enum/1.
-:- export ptc_solver__first/2, ptc_solver__last/2.
+:- export ptc_solver__first/2, ptc_solver__last/2, ptc_solver__size/2.
 :- export ptc_solver__error/1.
 :- export ptc_solver__get_frame/3.
 :- export ptc_solver__enum_get_literal/3, ptc_solver__enum_get_position/2, ptc_solver__enum_get_basetype/2.
@@ -28,8 +28,10 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/2, ptc_solver__label_reals/1.
 :- export ptc_solver__create_record_from_agg/3, ptc_solver__create_array_from_agg/3.
 :- export ptc_solver__set_flag/2.
+:- export ptc_solver__perform_cast/4.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(library(ic)).
+:- use_module(library(ic_kernel)).
 
 :- include([ptc_solver_types, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions]).
 :- include([ptc_solver_bitwise, ptc_labeling]).
@@ -79,7 +81,54 @@ ptc_solver__verbose(Message, Term) :-
         true
     ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ptc_solver__perform_cast(To_type, From_type, Symbolic_expression, Result) :-
+    Eval $= eval(Symbolic_expression),
+    ptc_solver__last(To_type, Last),
+    (To_type = unsigned(_) ->
+        (From_type = unsigned(_) ->
+            Result #= Eval rem (Last +1)    %may wrap if To_type is smaller
+        ;
+            (%casting from a signed type into an unsigned type
+             get_bounds(Eval, Lo, Hi),
+             (Hi < 0 ->     %casting a negative integer to an unsigned type
+                Result #= (Eval rem (Last+1)) + Last + 1    %e.g.cast(unsigned(char), _, -300, 212) because (-300 rem 256) + 256 == 212)
+             ;
+              Lo >= 0 ->    %casting a positive integer to an unsigned type
+                Result #= Eval rem (Last +1)                %e.g.cast(unsigned(char), _, 300, 212) because (300 rem 256) == 44)
+             ;
+                (Eval #=< 0,
+                 my_impose_max(Eval, Last),
+                 suspend(ptc_solver__perform_cast(To_type, From_type, Symbolic_expression, Result), 3, Eval->inst)  %unclear what could be gained from waken this when Result becomes ground
+                )
+             )
+            )
+        )
+    ;
+        (%casting to signed type
+         ptc_solver__first(To_type, First),
+         ptc_solver__last(To_type, Last),
+         my_impose_min(Eval, First),   %by imposing the bounds we aim to prevent overflow/underflow
+         my_impose_max(Eval, Last),
+         Result = Eval
+        )
+    ).
 
+my_impose_min(Eval, First) :-
+    (First >= -100000 ->
+        Eval #>= First
+    ;
+        impose_min(Eval, First)     %to avoid crazy propagation and overflow in ic
+    ).
+my_impose_max(Eval, Last) :-
+    (Last =< 100000 ->
+        Eval #=< Last
+    ;
+        impose_max(Eval, Last)     %to avoid crazy propagation and overflow in ic
+    ).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__clean_up :-
     setval(entail_stack, []),    %initialisation (see ptc_solver_boolean.pl file)
 	retractall(or_constraint_behaviour(_)),

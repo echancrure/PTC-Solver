@@ -40,6 +40,9 @@ ptc_solver__first(Type_mark, First) :-
 ptc_solver__last(Type_mark, Last) :-
 	c_type_declaration(Type_mark, _Base_type, _Size, _First, Last).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ptc_solver__size(Type_mark, Size) :-
+	c_type_declaration(Type_mark, _Base_type, Size, _First, _Last).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %todo: ALL that stuff is deprecated
 %a real type without range constraint
 ptc_solver__get_frame(_, _, _) :- ptc_solver__error("get_frame predicate is deprecated").
