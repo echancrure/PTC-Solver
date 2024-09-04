@@ -58,11 +58,11 @@ mytrace.            %call this to start debugging
 ptc_solver__version("C 2.1").
 
 ptc_solver__error(Message) :-
-    printf(user_error, "***PTC Solver Fatal Error***", []),
+    printf(user_error, "***PTC Solver Fatal Error***\n", []),
     printf(user_error, "%w\n", Message),
     abort.
 ptc_solver__error(Message, Term) :-
-    printf(user_error, "***PTC Solver Fatal Error***", []),
+    printf(user_error, "***PTC Solver Fatal Error***\n", []),
     printf(user_error, "%w: %w\n", [Message, Term]),
     abort.
 
