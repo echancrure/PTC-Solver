@@ -19,7 +19,6 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__variable/2.
 :- export ptc_solver__is_enum/1, ptc_solver__is_record/1, ptc_solver__is_array/1.
 :- export ptc_solver__sample_enum/1.
-:- dynamic ptc_solver__first/2, ptc_solver__last/2.
 :- export ptc_solver__first/2, ptc_solver__last/2.
 :- export ptc_solver__error/1.
 :- export ptc_solver__get_frame/3.
@@ -59,8 +58,12 @@ mytrace.            %call this to start debugging
 ptc_solver__version("C 2.1").
 
 ptc_solver__error(Message) :-
-    writeln(user_error, "***PTC Solver Fatal Error***"),
-    writeln(user_error, Message),
+    printf(user_error, "***PTC Solver Fatal Error***", []),
+    printf(user_error, "%w\n", Message),
+    abort.
+ptc_solver__error(Message, Term) :-
+    printf(user_error, "***PTC Solver Fatal Error***", []),
+    printf(user_error, "%w: %w\n", [Message, Term]),
     abort.
 
 ptc_solver__verbose(Message, Term) :-
@@ -75,20 +78,10 @@ ptc_solver__verbose(Message, Term) :-
     ;
         true
     ).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%2 important clauses that record the entire type system
-%Type_mark is direct from the source code
-%Subtype_mark is the base type of the type : integer, real, base_enumeration, record, array(Component_type_mark), or Parents_type for an enumeration subtype
-ptc_solver__set_frame(Type_mark, Subtype_mark, Value) :-
-    record(frame, f(Type_mark, Subtype_mark, Value)).
-
-ptc_solver__get_frame(Type_mark, Subtype_mark, Value) :-
-    recorded(frame, f(Type_mark, Subtype_mark, Value)).     %extremely slow!!! see 16-05-2001
 
 ptc_solver__clean_up :-
     setval(entail_stack, []),    %initialisation (see ptc_solver_boolean.pl file)
-	erase_all(frame),
 	retractall(or_constraint_behaviour(_)),
 	retractall(enumeration_start(_)),
     retractall(float_to_int_convention(_)),
@@ -96,8 +89,6 @@ ptc_solver__clean_up :-
 	assert(enumeration_start(1)),
     assert(float_to_int_convention(truncate)),
     assert(debug_mode('off')),
-	retractall(ptc_solver__first(_, _)),
-	retractall(ptc_solver__last(_, _)),
 	ptc_enum__clean_up.
 
 ptc_solver__label_integers(IL) :-

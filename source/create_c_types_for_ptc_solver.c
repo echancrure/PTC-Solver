@@ -45,7 +45,7 @@ int main(void) {
     fprintf(file, "c_type_declaration('double', 'floating_point', %lu, %g, %g).\n", (unsigned long)sizeof(double), DBL_MIN, DBL_MAX);
     fprintf(file, "c_type_declaration('long_double', 'floating_point', %lu, %Lg, %Lg).\n", (unsigned long)sizeof(long double), LDBL_MIN, LDBL_MAX);
 
-    fprintf(file, "c_type_declaration('boolean', 'integer', %lu, 0, 1).\n", (unsigned long)sizeof(_Bool));
+    fprintf(file, "c_type_declaration('bool', 'integer', %lu, 0, 1).\n", (unsigned long)sizeof(_Bool));
 
     fprintf(file, "c_type_declaration('enum', 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(enum week), INT_MIN, INT_MAX);
 

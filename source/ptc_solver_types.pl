@@ -5,6 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dynamic c_type_declaration/5, c_type_declaration/3.
 
+%compile all the c_type_declaration(Type_mark, Base_type, Size, First, Last) for the Memory_model
 ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
 	concat_string([Solver_install_dir, "ptc_solver_memory_model_", Memory_model], Default_type_file),
 	(compile([Default_type_file]) ->
@@ -13,36 +14,36 @@ ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
 		(concat_string(["Memory Model in file: ", Default_type_file, " is not valid"], Error_message),
 		 ptc_solver__error(Error_message)
 		)
+	).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%solver variable declarations
+ptc_solver__variable([], _).
+ptc_solver__variable([Id|R], Type_mark) :-
+	(c_type_declaration(Type_mark, Base_type, _Size, _First, _Last) ->
+		true
+	;
+		ptc_solver__error("Invalid type_mark in variable declaration", Type_mark)
 	),
-	create_all_types.
-
-create_all_types :-
-	c_type_declaration(Type_name, Base_type, _Size, First, Last),	%todo Size is not currently recorded
 	(Base_type == 'integer' ->
-		(%I #:: First..Last,
-		 integers([I]),		%integer with infinite domain
-		 ptc_solver__set_frame(Type_name, 'integer', I)
-		)
+		Id #:: -inf..inf
 	;
 	 Base_type == 'floating_point' ->
-	 	(FP $:: First..Last,		%unsound? very wide floating point numbers (e.g. of long double type with upper bound to 1.18973e+4932) will have their bounds 'approximated' to infinity by the IC library
-		 ptc_solver__set_frame(Type_name, 'real', FP)
-	   )
+		Id $:: -inf..inf
 	;
-		(concat_string(["Base type: ", Base_type, " is not valid"], Error_message),
-		 ptc_solver__error(Error_message)
-		)
+		ptc_solver__error("Invalid base_type in variable declaration", Base_type)
 	),
-	asserta(ptc_solver__first(Type_name, First)),
-	asserta(ptc_solver__last(Type_name, Last)),
-	fail.
-create_all_types :-
-	c_type_declaration(_Type_name, _Base_type, _Size),	%todo Size is not currently recorded
-	fail.
-create_all_types :-
-	!.
-%%%%%%%%%%
+	ptc_solver__variable(R, Type_mark).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ptc_solver__first(Type_mark, First) :-
+	c_type_declaration(Type_mark, _Base_type, _Size, First, _Last).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ptc_solver__last(Type_mark, Last) :-
+	c_type_declaration(Type_mark, _Base_type, _Size, _First, Last).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%todo: ALL that stuff is deprecated
 %a real type without range constraint
+ptc_solver__get_frame(_, _, _) :- ptc_solver__error("get_frame predicate is deprecated").
+ptc_solver__set_frame(_, _, _) :- ptc_solver__error("set_frame predicate is deprecated").
 ptc_solver__type(Type_mark, real) :-
 	ptc_solver__verbose("*START Real Type", Type_mark),
 	ptc_solver__get_frame(float, real, R),            %obtain the default frame of type float
@@ -171,29 +172,12 @@ ptc_solver__subtype(_Subtype_mark, _Type_mark, range(_)) :-           %todo
 ptc_solver__subtype(_Subtype_mark, _Type_mark, range(_, _)) :-        %todo
 	ptc_solver__error("Subtype with range not yet implemented").
 
-%variable declarations
-ptc_solver__variable(Identifier_list, Type_mark) :-
-	ptc_solver__verbose("*START Variables", Identifier_list),
-	init_variables(Identifier_list, Type_mark),
-	ptc_solver__verbose("*END Variables", Identifier_list).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % for enumeration types
 representation([], [], _).
 representation([Literal|RestL], [(Literal, N)|Rest_enum], N) :-
 	N1 is N+1,
 	representation(RestL, Rest_enum, N1).
-
-% called from variable/2 by init_variables(Identifier_list, Type_mark)
-% is recursif
-% Identifier_list is the in list of variable identifiers
-% Type_mark is the in type mark of the identifiers in Identifier_list
-% initialise the var predicate for all identifiers in Identifier_list
-init_variables([], _).
-init_variables([Identifier|Rest], Type_mark) :-
-	ptc_solver__get_frame(Type_mark, _, Identifier),
-	!,                                              %added 02/02/2000
-	init_variables(Rest, Type_mark).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % called from initialise_declarations/1 by extract_index(Index_list, Eval_index_list)
