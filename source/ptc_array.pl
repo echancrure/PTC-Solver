@@ -21,14 +21,14 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(library(ic)).
-%:- ensure_loaded(ptc_solver).
+
 :- import ptc_solver__arithmetic/3 from ptc_solver.
 :- import ptc_solver__relation/3 from ptc_solver.
 :- import ptc_solver__get_frame/3 from ptc_solver.
 :- import ptc_solver__error/1 from ptc_solver.
-%:- ensure_loaded(ptc_enum).
+
 :- import ptc_enum__get_position/2 from ptc_enum.
-%:- ensure_loaded(ptc_record).
+
 :- import ptc_record__raw_get_field/2 from ptc_record.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %unify_array(Value, Attribute) : only a false call and META + nonvar(Attr) will ever arise
