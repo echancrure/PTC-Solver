@@ -163,12 +163,8 @@ s_or_else_pure(A, B) :-
     ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%to handle C Boolean expressions which return an int
-% which can be part of expressions such as x = (y<z)
-%see my Eileen's MSc diary
-% pretty much as a reified constraint
-
-%R must be an fd constraint between with domain 0..1 only
+%to handle C Boolean expressions which return an int which can be part of expressions such as x = (y<z)
+%R must be an ic integral between with domain 0..1 only
 s_reif(Constraint, R) :-
 	(R == 1 ->
 		sdl(Constraint)

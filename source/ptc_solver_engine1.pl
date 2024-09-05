@@ -433,8 +433,8 @@ eq_cast(Le, Ri) :-
 % failure denotes overall inconsistency or no more classes possible
 % boolean constraints are processed first then arithmetics through relation/3
 sdl(Cond) :-
-	(var(Cond) ->                    %Cond must be a boolean variable that must be true
-        boolean(=(Cond, true))
+	(var(Cond) ->                   
+        Cond #\= 0	%i.e. true in C
 	;
 	 Cond = element(_, _) ->         %an array element which is a boolean
 	    (ptc_array__get_element(Cond, Elem, e),	%booleans are enumerations
@@ -447,7 +447,9 @@ sdl(Cond) :-
 		)
 	;
 	 Cond = reif(Constraint, R) ->
-	    s_reif(Constraint, R)   %see ptc_solver_boolean
+		(R #:: 0..1,
+	     s_reif(Constraint, R)   %see ptc_solver_boolean
+		)
 	;
 	 Cond = cmp(Exp1, Exp2, R) ->
 	    s_cmp(Exp1, Exp2, R)    %see ptc_solver_boolean
@@ -458,40 +460,15 @@ sdl(Cond) :-
 		boolean(Cond)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%recursive; choice points; can fail
-boolean(true).
-boolean(false) :-
+boolean(0) :-
+	!,
 	fail.
-boolean(and(L, R)) :-
-	random(2, R2),
-    (R2 == 0 ->
-        (sdl(L),
-         sdl(R)
-        )
-    ;
-	    (sdl(R),
-	     sdl(L)
-        )
-    ).
-
-boolean(and_then(L, R)) :-
-	sdl(L),
-    sdl(R).
-
-boolean(or(L, R)) :-
-    s_or(L, R).             %see ptc_solver_boolean
-
-boolean(or_else(L, R)) :-
-    s_or_else(L, R).        %see ptc_solver_boolean
-
-boolean(xor(L, R)) :-
-    boolean(or(and(L, not(R)), and(not(L), R))).
-
-%not can be over an array of Booleans
-%see initial call to sdl as it is similar
+boolean(N) :-
+	integer(N),
+	!.
 boolean(not(Bool)) :-
-	(var(Bool) ->            %Cond must be a boolean variable that must be true
-        boolean(=(Bool, false))
+	(var(Bool) ->
+        Bool #= 0	%i.e. false in C
 	;
 	 Bool = element(_, _) ->
 	    (ptc_array__get_element(Bool, Elem, e),	%booleans are enumerations
@@ -519,11 +496,6 @@ boolean(<=(X, Y)) :-
 boolean(>=(X, Y)) :-
 	relation(>=, X, Y).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%negate the boolean expression Bool by calling
-%  * relation/3 if an arithmetic relation
-%  * boolean /3 if a boolean expression which is not a boolean variable
-%  * sdl/3 if a boolean expression which could be a boolean variable
 negate(false).        %not false
 negate(true) :-       %not true
 	fail.

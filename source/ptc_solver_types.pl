@@ -36,13 +36,16 @@ ptc_solver__variable([Id|R], Type_mark) :-
 	ptc_solver__variable(R, Type_mark).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__first(Type_mark, First) :-
-	c_type_declaration(Type_mark, _Base_type, _Size, First, _Last).
+	c_type_declaration(Type_mark, _Base_type, _Size, First, _Last),
+	!.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__last(Type_mark, Last) :-
-	c_type_declaration(Type_mark, _Base_type, _Size, _First, Last).
+	c_type_declaration(Type_mark, _Base_type, _Size, _First, Last),
+	!.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__size(Type_mark, Size) :-
-	c_type_declaration(Type_mark, _Base_type, Size, _First, _Last).
+	c_type_declaration(Type_mark, _Base_type, Size, _First, _Last),
+	!.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %todo: ALL that stuff is deprecated
 %a real type without range constraint
