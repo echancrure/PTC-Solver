@@ -3,10 +3,11 @@
 % ECLiPSe 7.1
 % part of the ptc_solver module : variables declaration matters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dynamic c_type_declaration/5, c_type_declaration/3.
+%:- dynamic c_type_declaration/5, c_type_declaration/3.
 
 %compile all the c_type_declaration(Type_mark, Base_type, Size, First, Last) for the Memory_model
 ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
+
 	concat_string([Solver_install_dir, "ptc_solver_memory_model_", Memory_model], Default_type_file),
 	(compile([Default_type_file]) ->
 		ptc_solver__verbose("Compiled default C declarations from file", Default_type_file)
