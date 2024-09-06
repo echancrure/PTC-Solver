@@ -15,9 +15,9 @@
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
 	%mytrace,
-	ptc_solver__first('int', First),
-	ptc_solver__last('int', Last),
-	impose_domain(L, First, Last),		%a possible optimisation is to start with much smaller domains
+	%ptc_solver__first('int', First),
+	%ptc_solver__last('int', Last),
+	%impose_domain(L, First, Last),		%a possible optimisation is to start with much smaller domains
 	ic:search(L, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite
 
 impose_domain([], _, _).

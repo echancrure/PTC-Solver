@@ -114,7 +114,7 @@ ptc_solver__perform_cast(To_type, From_type, Symbolic_expression, Result) :-
     ).
 
 my_impose_min(Eval, First) :-
-    (First >= -100000 ->
+    (First >= -100000 ->        %todo this is arbitrary I think 10000000 is mentioned in IC doc
         Eval #>= First
     ;
         impose_min(Eval, First)     %to avoid crazy propagation and overflow in ic

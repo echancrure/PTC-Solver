@@ -20,15 +20,26 @@ ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
 %solver variable declarations
 ptc_solver__variable([], _).
 ptc_solver__variable([Id|R], Type_mark) :-
-	(c_type_declaration(Type_mark, Base_type, _Size, _First, _Last) ->
+	(c_type_declaration(Type_mark, Base_type, Size, First, Last) ->
 		true
 	;
 		ptc_solver__error("Invalid type_mark in variable declaration", Type_mark)
 	),
-	(Base_type == 'integer' ->
-		Id #:: -inf..inf
+	(Size < 4 ->	%so it is safe to impose bounds as they are small enough for IC to deal with (char and short typically)
+		Id #:: First..Last
 	;
-	 Base_type == 'floating_point' ->
+	 Type_mark = unsigned(_) ->	%positive, but upper bound is too high for IC, left infinite
+	 	(Id #:: 0..inf,		
+		 impose_max(Id, Last)	%hopefully does not trigger propagation
+		)
+	;	
+	 Base_type == 'integer' ->	%these signed integers (int, long, long_long) are too wide for IC propagation algorithm, bounds are left infinite
+		(Id #:: -inf..inf,
+		 impose_min(Id, First),	%hopefully does not trigger propagation
+		 impose_max(Id, Last)	%hopefully does not trigger propagation
+	    )
+	;		
+	 Base_type == 'floating_point' ->	%todo check if the restrictions above apply to floating points
 		Id $:: -inf..inf
 	;
 		ptc_solver__error("Invalid base_type in variable declaration", Base_type)
