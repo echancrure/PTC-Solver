@@ -28,7 +28,7 @@ mytrace.            %call this to start debugging
 :- export ptc_solver__label_integers/1, ptc_solver__label_enums/1, ptc_solver__label_reals/2, ptc_solver__label_reals/1.
 :- export ptc_solver__create_record_from_agg/3, ptc_solver__create_array_from_agg/3.
 :- export ptc_solver__set_flag/2.
-:- export ptc_solver__perform_cast/4.
+:- export ptc_solver__perform_cast/3.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(library(ic)).
 :- use_module(library(ic_kernel)).
@@ -50,7 +50,6 @@ mytrace.            %call this to start debugging
 % undoing the operators precedence of the solver prior to compilation
 :- include([util__pre_precedence]).
 
-:- local variable(entail_stack).        %used for entail check within reif in ptc_solver_boolean.pl file
 %%%
 :- dynamic or_constraint_behaviour/1.
 :- dynamic enumeration_start/1.
@@ -81,16 +80,16 @@ ptc_solver__verbose(Message, Term) :-
         true
     ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ptc_solver__perform_cast(To_type, To_type, Symbolic_expression, Symbolic_expression) :- %identical types: no casting needed
+ptc_solver__perform_cast(cast(Same_type, Same_type), Symbolic_expression, Symbolic_expression) :-
     !.
-ptc_solver__perform_cast(long_double, double, Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(long_double, double), Symbolic_expression, Symbolic_expression) :-
     !.
-ptc_solver__perform_cast(long_double, float, Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(long_double, float), Symbolic_expression, Symbolic_expression) :-
     !.
-ptc_solver__perform_cast(double, float, Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(double, float), Symbolic_expression, Symbolic_expression) :-
     !.
-ptc_solver__perform_cast(To_type, From_type, Symbolic_expression, Result) :-
+ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, Symbolic_expression) :-
+    !,
     ptc_solver__basetype(To_type, To_basetype),
     ptc_solver__basetype(From_type, From_basetype),
     (To_basetype == floating_point ->
@@ -99,7 +98,7 @@ ptc_solver__perform_cast(To_type, From_type, Symbolic_expression, Result) :-
      From_basetype == floating_point ->
         ptc_solver__error("Casting from a floating point is not yet supported")
     ;
-        perform_integral_cast(To_type, From_type, Symbolic_expression, Result)
+        perform_integral_cast(To_type, From_type, Symbolic_expression, Symbolic_expression)
     ).
 %%%
     perform_integral_cast(To_type, From_type, Symbolic_expression, Result) :-
@@ -148,7 +147,6 @@ my_impose_max(Eval, Last) :-
     ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__clean_up :-
-    setval(entail_stack, []),    %initialisation (see ptc_solver_boolean.pl file)
 	retractall(or_constraint_behaviour(_)),
 	retractall(enumeration_start(_)),
     retractall(float_to_int_convention(_)),

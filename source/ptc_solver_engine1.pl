@@ -445,14 +445,6 @@ sdl(Cond) :-
 		(ptc_record__get_field(Cond, Elem, e),	%booleans are enumerations
 		 sdl(Elem)
 		)
-	;
-	 Cond = reif(Constraint, R) ->
-		(R #:: 0..1,
-	     s_reif(Constraint, R)   %see ptc_solver_boolean
-		)
-	;
-	 Cond = cmp(Exp1, Exp2, R) ->
-	    s_cmp(Exp1, Exp2, R)    %see ptc_solver_boolean
     ;
      Cond = eq_cast(Exp1, Exp2) ->
         eq_cast(Exp1, Exp2)     %see above
