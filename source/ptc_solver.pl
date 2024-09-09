@@ -88,37 +88,43 @@ ptc_solver__perform_cast(cast(long_double, float), Symbolic_expression, Symbolic
     !.
 ptc_solver__perform_cast(cast(double, float), Symbolic_expression, Symbolic_expression) :-
     !.
-ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, Casted) :-
     !,
     ptc_solver__basetype(To_type, To_basetype),
     ptc_solver__basetype(From_type, From_basetype),
     (To_basetype == floating_point ->
-        ptc_solver__error("Casting to a floating point is not yet supported")
+        ((From_basetype == integer ->    %an integer is casted to a floating point
+            true
+         ;
+            true
+         ),
+         ptc_solver__error("Casting to a floating point is not yet supported")
+        )
     ;
      From_basetype == floating_point ->
         ptc_solver__error("Casting from a floating point is not yet supported")
     ;
-        perform_integral_cast(To_type, From_type, Symbolic_expression, Symbolic_expression)
+        perform_integral_cast(To_type, From_type, Symbolic_expression, Casted)
     ).
 %%%
-    perform_integral_cast(To_type, From_type, Symbolic_expression, Result) :-
+    perform_integral_cast(To_type, From_type, Symbolic_expression, Casted) :-
         Eval $= eval(Symbolic_expression),
         ptc_solver__last(To_type, Last),
         (To_type = unsigned(_) ->
             (From_type = unsigned(_) ->
-                Result #= Eval rem (Last +1)    %from unsigned to unsigned: may wrap if To_type is smaller
+                Casted #= Eval rem (Last +1)    %from unsigned to unsigned: may wrap if To_type is smaller
             ;
                 (%casting from a signed type into an unsigned type
                  get_bounds(Eval, Lo, Hi),
                  (Hi < 0 ->     %casting a negative integer to an unsigned type
-                    Result #= (Eval rem (Last+1)) + Last + 1    %e.g.cast(unsigned(char), _, -300, 212) because (-300 rem 256) + 256 == 212)
+                    Casted #= (Eval rem (Last+1)) + Last + 1    %e.g.cast(unsigned(char), _, -300, 212) because (-300 rem 256) + 256 == 212)
                  ;
                   Lo >= 0 ->    %casting a positive integer to an unsigned type
-                    Result #= Eval rem (Last +1)                %e.g.cast(unsigned(char), _, 300, 212) because (300 rem 256) == 44)
+                    Casted #= Eval rem (Last +1)                %e.g.cast(unsigned(char), _, 300, 212) because (300 rem 256) == 44)
                  ;
                     (Eval #=< 0,
                      my_impose_max(Eval, Last),
-                     suspend(perform_integral_cast(To_type, From_type, Symbolic_expression, Result), 3, Eval->inst)  %unclear what could be gained from waken this when Result becomes ground
+                     suspend(perform_integral_cast(To_type, From_type, Symbolic_expression, Casted), 3, Eval->inst)  %unclear what could be gained from waken this when Casted becomes ground
                     )
                  )
                 )
@@ -129,7 +135,7 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, Symbolic
              ptc_solver__last(To_type, Last),
              my_impose_min(Eval, First),   %by imposing the bounds we aim to prevent overflow/underflow
              my_impose_max(Eval, Last),
-             Result = Eval
+             Casted = Eval
             )
         ).
 

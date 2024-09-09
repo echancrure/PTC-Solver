@@ -75,7 +75,7 @@ convert3(0, 0, []) :-
     !.
 convert3(_, 0, _) :-
     %should never happen due to contraints in bitwise_check
-    ptc_solver__verbose("Overflow in binary convertion", []).
+    ptc_solver__verbose("Overflow in binary conversion", []).
 convert3(I, Len, L) :-
     !,
     I2 is I // 2,
