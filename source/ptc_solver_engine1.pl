@@ -496,8 +496,11 @@ boolean(<=(X, Y)) :-
 boolean(>=(X, Y)) :-
 	relation(>=, X, Y).
 
-negate(false).        %not false
-negate(true) :-       %not true
+negate(0) :-    	%not false is true
+	!.
+negate(N) :-       	%not true is false it fails
+	integer(N),
+	!,
 	fail.
 negate(not(Rel)) :-                 %not not Rel == Rel
 	sdl(Rel).
