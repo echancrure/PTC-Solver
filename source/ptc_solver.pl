@@ -90,25 +90,25 @@ ptc_solver__perform_cast(cast(double, float), Symbolic_expression, Symbolic_expr
     !.
 ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, Casted) :-
     !,
-    Symbolic_Eval $= eval(Symbolic_expression),
+    Symbolic_eval $= eval(Symbolic_expression),
     ptc_solver__basetype(To_type, To_basetype),
     ptc_solver__basetype(From_type, From_basetype),
     (To_basetype == floating_point ->
         (From_basetype == integer ->    %an integer is casted to a floating point, will always fit
-            Casted $= Symbolic_Eval + 0.0
+            Casted $= Symbolic_eval + 0.0
         ;
             (%more precise floating point conversion
              ptc_solver__variable([Casted], To_type),
-             Casted $= Symbolic_Eval                    %will prevent most undefined behaviour
+             Casted $= Symbolic_eval                    %will prevent most undefined behaviour
             )
         )
     ;
         (From_basetype == integer ->    %an integer is casted to an integer
-            perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted)
+            perform_integral_cast(To_type, From_type, Symbolic_eval, Casted)
         ;
-            (%an floating point is casted to an integer
+            (%a floating point is casted to an integer, truncation necessary
              ptc_solver__variable([Casted], To_type),
-             To_type $= truncate(Symbolic_Eval)   %note the odd use of $= here; truncate is new: see ECLiPSe 7.1 release notes
+             Casted $= truncate(Symbolic_eval)   %note the odd use of $= here; truncate is new: see ECLiPSe 7.1 release notes
             )
         )
     ).
