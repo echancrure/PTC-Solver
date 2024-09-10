@@ -43,8 +43,7 @@ ptc_labeling__enums([E|EL]) :-
 %returns as FL a list corresponding floats as approximation
 %make take a long time to complete on reals with very large intervals: may need a timeout
 ptc_labeling__reals(VL, FL) :-
-	ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given
-									%the outcome is a list of breals or IC real vars: both representations are interval based
+	ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given the outcome is a list of breals or IC real vars: both representations are interval based
 	force_instantiation(VL, FL).
 
 %force the breals and IC Vars to become ground and returns a list corresponding floats as approximation

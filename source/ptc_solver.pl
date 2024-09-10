@@ -51,7 +51,6 @@ mytrace.            %call this to start debugging
 :- include([util__pre_precedence]).
 
 %%%
-:- dynamic or_constraint_behaviour/1.
 :- dynamic enumeration_start/1.
 :- dynamic float_to_int_convention/1.
 :- dynamic debug_mode/1.
@@ -146,7 +145,6 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
         ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__clean_up :-
-	retractall(or_constraint_behaviour(_)),
 	retractall(enumeration_start(_)),
     retractall(float_to_int_convention(_)),
     retractall(debug_mode(_)),
@@ -206,20 +204,7 @@ ptc_solver__get_array_index_elements(Var, Index_elements) :-
 
 %%%
 ptc_solver__set_flag(Flag, Value) :-
-    (Flag == or_constraint_behaviour ->
-        (or_constraint_behaviour(_) ->
-            ptc_solver__error("In ptc_solver_set_flag/2, the or_constraint_behaviour can only be set once")
-         ;
-            ((Value = pure ; Value = choice) ->
-                (retractall(or_constraint_behaviour(_)),
-                 assert(or_constraint_behaviour(Value))
-                )
-             ;
-                ptc_solver__verbose("In ptc_solver__set_flag/2, the or_constraint_behaviour flag can be 'pure' or 'choice' but the following is not allowed", Value)
-            )
-        )
-	;
-     Flag == enumeration_start ->
+    (Flag == enumeration_start ->
 		(integer(Value) ->
 			(retractall(enumeration_start(_)),
                          assert(enumeration_start(Value))
