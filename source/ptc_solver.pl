@@ -80,77 +80,69 @@ ptc_solver__verbose(Message, Term) :-
         true
     ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ptc_solver__perform_cast(cast(Same_type, Same_type), Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(Same_type, Same_type), Symbolic_expression, Symbolic_expression) :-   %identical do nothing
     !.
-ptc_solver__perform_cast(cast(long_double, double), Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(long_double, double), Symbolic_expression, Symbolic_expression) :-    %less precise: do nothing
     !.
-ptc_solver__perform_cast(cast(long_double, float), Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(long_double, float), Symbolic_expression, Symbolic_expression) :-     %less precise: do nothing
     !.
-ptc_solver__perform_cast(cast(double, float), Symbolic_expression, Symbolic_expression) :-
+ptc_solver__perform_cast(cast(double, float), Symbolic_expression, Symbolic_expression) :-          %less precise: do nothing
     !.
 ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, Casted) :-
     !,
+    Symbolic_Eval $= eval(Symbolic_expression),
     ptc_solver__basetype(To_type, To_basetype),
     ptc_solver__basetype(From_type, From_basetype),
     (To_basetype == floating_point ->
-        ((From_basetype == integer ->    %an integer is casted to a floating point
-            true
-         ;
-            true
-         ),
-         ptc_solver__error("Casting to a floating point is not yet supported")
+        (From_basetype == integer ->    %an integer is casted to a floating point, will always fit
+            Casted $= Symbolic_Eval + 0.0
+        ;
+            (%more precise floating point conversion
+             ptc_solver__variable([Casted], To_type),
+             Casted $= Symbolic_Eval                    %will prevent most undefined behaviour
+            )
         )
     ;
-     From_basetype == floating_point ->
-        ptc_solver__error("Casting from a floating point is not yet supported")
-    ;
-        perform_integral_cast(To_type, From_type, Symbolic_expression, Casted)
+        (From_basetype == integer ->    %an integer is casted to an integer
+            perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted)
+        ;
+            (%an floating point is casted to an integer
+             ptc_solver__variable([Casted], To_type),
+             To_type $= truncate(Symbolic_Eval)   %note the odd use of $= here; truncate is new: see ECLiPSe 7.1 release notes
+            )
+        )
     ).
+ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted) :-
+    !,
+    ptc_solver__error("Casting from %w to %w failed: %w probably outside of range", [From_type, To_type, Symbolic_expression]).
 %%%
-    perform_integral_cast(To_type, From_type, Symbolic_expression, Casted) :-
-        Eval $= eval(Symbolic_expression),
-        ptc_solver__last(To_type, Last),
+    perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted) :-
         (To_type = unsigned(_) ->
-            (From_type = unsigned(_) ->
-                Casted #= Eval rem (Last +1)    %from unsigned to unsigned: may wrap if To_type is smaller
-            ;
+            (ptc_solver__last(To_type, Last),
+             (From_type = unsigned(_) ->
+                Casted #= Symbolic_Eval rem (Last +1)    %from unsigned to unsigned: may wrap if To_type is smaller
+             ;
                 (%casting from a signed type into an unsigned type
-                 get_bounds(Eval, Lo, Hi),
+                 get_bounds(Symbolic_Eval, Lo, Hi),
                  (Hi < 0 ->     %casting a negative integer to an unsigned type
-                    Casted #= (Eval rem (Last+1)) + Last + 1    %e.g.cast(unsigned(char), _, -300, 212) because (-300 rem 256) + 256 == 212)
+                    Casted #= (Symbolic_Eval rem (Last+1)) + Last + 1    %e.g.cast(unsigned(char), _, -300, 212) because (-300 rem 256) + 256 == 212
                  ;
                   Lo >= 0 ->    %casting a positive integer to an unsigned type
-                    Casted #= Eval rem (Last +1)                %e.g.cast(unsigned(char), _, 300, 212) because (300 rem 256) == 44)
+                    Casted #= Symbolic_Eval rem (Last +1)                %e.g.cast(unsigned(char), _, 300, 212) because (300 rem 256) == 44
                  ;
-                    (Eval #=< 0,
-                     my_impose_max(Eval, Last),
-                     suspend(perform_integral_cast(To_type, From_type, Symbolic_expression, Casted), 3, Eval->inst)  %unclear what could be gained from waken this when Casted becomes ground
+                    (ptc_solver__variable([Casted], To_type),
+                     suspend(perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted), 3, Symbolic_Eval->inst)  %unclear what could be gained from waken this if Casted becomes ground
                     )
                  )
                 )
+             )
             )
         ;
             (%casting to signed, integer, type
-             ptc_solver__first(To_type, First),
-             ptc_solver__last(To_type, Last),
-             my_impose_min(Eval, First),   %by imposing the bounds we aim to prevent overflow/underflow
-             my_impose_max(Eval, Last),
-             Casted = Eval
+             ptc_solver__variable([Casted], To_type),
+             Casted #= Symbolic_Eval
             )
         ).
-
-my_impose_min(Eval, First) :-
-    (First >= -100000 ->        %todo this is arbitrary I think 10000000 is mentioned in IC doc
-        Eval #>= First
-    ;
-        true        %must be left infinite to avoid crazy propagation and overflow in ic
-    ).
-my_impose_max(Eval, Last) :-
-    (Last =< 100000 ->
-        Eval #=< Last
-    ;
-        true        %must be left infinite to avoid crazy propagation and overflow in ic
-    ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__clean_up :-
 	retractall(or_constraint_behaviour(_)),
@@ -261,6 +253,16 @@ ptc_solver__set_flag(Flag, Value) :-
     ).
 
 %submits a constraint
+ptc_solver__sdl(Cond) :-
+    var(Cond),
+    !,
+    Cond #\= 0.	%i.e. true in C
+ptc_solver__sdl(0) :-
+    !,
+    fail.
+ptc_solver__sdl(N) :-
+	integer(N),
+	!.
 ptc_solver__sdl(Cond) :-
     sdl(Cond).
 
