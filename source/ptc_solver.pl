@@ -123,6 +123,7 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
                 Casted #= Symbolic_Eval rem (Last +1)    %from unsigned to unsigned: may wrap if To_type is smaller
              ;
                 (%casting from a signed type into an unsigned type
+                 %when ground and within the bounds, we could perhaps bypass the call to rem if it is expensive
                  get_bounds(Symbolic_Eval, Lo, Hi),
                  (Hi < 0 ->     %casting a negative integer to an unsigned type
                     Casted #= (Symbolic_Eval rem (Last+1)) + Last + 1    %e.g.cast(unsigned(char), _, -300, 212) because (-300 rem 256) + 256 == 212
