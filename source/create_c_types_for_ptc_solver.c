@@ -13,8 +13,9 @@ struct sampleStruct {
 enum week{Mon, Tue, Wed, Thu, Fri, Sat, Sun};
 
 int main(void) {
+    int data_model = (sizeof(long) == 4) ? 32 : 64;
     FILE *file = NULL;
-    if (sizeof(long) == 4) file = fopen("ptc_solver_memory_model_ilp32.pl", "w");
+    if (data_model == 32) file = fopen("ptc_solver_memory_model_ilp32.pl", "w");
     else file = fopen("ptc_solver_memory_model_ilp64.pl", "w");
 
     if(file == NULL) {
@@ -26,30 +27,30 @@ int main(void) {
     fprintf(file, "%%Should be generated on install\n");
     fprintf(file, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
 
-    fprintf(file, "c_type_declaration(char, 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(char), CHAR_MIN, CHAR_MAX);
-    fprintf(file, "c_type_declaration(unsigned(char), 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned char), UCHAR_MAX);
+    fprintf(file, "c_%i_type_declaration(char, 'integer', %lu, %d, %d).\n", data_model, (unsigned long)sizeof(char), CHAR_MIN, CHAR_MAX);
+    fprintf(file, "c_%i_type_declaration(unsigned(char), 'integer', %lu, 0, %u).\n", data_model, (unsigned long)sizeof(unsigned char), UCHAR_MAX);
 
-    fprintf(file, "c_type_declaration(short, 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(short), SHRT_MIN, SHRT_MAX);
-    fprintf(file, "c_type_declaration(unsigned(short), 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned short), USHRT_MAX);
+    fprintf(file, "c_%i_type_declaration(short, 'integer', %lu, %d, %d).\n", data_model, (unsigned long)sizeof(short), SHRT_MIN, SHRT_MAX);
+    fprintf(file, "c_%i_type_declaration(unsigned(short), 'integer', %lu, 0, %u).\n", data_model, (unsigned long)sizeof(unsigned short), USHRT_MAX);
 
-    fprintf(file, "c_type_declaration(int, 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(int), INT_MIN, INT_MAX);
-    fprintf(file, "c_type_declaration(unsigned(int), 'integer', %lu, 0, %u).\n", (unsigned long)sizeof(unsigned int), UINT_MAX);
+    fprintf(file, "c_%i_type_declaration(int, 'integer', %lu, %d, %d).\n", data_model, (unsigned long)sizeof(int), INT_MIN, INT_MAX);
+    fprintf(file, "c_%i_type_declaration(unsigned(int), 'integer', %lu, 0, %u).\n", data_model, (unsigned long)sizeof(unsigned int), UINT_MAX);
 
-    fprintf(file, "c_type_declaration(long, 'integer', %lu, %ld, %ld).\n", (unsigned long)sizeof(long), LONG_MIN, LONG_MAX);
-    fprintf(file, "c_type_declaration(unsigned(long), 'integer', %lu, 0, %lu).\n", (unsigned long)sizeof(unsigned long), ULONG_MAX);
+    fprintf(file, "c_%i_type_declaration(long, 'integer', %lu, %ld, %ld).\n", data_model, (unsigned long)sizeof(long), LONG_MIN, LONG_MAX);
+    fprintf(file, "c_%i_type_declaration(unsigned(long), 'integer', %lu, 0, %lu).\n", data_model, (unsigned long)sizeof(unsigned long), ULONG_MAX);
 
-    fprintf(file, "c_type_declaration(long_long, 'integer', %lu, %lld, %lld).\n", (unsigned long)sizeof(long long), LLONG_MIN, LLONG_MAX);
-    fprintf(file, "c_type_declaration(unsigned(long_long), 'integer', %lu, 0, %llu).\n", (unsigned long)sizeof(unsigned long long), ULLONG_MAX);
+    fprintf(file, "c_%i_type_declaration(long_long, 'integer', %lu, %lld, %lld).\n", data_model, (unsigned long)sizeof(long long), LLONG_MIN, LLONG_MAX);
+    fprintf(file, "c_%i_type_declaration(unsigned(long_long), 'integer', %lu, 0, %llu).\n", data_model, (unsigned long)sizeof(unsigned long long), ULLONG_MAX);
 
-    fprintf(file, "c_type_declaration(float, 'floating_point', %lu, %g, %g).\n", (unsigned long)sizeof(float), FLT_MIN, FLT_MAX);
-    fprintf(file, "c_type_declaration(double, 'floating_point', %lu, %g, %g).\n", (unsigned long)sizeof(double), DBL_MIN, DBL_MAX);
-    fprintf(file, "c_type_declaration(long_double, 'floating_point', %lu, %Lg, %Lg).\n", (unsigned long)sizeof(long double), LDBL_MIN, LDBL_MAX);
+    fprintf(file, "c_%i_type_declaration(float, 'floating_point', %lu, %g, %g).\n", data_model, (unsigned long)sizeof(float), FLT_MIN, FLT_MAX);
+    fprintf(file, "c_%i_type_declaration(double, 'floating_point', %lu, %g, %g).\n", data_model, (unsigned long)sizeof(double), DBL_MIN, DBL_MAX);
+    fprintf(file, "c_%i_type_declaration(long_double, 'floating_point', %lu, %Lg, %Lg).\n", data_model, (unsigned long)sizeof(long double), LDBL_MIN, LDBL_MAX);
 
-    fprintf(file, "c_type_declaration(bool, 'integer', %lu, 0, 1).\n", (unsigned long)sizeof(_Bool));
+    fprintf(file, "c_%i_type_declaration(bool, 'integer', %lu, 0, 1).\n", data_model, (unsigned long)sizeof(_Bool));
 
-    fprintf(file, "c_type_declaration(enum, 'integer', %lu, %d, %d).\n", (unsigned long)sizeof(enum week), INT_MIN, INT_MAX);
+    fprintf(file, "c_%i_type_declaration(enum, 'integer', %lu, %d, %d).\n", data_model, (unsigned long)sizeof(enum week), INT_MIN, INT_MAX);
 
-    fprintf(file, "c_type_declaration(pointer, 'integer', %lu).   %%has no first nor last\n", (unsigned long)sizeof(void*));
+    fprintf(file, "c_%i_type_declaration(pointer, 'integer', %lu).   %%has no first nor last\n", data_model, (unsigned long)sizeof(void*));
     fprintf(file, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
     fclose(file);

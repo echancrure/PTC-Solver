@@ -3,18 +3,15 @@
 % ECLiPSe 7.1
 % part of the ptc_solver module : variables declaration matters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%:- dynamic c_type_declaration/5, c_type_declaration/3.
+ptc_solver__default_declarations(Data_model) :-
+	setval('memory_model', Data_model).		%'-m32'|'m64' used 'memory_model' to avoid clash with 'data_model' global elsewhere...
 
-%compile all the c_type_declaration(Type_mark, Base_type, Size, First, Last) for the Memory_model
-ptc_solver__default_declarations(Solver_install_dir, Memory_model) :-
-
-	concat_string([Solver_install_dir, "ptc_solver_memory_model_", Memory_model], Default_type_file),
-	(compile([Default_type_file]) ->
-		ptc_solver__verbose("Compiled default C declarations from file", Default_type_file)
-	;	
-		(concat_string(["Memory Model in file: ", Default_type_file, " is not valid"], Error_message),
-		 ptc_solver__error(Error_message)
-		)
+c_type_declaration(Type_mark, Base_type, Size, First, Last) :-
+	getval('memory_model', Data_model),		%this is not very satisfactory: querying everytime is not very efficient, what we would need is conditional compilation 
+	(Data_model = '-m32' ->
+		c_32_type_declaration(Type_mark, Base_type, Size, First, Last)
+	;
+		c_64_type_declaration(Type_mark, Base_type, Size, First, Last)
 	).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %solver variable declarations

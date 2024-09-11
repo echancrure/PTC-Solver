@@ -13,7 +13,7 @@
 mytrace.            %call this to start debugging
 :- spy mytrace/0.
 :- export ptc_solver__version/1.
-:- export ptc_solver__clean_up/0, ptc_solver__default_declarations/2.
+:- export ptc_solver__clean_up/0, ptc_solver__default_declarations/1.
 :- export ptc_solver__sdl/1, ptc_solver__arithmetic/3, ptc_solver__relation/3.
 :- export ptc_solver__type/2, ptc_solver__type/3, ptc_solver__type/4, ptc_solver__subtype/2, ptc_solver__subtype/3.
 :- export ptc_solver__variable/2.
@@ -33,6 +33,7 @@ mytrace.            %call this to start debugging
 :- use_module(library(ic)).
 :- use_module(library(ic_kernel)).
 
+:- include([ptc_solver_memory_model_ilp32, ptc_solver_memory_model_ilp64]).
 :- include([ptc_solver_types, ptc_solver_engine1, ptc_solver_boolean, ptc_solver_extensions]).
 :- include([ptc_solver_bitwise, ptc_labeling]).
 
