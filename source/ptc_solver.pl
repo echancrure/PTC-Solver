@@ -89,7 +89,7 @@ ptc_solver__perform_cast(cast(double, float), Symbolic_expression, Symbolic_expr
     !.
 ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, Casted) :-
     !,
-    Symbolic_eval $= eval(Symbolic_expression),
+    my_eval(Symbolic_expression, Symbolic_eval),
     ptc_solver__basetype(To_type, To_basetype),
     ptc_solver__basetype(From_type, From_basetype),
     (To_basetype == floating_point ->
@@ -143,6 +143,15 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
              Casted #= Symbolic_Eval
             )
         ).
+%%%
+%to improve runtime 
+    my_eval(X, X) :-
+        number(X),
+        !.
+    my_eval(X, X) :-
+        var(X),
+        !.
+    my_eval(X, eval(X)). 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__clean_up :-
 	retractall(enumeration_start(_)),
