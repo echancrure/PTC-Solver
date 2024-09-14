@@ -14,7 +14,7 @@ mytrace.            %call this to start debugging
 :- spy mytrace/0.
 :- export ptc_solver__version/1.
 :- export ptc_solver__clean_up/0, ptc_solver__default_declarations/1.
-:- export ptc_solver__sdl/1, ptc_solver__arithmetic/3, ptc_solver__relation/3.
+:- export ptc_solver__sdl/1, ptc_solver__arithmetic/3, ptc_solver__relation/3, ptc_solver__relation/4.
 :- export ptc_solver__type/2, ptc_solver__type/3, ptc_solver__type/4, ptc_solver__subtype/2, ptc_solver__subtype/3.
 :- export ptc_solver__variable/2.
 :- export ptc_solver__is_enum/1, ptc_solver__is_record/1, ptc_solver__is_array/1.
@@ -262,7 +262,92 @@ ptc_solver__arithmetic(Exp, Eval, T) :-
 
 ptc_solver__relation(Comparator, Left, Right) :-
     relation(Comparator, Left, Right).
-
+%very ugly predicate below (see stackoverflow post from 14/09/2024 https://stackoverflow.com/questions/78985419/reducing-the-negative-runtime-impact-of-eval-1
+%also using =.. to build the term works but increases regression run time by 25%
+ptc_solver__relation('<', Left, Right, Reif) :-
+    (compound(Right) ->
+        (compound(Left) ->
+            Reif #= (eval(Left) $< eval(Right))
+        ;
+            Reif #= (Left $< eval(Right))
+        )
+    ;
+        (compound(Left) ->
+            Reif #= (eval(Left) $< Right)
+        ;
+            Reif #= (Left $< Right)
+        )
+    ).
+ptc_solver__relation('>', Left, Right, Reif) :-
+    (compound(Right) ->
+        (compound(Left) ->
+            Reif #= (eval(Left) $> eval(Right))
+        ;
+            Reif #= (Left $> eval(Right))
+        )
+    ;
+        (compound(Left) ->
+            Reif #= (eval(Left) $> Right)
+        ;
+            Reif #= (Left $> Right)
+        )
+    ).
+ptc_solver__relation('=<', Left, Right, Reif) :-
+    (compound(Right) ->
+        (compound(Left) ->
+            Reif #= (eval(Left) $=< eval(Right))
+        ;
+            Reif #= (Left $=< eval(Right))
+        )
+    ;
+        (compound(Left) ->
+            Reif #= (eval(Left) $=< Right)
+        ;
+            Reif #= (Left $=< Right)
+        )
+    ).
+ptc_solver__relation('>=', Left, Right, Reif) :-
+    (compound(Right) ->
+        (compound(Left) ->
+            Reif #= (eval(Left) $>= eval(Right))
+        ;
+            Reif #= (Left $>= eval(Right))
+        )
+    ;
+        (compound(Left) ->
+            Reif #= (eval(Left) $>= Right)
+        ;
+            Reif #= (Left $>= Right)
+        )
+    ).
+ptc_solver__relation('=', Left, Right, Reif) :-
+    (compound(Right) ->
+        (compound(Left) ->
+            Reif #= (eval(Left) $= eval(Right))
+        ;
+            Reif #= (Left $= eval(Right))
+        )
+    ;
+        (compound(Left) ->
+            Reif #= (eval(Left) $= Right)
+        ;
+            Reif #= (Left $= Right)
+        )
+    ).
+ptc_solver__relation(\=, Left, Right, Reif) :-
+    (compound(Right) ->
+        (compound(Left) ->
+            Reif #= (eval(Left) $\= eval(Right))
+        ;
+            Reif #= (Left $\= eval(Right))
+        )
+    ;
+        (compound(Left) ->
+            Reif #= (eval(Left) $\= Right)
+        ;
+            Reif #= (Left $\= Right)
+        )
+    ).
 %%%%
 ptc_solver__create_record_from_agg(A,B,C) :-
     ptc_record__create_record_from_agg(A,B,C).
