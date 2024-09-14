@@ -146,13 +146,8 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
         ).
 %%%
 %to improve runtime 
-    my_eval(X, X) :-
-        number(X),
-        !.
-    my_eval(X, X) :-
-        var(X),
-        !.
-    my_eval(X, eval(X)). 
+my_eval(X, Y) :-
+    eval(X, Y).  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ptc_solver__clean_up :-
 	retractall(enumeration_start(_)),
