@@ -14,7 +14,7 @@
 %can fail, leave choice points
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
-	%mytrace,
+	mytrace,
 	ptc_solver__first('int', First),
 	ptc_solver__last('int', Last),
 	impose_domain(L, First, Last),		%a possible optimisation is to start with much smaller domains
