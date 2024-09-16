@@ -11,20 +11,30 @@
 :- lib('ic_kernel').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%can fail, leave choice points
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
 	mytrace,
-	ptc_solver__first('int', First),
-	ptc_solver__last('int', Last),
-	impose_domain(L, First, Last),		%a possible optimisation is to start with much smaller domains
+	impose_domain(L),	%the integer variables must not have infite domains
 	ic:search(L, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite
 
-impose_domain([], _, _).
-impose_domain([Var|R], First, Last) :-
-	impose_min(Var, First), 	%from ic_kernel, will not trigger propagation, has no effect if existing lower bound is higher 
-	impose_max(Var, Last),		%from ic_kernel, will not trigger propagation, has no effect if existing higher bound is lower 
-	impose_domain(R, First, Last).
+impose_domain([]).
+impose_domain([Var|R]) :-
+	get_bounds(Var, Lo, Hi),    %labeling will not work if the domain is infinite
+	(Lo == -1.0Inf ->
+		(ptc_solver__first(Type, First),
+		 impose_min(Var, First) 	%from ic_kernel, will not trigger propagation, but will restrict the domain
+		)
+	;
+	  	true
+	),
+	(Hi == 1.0Inf ->
+		(ptc_solver__last(Type, Last),
+		 impose_max(Var, Last)		%from ic_kernel, will not trigger propagation, but will restrict the domain
+		)
+	;
+	  	true
+	),
+	impose_domain(R).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points
 %EL is the in list of original enumeration variables
