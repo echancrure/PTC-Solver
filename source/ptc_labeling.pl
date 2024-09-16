@@ -14,11 +14,11 @@
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
 	mytrace,
-	impose_domain(L),	%the integer variables must not have infite domains
-	ic:search(L, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite
+	constrain_to_finite_domain(L, L_out),	%the integer variables must not have infite domains
+	ic:search(L_out, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite
 
-impose_domain([]).
-impose_domain([Var|R]) :-
+constrain_to_finite_domain([], []).
+constrain_to_finite_domain([verif(Type, Var)|R], [Var|Rest_vars]) :-
 	get_bounds(Var, Lo, Hi),    %labeling will not work if the domain is infinite
 	(Lo == -1.0Inf ->
 		(ptc_solver__first(Type, First),
@@ -34,7 +34,7 @@ impose_domain([Var|R]) :-
 	;
 	  	true
 	),
-	impose_domain(R).
+	constrain_to_finite_domain(R, Rest_vars).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %can fail, leave choice points
 %EL is the in list of original enumeration variables
@@ -52,8 +52,10 @@ ptc_labeling__enums([E|EL]) :-
 %VL is the list of IC vars (or breal numbers) to label
 %returns as FL a list corresponding floats as approximation
 %make take a long time to complete on reals with very large intervals: may need a timeout
+%The default threshold is 1e-8.
 ptc_labeling__reals(VL, FL) :-
-	ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given the outcome is a list of breals or IC real vars: both representations are interval based
+	mytrace,
+	ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given; the outcome is a list of breals or IC real vars: both representations are interval based
 	force_instantiation(VL, FL).
 
 %force the breals and IC Vars to become ground and returns a list corresponding floats as approximation
