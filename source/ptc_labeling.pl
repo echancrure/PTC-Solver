@@ -13,7 +13,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
-	mytrace,
+	%mytrace,
 	constrain_to_finite_domain(L, L_out),	%the integer variables must not have infite domains
 	ic:search(L_out, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite
 
@@ -54,8 +54,9 @@ ptc_labeling__enums([E|EL]) :-
 %make take a long time to complete on reals with very large intervals: may need a timeout
 %The default threshold is 1e-8.
 ptc_labeling__reals(VL, FL) :-
-	mytrace,
-	ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given; the outcome is a list of breals or IC real vars: both representations are interval based
+	%mytrace,
+	%ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given; the outcome is a list of breals or IC real vars: both representations are interval based
+	%ic:locate(VL, VL, 1000.0, log),
 	force_instantiation(VL, FL).
 
 %force the breals and IC Vars to become ground and returns a list corresponding floats as approximation
