@@ -33,8 +33,8 @@ ptc_solver__variable([Id|R], Type_mark) :-
 	 Base_type == 'integer' ->	%these signed integers (int, long, long_long) are too wide for IC propagation algorithm, bounds are left infinite
 		Id #:: -inf..inf
 	;		
-	 Base_type == 'floating_point' ->	%todo check if the restrictions above apply to floating points
-		Id $:: -inf..inf
+	 Base_type == 'floating_point' ->	%floats, double and long double get their proper C bounds
+		Id $:: -First..Last
 	;
 		ptc_solver__error("Invalid base_type in variable declaration", Base_type)
 	),
