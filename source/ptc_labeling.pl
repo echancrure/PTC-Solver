@@ -64,6 +64,7 @@ force_instantiation([], []).
 force_instantiation([V|VL], [F|FL]) :-
 	sample_ICVar(V),
 	F is float(V),
+	!, %[19/09/04] cut out the search for now 
 	force_instantiation(VL, FL).
 
 %can fail
@@ -71,31 +72,32 @@ force_instantiation([V|VL], [F|FL]) :-
 %constrain R to a value or fail
 %the sampling is not exhaustive i.e. a failure does not indicate an absence of solution
 % (contrast with sample_integer/1)
-%remark: bias towards 0.0;
+%remark: bias towards mid (could be 0.0);
 % with a domain size of 2000 about 18 samples are taken (3+5+5+5)
 sample_ICVar(R) :-
 	ic:get_float_bounds(R, InfR, SupR),
-	SizeR is SupR - InfR,               %the size of the domaim of R
+	SizeR is SupR - InfR,               %the size of the domain of R
 	frandom(N),
     Mid is InfR + (SizeR/2)*(0.95+N/10),%mid is chosen to be around +- 5 percent of the true middle
+	Limit is SizeR,	
 	(	R $= Mid
     ;	% choice point
 	    R $= InfR
 	;	% choice point
 	    R $= SupR
 	;	% choice point
-	    sample_real_around(mid, R, Mid, SizeR, 0.1) %trying different samples around Mid
+	    sample_real_around(mid, R, Mid, SizeR, Limit) %trying different samples around Mid
     ;	% choice point
-	    sample_real_around(inf, R, InfR, SizeR, 0.1) %trying different samples around Inf
+	    sample_real_around(inf, R, InfR, SizeR, Limit) %trying different samples around Inf
 	;	% choice point
-	    sample_real_around(sup, R, SupR, SizeR, 0.1) %trying different samples around Sup
+	    sample_real_around(sup, R, SupR, SizeR, Limit) %trying different samples around Sup
 	).
 
 %can fail; choice points
 %R is the real variable to sample
 %Point is a point of the domain of R
 %SizeR is the size of the domain of R
-%the last argument, N, is a float which is increased after each recursion
+%the last argument, Limit, is a float which is increased after each recursion
 % it is used to stop the recursion as well as to increase the gap between the mid point
 % and the sample value generated after each recursion
 sample_real_around(Region, R, Point, SizeR, Limit) :-
