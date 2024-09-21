@@ -23,11 +23,11 @@ ptc_solver__variable([Id|R], Type_mark) :-
 	;
 		ptc_solver__error("Invalid type_mark in variable declaration", Type_mark)
 	),
-	(Size < 4 ->	%so it is safe to impose bounds as they are small enough for IC to deal with (char and short typically)
+	(Size < 4 ->	%i.e. less than 32 bits: it is safe to impose bounds as they are small enough for IC to deal with (char and short typically)
 		Id #:: First..Last
 	;
-	 Type_mark = unsigned(_) ->	%positive, but upper bound is too high for IC, left infinite
-	 	Id #:: 0..inf			%cannot set an upper bound or IC will abort on non-linear constraints
+	 Type_mark = unsigned(_) ->	%positive, but upper bound is too high for IC, left infinite, i.e. for unsigned int, long, long long
+	 	Id #:: 0..inf			%cannot set an upper bound or IC will most likely abort on non-linear constraints when they are awakened
 
 	;	
 	 Base_type == 'integer' ->	%these signed integers (int, long, long_long) are too wide for IC propagation algorithm, bounds are left infinite

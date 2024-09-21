@@ -264,6 +264,7 @@ ptc_solver__relation(Comparator, Left, Right) :-
     relation(Comparator, Left, Right).
 %very ugly predicate below (see stackoverflow post from 14/09/2024 https://stackoverflow.com/questions/78985419/reducing-the-negative-runtime-impact-of-eval-1
 %also using =.. to build the term works but increases regression run time by 25%
+%Reif is automatically constrained to integer [0, 1]
 ptc_solver__relation('<', Left, Right, Reif) :-
     (compound(Right) ->
         (compound(Left) ->

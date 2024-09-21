@@ -15,21 +15,23 @@
 ptc_labeling__integers(L) :-
 	%mytrace,
 	constrain_to_finite_domain(L, L_out),	%the integer variables must not have infite domains
-	ic:search(L_out, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite
+	ic:search(L_out, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite, causes overflow if a constaint on a large integer awakes
 
 constrain_to_finite_domain([], []).
-constrain_to_finite_domain([verif(Type, Var)|R], [Var|Rest_vars]) :-
-	get_bounds(Var, Lo, Hi),    %labeling will not work if the domain is infinite
+constrain_to_finite_domain([verif(_Type, Var)|R], [Var|Rest_vars]) :-
+	get_bounds(Var, Lo, Hi),    %labeling will likely trigger an overflow if any of the bound is infinite and one constraint awakens (which cannot be controlled) 
 	(Lo == -1.0Inf ->
-		(ptc_solver__first(Type, First),
-		 impose_min(Var, First) 	%from ic_kernel, will not trigger propagation, but will restrict the domain
+		(Var #>= -10000000	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
+		 %ptc_solver__first(Type, First),
+		 %impose_min(Var, First) 	%from ic_kernel, will not trigger propagation, but will restrict the domain
 		)
 	;
 	  	true
 	),
 	(Hi == 1.0Inf ->
-		(ptc_solver__last(Type, Last),
-		 impose_max(Var, Last)		%from ic_kernel, will not trigger propagation, but will restrict the domain
+		(Var #=< 10000000	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
+		 %ptc_solver__last(Type, Last),
+		 %impose_max(Var, Last)		%from ic_kernel, will not trigger propagation, but will restrict the domain
 		)
 	;
 	  	true
