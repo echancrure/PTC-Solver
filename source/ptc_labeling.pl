@@ -55,7 +55,7 @@ ptc_labeling__enums([E|EL]) :-
 %returns as FL a list corresponding floats as approximation
 %make take a long time to complete on reals with very large intervals: may need a timeout
 %The default threshold is 1e-8.
-ptc_labeling__reals(VL, FL) :-	%the bounds of the real varaibles must not be infinite at this stage
+ptc_labeling__reals(VL, FL) :-
 	%mytrace,
 	%ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given; the outcome is a list of breals or IC real vars: both representations are interval based
 	%ic:locate(VL, VL, 1000.0, log),
