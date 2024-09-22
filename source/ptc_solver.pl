@@ -67,6 +67,10 @@ ptc_solver__error(Message, Term) :-
     printf(user_error, "%w: %w\n\n\n", [Message, Term]),
     abort.
 
+ptc_solver__warning(Message, Term) :-
+    printf(user_error, "***PTC Solver Warning: %w: %w***\n\n\n\n", [Message, Term]),
+    flush(user_error).
+
 ptc_solver__verbose(Message, Term) :-
     (debug_mode('on') ->
         ((Term = [] ->
