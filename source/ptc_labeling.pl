@@ -30,7 +30,7 @@ constrain_to_finite_domain([verif(_Type, Var)|R], [Var|Rest_vars]) :-
 	  	true
 	),
 	(Hi == 1.0Inf ->
-		(Var #=< 10000000	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
+		(Var #=< 10000000 ->	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
 			true
 		;
 			ptc_solver__warning("Unsound upper bound decrease in integer labeling", 'no_details')
