@@ -13,7 +13,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %make take a long time to complete on integers with very large intervals: may need a timeout
 ptc_labeling__integers(L) :-
-	%mytrace,
+	mytrace,
 	constrain_to_finite_domain(L, L_out),	%the integer variables must not have infite domains
 	ic:search(L_out, 0, most_constrained, 'indomain_random', bbs(5), []).	%aborts if one of the bound is infinite, causes overflow if a constaint on a large integer awakes
 
@@ -21,24 +21,35 @@ constrain_to_finite_domain([], []).
 constrain_to_finite_domain([verif(_Type, Var)|R], [Var|Rest_vars]) :-
 	get_bounds(Var, Lo, Hi),    %labeling will likely trigger an overflow if any of the bound is infinite and one constraint awakens (which cannot be controlled) 
 	(Lo == -1.0Inf ->
-		(Var #>= -10000000 ->	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
-			true
+		(Hi == 1.0Inf ->
+			(Var #>= -10000000 ->	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
+				true
+			;
+				ptc_solver__warning("Unsound lower bound increase in integer labeling", 'no_details')
+			)
 		;
-			ptc_solver__warning("Unsound lower bound increase in integer labeling", 'no_details')
-		),
-		(Var #>= -10000000 ->	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
-			true
-		;
-			ptc_solver__warning("Unsound lower bound increase in integer labeling", 'no_details')
+			(Var #>= Hi - 20000000 ->
+				true
+			;
+				ptc_solver__warning("Unsound lower bound decreincreasease in integer labeling v2", Hi)
+			)
 		)
 	;
 	  	true
 	),
 	(Hi == 1.0Inf ->
-		(Var #=< 10000000 ->	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
-			true
+		(Lo == -1.0Inf ->
+			(Var #=< 10000000 ->	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
+				true
+			;
+				ptc_solver__warning("Unsound upper bound decrease in integer labeling", '10000000')
+			)
 		;
-			ptc_solver__warning("Unsound upper bound decrease in integer labeling", 'no_details')
+			(Var #=< Lo + 20000000 ->
+				true
+			;
+				ptc_solver__warning("Unsound upper bound decrease in integer labeling v2", Lo)
+			)
 		)
 	;
 	  	true
@@ -79,7 +90,6 @@ force_instantiation([V|VL], [F|FL]) :-
 	sample_ICVar(V),
 	F is float(V),
 	!, 			%[19/09/04] cut out the search for now to avoid combinatorial explosion (especially in case of infeasibility)
-	!, 			%[19/09/04] cut out the search for now to avoid combinatorial explosion (especially in case of infeasibility)
 	force_instantiation(VL, FL).
 
 %can fail
@@ -95,7 +105,6 @@ sample_ICVar(R) :-
 	SizeR is SupR - InfR,               %the size of the domain of R
 	frandom(N),
     Mid is InfR + (SizeR/2)*(0.95+N/10),%mid is chosen to be around +- 5 percent of the true middle
-	Limit = 0.1,
 	Limit = 0.1,
 	(	R $= Mid
     ;	% choice point
