@@ -25,6 +25,10 @@ constrain_to_finite_domain([verif(_Type, Var)|R], [Var|Rest_vars]) :-
 			true
 		;
 			ptc_solver__warning("Unsound lower bound increase in integer labeling", 'no_details')
+		(Var #>= -10000000 ->	%21/09/24 abitrary from get_finite_integer_bounds/3 IC Doc trying to ensure domain size < 32 bit 
+			true
+		;
+			ptc_solver__warning("Unsound lower bound increase in integer labeling", 'no_details')
 		)
 	;
 	  	true
@@ -57,6 +61,7 @@ ptc_labeling__enums([E|EL]) :-
 %returns as FL a list corresponding floats as approximation
 %make take a long time to complete on reals with very large intervals: may need a timeout
 %The default threshold used in locate/4 is 1e-8 
+%The default threshold used in locate/4 is 1e-8 
 ptc_labeling__reals(VL, FL) :-
 	%mytrace,
 	%ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given; the outcome is a list of breals or IC real vars: both representations are interval based
@@ -66,10 +71,13 @@ ptc_labeling__reals(VL, FL) :-
 %force the breals and IC Vars to become ground and returns a list corresponding floats as approximation
 %just very basic: simply in the order given
 %todo a much better alogrithm e.g. starting with most constrained variables first and with max number of attempt and/or a timer 
+%just very basic: simply in the order given
+%todo a much better alogrithm e.g. starting with most constrained variables first and with max number of attempt and/or a timer 
 force_instantiation([], []).
 force_instantiation([V|VL], [F|FL]) :-
 	sample_ICVar(V),
 	F is float(V),
+	!, 			%[19/09/04] cut out the search for now to avoid combinatorial explosion (especially in case of infeasibility)
 	!, 			%[19/09/04] cut out the search for now to avoid combinatorial explosion (especially in case of infeasibility)
 	force_instantiation(VL, FL).
 
@@ -80,11 +88,13 @@ force_instantiation([V|VL], [F|FL]) :-
 % (contrast with sample_integer/1)
 %remark: bias towards mid (could be 0.0);
 % about 12 samples are taken (3+3+3+3) per real variable
+% about 12 samples are taken (3+3+3+3) per real variable
 sample_ICVar(R) :-
 	ic:get_float_bounds(R, InfR, SupR),
 	SizeR is SupR - InfR,               %the size of the domain of R
 	frandom(N),
     Mid is InfR + (SizeR/2)*(0.95+N/10),%mid is chosen to be around +- 5 percent of the true middle
+	Limit = 0.1,
 	Limit = 0.1,
 	(	R $= Mid
     ;	% choice point
