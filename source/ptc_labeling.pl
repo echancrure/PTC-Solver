@@ -77,7 +77,8 @@ ptc_labeling__enums([E|EL]) :-
 ptc_labeling__reals(VL, FL) :-
 	%mytrace,
 	%ic:locate(VL, VL, 0.001, log),	%reduce the intervals of the vars in L, down to less than the precision given; the outcome is a list of breals or IC real vars: both representations are interval based
-	%ic:locate(VL, VL, 1000.0, log),
+	ic:locate(VL, VL, 1000.0, log),
+	!,
 	force_instantiation(VL, FL).
 
 %force the breals and IC Vars to become ground and returns a list corresponding floats as approximation
