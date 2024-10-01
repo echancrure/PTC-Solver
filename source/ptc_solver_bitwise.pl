@@ -51,10 +51,10 @@ all([V|R], Min, Max) :-
 %convert a decimal coded integer into its binary equivalent of length Len using Sign coding
 %I must be ground, Sign is signed or unsigned
 convert(I, Len, Sign, Ib) :-
-    (Sign == unsigned ->
+    (Sign == 'unsigned' ->
             convert2(I, Len, Ib)
     ;
-     Sign == signed ->
+     Sign == 'signed' ->
         (Len2 is Len - 1,
          convert2(I, Len2, I2), %with one less bit
          (I > 0 ->
