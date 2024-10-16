@@ -189,11 +189,8 @@ arithmetic(**(Le, Ri), X^Y, T):-
 	    T = r
 	).
 
-%C checked
-%'/' can apply to floats or integer operands, in C trunk towards 0 (e.g. -5/3 = -1)
-%ic: // "Integer division, rounding towards zero. This is only defined over integral arguments and yields an integral result."
-%ic: / "Division. Inside #-constraints, this only has a solution if the result is integral."
-%so I think safe to use ic / and if integers are involved it will evalaate to integer so no need for type checking
+%things are in flux
+%arithmetic/3 may no longer be needed soon: non-standard operators will have to preprocessed prior sending to solver
 arithmetic(/(Le, Ri), X / Y, T) :-
 	!,
 	arithmetic(Le, X, XT),
