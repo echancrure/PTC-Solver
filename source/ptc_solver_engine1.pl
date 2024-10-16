@@ -201,10 +201,7 @@ arithmetic(/(Le, Ri), X / Y, T) :-
 	    T = r
 	).
 
-%C checked
-%mod can only apply to integer operands and the resulting type is always integer
-%actually behave the same as ic:rem (even for negatives: takes the sign of the numerator)
-arithmetic(mod_op(Le, Ri), X rem Y, i) :-
+arithmetic(Le rem Ri, X rem Y, i) :-
 	!,
 	arithmetic(Le, X, i),
 	arithmetic(Ri, Y, i).
