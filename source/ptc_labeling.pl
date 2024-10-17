@@ -31,7 +31,7 @@ constrain_to_finite_domain([verif(_Type, Var)|R], [Var|Rest_vars]) :-
 			(Var #>= Hi - 20000000 ->
 				true
 			;
-				ptc_solver__warning("Unsound lower bound decreincreasease in integer labeling v2", Hi)
+				ptc_solver__warning("Unsound lower bound increase in integer labeling v2", Hi)
 			)
 		)
 	;
