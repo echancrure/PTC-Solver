@@ -13,7 +13,7 @@
 %L must be a list of integer decimal number including, possibly, a minus sign for negative numbers
 %Len must be one of : 8, 16, 32 or 64
 %Sign must be one of : signed or unsigned
-bitwise_check(L, Len, Sign) :-
+bitwise_check(L, Len, Sign) :-  %todo: is this necessary?
         ((Len == 8, Sign == signed) ->
                 all(L, -127, 127)
         ;
@@ -26,27 +26,24 @@ bitwise_check(L, Len, Sign) :-
         (Len == 16, Sign == unsigned) ->
                 all(L, 0, 65535)
         ;
-        (Len == 32 , Sign == signed) ->         %!!!loss %todo review these limitations
-                all(L, -65535, 65535)
+        (Len == 32 , Sign == signed) ->
+                all(L, -inf, inf)
         ;
-        (Len == 32, Sign == unsigned) ->        %!!!loss
-                all(L, 0, 65535)
+        (Len == 32, Sign == unsigned) ->
+                all(L, 0, inf)
         ;
-        (Len == 64, Sign == signed) ->          %!!!loss
-                all(L, -65535, 65535)
+        (Len == 64, Sign == signed) ->
+                all(L, -inf, inf)
         ;
-        (Len == 64, Sign == unsigned) ->        %!!!loss
-                all(L, 0, 65535)
+        (Len == 64, Sign == unsigned) ->
+                all(L, 0, inf)
         ),
         !.
 bitwise_check(_, Len, Sign) :-
     ptc_solver__verbose("Invalid Length or Sign in bitwise_check: ", [Len, Sign]).
 
-all([], _, _) :-
-        !.
-all([V|R], Min, Max) :-
-    V #:: Min..Max,
-    all(R, Min, Max).
+all(List, Min, Max) :-
+    List #:: Min..Max.
 %%%
 %convert a decimal coded integer into its binary equivalent of length Len using Sign coding
 %I must be ground, Sign is signed or unsigned
@@ -228,13 +225,13 @@ s_bwand(X, Y, Len, Sign, Z) :-
     s_bwand2(Xeval, Yeval, Len, Sign, Z).
 
 s_bwand2(X, Y, Len, Sign, Z) :-
-    ((not nonground(X), not nonground(Y)) ->
+    ((not nonground(X), not nonground(Y)) ->    %could use ECLiPSe default bitwise and if it has the correct semantics
         (convert(X, Len, Sign, X2),
          convert(Y, Len, Sign, Y2),
          list_and(X2, Y2, Z2),
          to_decimal(Z2, Sign, Z)
         )
-    ;
+    ;           %this could be so much clever: X bwand2 Y if the result can only be smaller
         suspend(s_bwand2(X, Y, Len, Sign, Z), 3, [X, Y, Z]->inst)
     ).
 
