@@ -231,7 +231,7 @@ s_bwand2(X, Y, Len, Sign, Z) :-
          list_and(X2, Y2, Z2),
          to_decimal(Z2, Sign, Z)
         )
-    ;           %this could be so much clever: X bwand2 Y if the result can only be smaller
+    ;           %this could be so much clever: X bwand2 Y: the result can only be smaller at least for unsigned
         suspend(s_bwand2(X, Y, Len, Sign, Z), 3, [X, Y, Z]->inst)
     ).
 
@@ -327,4 +327,4 @@ s_right_shift2(X, S, Len, Sign, Z) :-
     ;
         suspend(s_right_shift2(X, S, Len, Sign, Z), 3, [X, S]->inst)
     ).
-%%%%%%%%%%%%% THE END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
