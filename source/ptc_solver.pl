@@ -127,7 +127,7 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
     perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted) :-
         (To_type = unsigned(_) ->
             (ptc_solver__last(To_type, Last),
-             (From_type = unsigned(_) ->
+             (From_type = unsigned(_) ->    
                 Casted #= Symbolic_Eval rem (Last +1)    %from unsigned to unsigned: may wrap if To_type is smaller
              ;
                 (%casting from a signed type into an unsigned type
@@ -140,16 +140,38 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
                     Casted #= Symbolic_Eval rem (Last +1)                %e.g.cast(unsigned(char), _, 300, 212) because (300 rem 256) == 44
                  ;
                     (ptc_solver__variable([Casted], To_type),
-                     suspend(perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted), 3, Symbolic_Eval->inst)  %unclear what could be gained from waken this if Casted becomes ground
+                     suspend(perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted), 3, Symbolic_Eval->inst)  %unclear what could be gained from wakenning this if Casted becomes ground
                     )
                  )
                 )
              )
             )
         ;
-            (%casting to signed, integer, type
-             ptc_solver__variable([Casted], To_type),
-             Casted #= Symbolic_Eval
+            (%to a signed type
+            mytrace,
+             c_type_declaration(To_type, _, To_size, To_first, To_last),   %known to be signed
+             c_type_declaration(From_type, _, _, From_first, From_last),
+             ((From_first >= To_first, From_last =< To_last)  -> %e.g. a char to an int
+                Casted = Symbolic_Eval  %do nothing as overflow is not possible
+             ;
+                (%risk of overflow: we use GCC rules using decimal rules
+                 N is To_size * 8,
+                 Power2N is 2 ^ N, %e.g. 256 for char
+                 Modulo_symb #= Symbolic_Eval mod Power2N,  %the modulo is always positive
+                 Is_too_large #= (Modulo_symb #> To_last), %using reified constraint
+                 (Is_too_large == 1 ->
+                    Casted #= Modulo_symb - Power2N
+                 ;
+                  Is_too_large == 0 ->
+                    Casted = Modulo_symb
+                 ;
+                    %we don't know if it will overflow so we suspend
+                    (ptc_solver__variable([Casted], To_type),
+                     suspend(perform_integral_cast(To_type, From_type, Symbolic_Eval, Casted), 3, Symbolic_Eval->inst)  %unclear what could be gained from wakenning this if Casted becomes ground
+                    )
+                 )
+                )
+             ) 
             )
         ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
