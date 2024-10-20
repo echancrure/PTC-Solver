@@ -164,37 +164,6 @@ list_xor([B|R], [C|S], [D|T]) :-
     list_xor(R, S, T).
 
 %%%
-build_list(0, Z, Z, []).
-build_list(N, [_|Z], Z2, [0|R]) :-
-    N =\= 0,
-    N1 is N-1,
-    build_list(N1, Z, Z2, R).
-
-list_left_shift(Z2, S, Z3) :-
-    build_list(S, Z2, Old_bits, New_bits),
-    append(Old_bits, New_bits, Z3).
-
-%%%
-build_list_right(0, _, []) :-
-    !.
-build_list_right(N, V, [V|R]) :-
-    N =\= 0,
-    N1 is N-1,
-    build_list_right(N1, V, R).
-
-simple_right_shift(0, _, []) :-
-    !.
-simple_right_shift(N, [Z1|ZL], [Z1|R]) :-
-    N =\= 0,
-    N1 is N-1,
-    simple_right_shift(N1, ZL, R).
-
-list_right_shift(Z2, S, V, Result) :-
-    build_list_right(S, V, New_bits),
-    append(New_bits, Z2, Z3),
-    length(Z2, S1),
-    simple_right_shift(S1, Z3, Result).
-%%%
 %There is a lot of repeat code below refactoring should be performed
 %%%
 %Bitwise and, binary C operator &
@@ -261,50 +230,28 @@ s_bwxor2(X, Y, Len, Sign, Z) :-
 
 %%%
 %left shift, S is the amount of shifting, binary C operator <<
-%new bits coming from the right are zeros
-s_left_shift(X, S, Len, Sign, Z) :-
-    Xeval #= X+0,
-    Seval #= S+0,
-    Seval #>= 0,
-    Seval #=< Len,
-    bitwise_check([Xeval], Len, Sign),
-    s_left_shift2(Xeval, Seval, Len, Sign, Z).
-
-s_left_shift2(X, S, Len, Sign, Z) :-
-    ((not nonground(X), not nonground(S)) ->
-        (convert(X, Len, Sign, Z2),
-         list_left_shift(Z2, S, Z3),
-         to_decimal(Z3, Sign, Z)
-        )
-    ;
-        suspend(s_left_shift2(X, S, Len, Sign, Z), 3, [X, S]->inst)
-    ).
-
+s_left_shift(Le, S, Len, _Sign, R) :-
+    S #>= 0,	            %todo what if not? It is undefined but what does this mean in gcc?
+    S #< Len, 
+    Mult #= 2 ^ S,
+    R #= Le * Mult.     %todo check for overflow
 %%%
 %right shift, S is the amount of shifting, binary C operator >>
-%new bits coming from the right are zeros if unsigned or the sign bit otherwise if signed
-s_right_shift(X, S, Len, Sign, Z) :-
-    Xeval #= X+0,
-    Seval #= S+0,
-    Seval #>= 0,
-    Seval #=< Len,
-    bitwise_check([Xeval], Len, Sign),
-    s_right_shift2(Xeval, Seval, Len, Sign, Z).
-
-s_right_shift2(X, S, Len, Sign, Z) :-
-    ((not nonground(X), not nonground(S)) ->
-        (convert(X, Len, Sign, Z2),
-         (Sign == unsigned ->
-            list_right_shift(Z2, S, 0, Z3)
-         ;
-          Sign == signed ->
-            (Z2 = [V|_],
-             list_right_shift(Z2, S, V, Z3)
-            )
-         ),
-         to_decimal(Z3, Sign, Z)
-        )
+s_right_shift(Le, S, Len, Sign, R) :-
+    S #>= 0,	            %todo what if not? It is undefined but what does this mean in gcc?
+    S #< Len, 
+    (Sign = 'unsigned' ->
+        R #= Le // (2 ^ S)	%same as div by 2 power amount of right shift
     ;
-        suspend(s_right_shift2(X, S, Len, Sign, Z), 3, [X, S]->inst)
+        (Is_positive #= (Le #>= 0), %using reified constraint
+         (Is_positive == 1 ->
+            R #= Le // (2 ^ S)	    %same as div by 2 power amount of right shift
+         ;
+          Is_positive == 0 ->	    %the operand is negative: should use floor division: todo (is the number is wholly divisible that's fine if not, reduce by -1)
+            R #= (Le // (2 ^ S)) - 1	%unsound if number is wholly divisible to fix
+         ;
+            suspend(s_right_shift(Le, S, Len, Sign, R), 3, [Le, R]->inst)	%probably more constraints e.g. R and Le have the same sign
+         )
+        )
     ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

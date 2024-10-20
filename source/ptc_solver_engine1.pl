@@ -361,11 +361,24 @@ arithmetic(bw_xor(Le, Ri, Len, Sign), R, i) :-
 
 arithmetic(left_shift(Le, S, Len, Sign), R, i) :-
     !,
-    s_left_shift(Le, S, Len, Sign, R).
+	mytrace,
+	(compound(Le) ->
+		Le_eval = eval(Le)
+	 ;
+		Le_eval = Le
+	),
+	(compound(S) ->
+		S_eval = eval(S)
+	 ;
+		S_eval = S
+	),
+    s_left_shift(Le_eval, S_eval, Len, Sign, R).
 
 arithmetic(right_shift(Le, S, Len, Sign), R, i) :-
     !,
-    s_right_shift(Le, S, Len, Sign, R).
+	Le_eval #= eval(Le),
+	S_eval #= eval(S),
+	s_right_shift(Le_eval, S_eval, Len, Sign, R).
 
 %not a variable, not a number, not a compound, must be an atom i.e. a literal e.g. 'monday'
 arithmetic(Literal, Literal, e) :-
