@@ -347,10 +347,6 @@ arithmetic(val(Basetype, Ri), R, T) :-
 	).
 
 %%%bitwise
-arithmetic(bw_not(Le, Len, Sign), R, i) :-
-    !,
-    s_bwnot(Le, Len, Sign, R).
-
 arithmetic(bw_and(Le, Ri, Len, Sign), R, i) :-
     !,
     s_bwand(Le, Ri, Len, Sign, R).

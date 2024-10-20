@@ -194,26 +194,6 @@ list_right_shift(Z2, S, V, Result) :-
     append(New_bits, Z2, Z3),
     length(Z2, S1),
     simple_right_shift(S1, Z3, Result).
-
-%%%
-%Bitwise negation, unary C operator ~
-s_bwnot(X, Len, Sign, Z) :-
-    Xeval #= X+0,
-    bitwise_check([Xeval], Len, Sign),
-    s_bwnot2(Xeval, Len, Sign, Z).
-
-s_bwnot2(X, Len, Sign, Z) :-
-    (not nonground(X) ->
-        (convert(X, Len, Sign, Z2),
-         list_negate(Z2, Z3),
-         to_decimal(Z3, Sign, Z)
-        )
-    ;
-     not nonground(Z) ->
-        s_bwnot(Z, Len, Sign, X)
-    ;
-        suspend(s_bwnot2(X, Len, Sign, Z), 3, [X, Z]->inst)
-    ).
 %%%
 %There is a lot of repeat code below refactoring should be performed
 %%%
