@@ -361,7 +361,7 @@ arithmetic(bw_xor(Le, Ri, Len, Sign), R, i) :-
 
 arithmetic(left_shift(Le, S, Len, Sign), R, i) :-
     !,
-	mytrace,
+	%mytrace,
 	(compound(Le) ->
 		Le_eval = eval(Le)
 	 ;

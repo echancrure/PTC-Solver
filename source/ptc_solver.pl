@@ -148,7 +148,7 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
             )
         ;
             (%to a signed type
-            mytrace,
+            %mytrace,
              c_type_declaration(To_type, _, To_size, To_first, To_last),   %known to be signed
              c_type_declaration(From_type, _, _, From_first, From_last),
              ((From_first >= To_first, From_last =< To_last)  -> %e.g. a char to an int
