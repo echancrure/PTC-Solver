@@ -157,7 +157,7 @@ ptc_solver__perform_cast(cast(To_type, From_type), Symbolic_expression, _Casted)
                 (%risk of overflow: we use GCC rules using decimal rules
                  N is To_size * 8,
                  Power2N is 2 ^ N, %e.g. 256 for char
-                 Modulo_symb #= Symbolic_Eval mod Power2N,  %the modulo is always positive
+                 Modulo_symb #= Symbolic_Eval - Power2N*(Symbolic_Eval//Power2N),  %modulo operation
                  Is_too_large #= (Modulo_symb #> To_last), %using reified constraint
                  (Is_too_large == 1 ->
                     Casted #= Modulo_symb - Power2N
